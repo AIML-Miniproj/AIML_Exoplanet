@@ -102,10 +102,10 @@ if __name__ == "__main__":
     bls_output            = run_bls(lc_flat)
     folded, features, physical = analyze_transit(lc_flat, bls_output)
 
-    print("\n── Physical Parameters ──────────────────")
+    print("\n-- Physical Parameters ------------------")
     for k, v in physical.items():
         print(f"  {k:<25}: {v:.5f}")
 
-    print("\n── ML Features ──────────────────────────")
+    print("\n-- ML Features --------------------------")
     for k, v in features.items():
         print(f"  {k:<20}: {v:.6f}")

@@ -4,7 +4,7 @@ STAR_NAME         = "HD 209458"
 MISSION           = "TESS"
 
 # Preprocessing
-WINDOW_LENGTH     = 201
+FLATTEN_WINDOW_DAYS = 1.0   # must be several times longer than the transit
 SIGMA_CLIP_VAL    = 5.0
 
 # BLS Detection

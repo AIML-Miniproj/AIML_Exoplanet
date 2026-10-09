@@ -1,7 +1,7 @@
 # src/preprocessor.py
 
 import numpy as np
-from config import WINDOW_LENGTH, SIGMA_CLIP_VAL
+from config import FLATTEN_WINDOW_DAYS, SIGMA_CLIP_VAL
 
 def preprocess(lc):
     """
@@ -20,8 +20,12 @@ def preprocess(lc):
     print(f"[Preprocessor] Removed {np.sum(~mask)} outlier cadences")
 
     # Step 3: Flatten — remove long-term stellar variability
+    # Window is set in days so it stays longer than the transit at any cadence
+    cadence       = np.median(np.diff(lc_clipped.time.value))
+    window_length = int(FLATTEN_WINDOW_DAYS / cadence) | 1   # must be odd
+    window_length = min(window_length, (len(lc_clipped) - 1) | 1)
     lc_flat, trend = lc_clipped.flatten(
-        window_length=WINDOW_LENGTH,
+        window_length=window_length,
         return_trend=True
     )
     print(f"[Preprocessor] Remaining cadences: {len(lc_flat)}")

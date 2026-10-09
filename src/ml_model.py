@@ -59,6 +59,7 @@ def build_dataset(true_features, lc_flat, bls_output):
     """
     Generates synthetic positive and negative training samples.
     """
+    rng             = np.random.default_rng(RANDOM_STATE)
     samples, labels = [], []
     best_period     = bls_output["best_period"]
     t0              = bls_output["t0"]
@@ -67,7 +68,7 @@ def build_dataset(true_features, lc_flat, bls_output):
     # Positive samples — perturb true features
     for _ in range(N_AUGMENTATIONS):
         perturbed = {
-            k: v + np.random.normal(0, abs(v) * 0.05 + 1e-7)
+            k: v + rng.normal(0, abs(v) * 0.05 + 1e-7)
             for k, v in true_features.items()
         }
         samples.append([perturbed[f] for f in FEATURE_NAMES])
@@ -87,7 +88,7 @@ def build_dataset(true_features, lc_flat, bls_output):
             continue
         for _ in range(per_class):
             perturbed = {
-                k: v + np.random.normal(0, abs(v) * 0.05 + 1e-7)
+                k: v + rng.normal(0, abs(v) * 0.05 + 1e-7)
                 for k, v in feats.items()
             }
             samples.append([perturbed[f] for f in FEATURE_NAMES])
@@ -95,7 +96,7 @@ def build_dataset(true_features, lc_flat, bls_output):
 
     X = np.array(samples)
     y = np.array(labels)
-    print(f"[ML] Dataset → {np.sum(y==1)} positives | {np.sum(y==0)} negatives")
+    print(f"[ML] Dataset -> {np.sum(y==1)} positives | {np.sum(y==0)} negatives")
     return X, y
 
 
@@ -144,7 +145,7 @@ def train_model(X, y):
     plt.savefig(os.path.join(OUTPUT_DIR, "confusion_matrix.png"),
                 bbox_inches="tight")
     plt.close()
-    print(f"[ML] Saved confusion matrix → {OUTPUT_DIR}confusion_matrix.png")
+    print(f"[ML] Saved confusion matrix -> {OUTPUT_DIR}confusion_matrix.png")
 
     # Feature importance
     importance = model.feature_importances_
@@ -156,10 +157,10 @@ def train_model(X, y):
     plt.savefig(os.path.join(OUTPUT_DIR, "feature_importance.png"),
                 bbox_inches="tight")
     plt.close()
-    print(f"[ML] Saved feature importance → {OUTPUT_DIR}feature_importance.png")
+    print(f"[ML] Saved feature importance -> {OUTPUT_DIR}feature_importance.png")
 
     joblib.dump(model, MODEL_PATH)
-    print(f"[ML] Model saved → {MODEL_PATH}")
+    print(f"[ML] Model saved -> {MODEL_PATH}")
 
     return model
 
@@ -192,6 +193,6 @@ if __name__ == "__main__":
     model   = train_model(X, y)
     label, confidence = predict(features)
 
-    verdict = "✅ Transit Detected" if label == 1 else "❌ Noise"
+    verdict = "Transit Detected" if label == 1 else "Noise"
     print(f"\n[ML] Prediction  : {verdict}")
     print(f"[ML] Confidence  : {confidence}%")

@@ -74,6 +74,6 @@ if __name__ == "__main__":
 
     lc = fetch_lightcurve(STAR_NAME)
 
-    print(f"\nTime range : {lc.time.value[0]:.2f} → {lc.time.value[-1]:.2f} BTJD")
+    print(f"\nTime range : {lc.time.value[0]:.2f} -> {lc.time.value[-1]:.2f} BTJD")
     print(f"Cadences   : {len(lc)}")
     print(f"Flux mean  : {lc.flux.value.mean():.4f}")

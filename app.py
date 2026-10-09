@@ -28,7 +28,7 @@ st.markdown("Detects planetary transits from TESS photometric data using **BLS +
 with st.sidebar:
     st.header("⚙️ Configuration")
     star_input = st.text_input("Star Name", value=STAR_NAME)
-    run_btn    = st.button("🚀 Analyze", use_container_width=True)
+    run_btn    = st.button("🚀 Analyze", width="stretch")
     st.markdown("---")
     st.caption("Data: NASA TESS via MAST Archive")
     st.caption("ML: XGBoost Classifier")
@@ -134,7 +134,7 @@ if run_btn:
                 "Rank"         : [1, 2, 3],
                 "Period (days)": [f"{p:.5f}" for p in bls_output["top3_periods"]],
                 "BLS Power"    : [f"{pw:.4f}" for pw in bls_output["top3_powers"]]
-            }), use_container_width=True)
+            }), width="stretch")
 
         # ── TAB 3 — Phase-Folded Transit ─────────────────────
         with tab3:

@@ -21,7 +21,7 @@ def run_bls(lc_flat):
         bls    = BoxLeastSquares(t, f)
         result = bls.power(periods, dur)
         peak   = np.max(result.power)
-        print(f"[Detector] Duration {dur}d → Peak power: {peak:.4f}")
+        print(f"[Detector] Duration {dur}d -> Peak power: {peak:.4f}")
         if peak > best_power:
             best_power  = peak
             best_result = result
