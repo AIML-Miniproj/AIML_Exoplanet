@@ -1,0 +1,10 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-m 'not network' -p no:cacheprovider"
+markers = [
+    "network: needs internet access (MAST, NASA Exoplanet Archive, Gaia); run with -m network",
+    "slow: takes more than a few seconds",
+]
+filterwarnings = [
+    "ignore:.*tpfmodel submodule is not available.*",
+]

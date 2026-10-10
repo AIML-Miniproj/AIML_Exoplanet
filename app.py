@@ -1,206 +1,157 @@
-# app.py
+"""Streamlit app (interim technical UI; the guided multipage UI comes in Phase 6).
 
-import streamlit as st
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+The app never trains anything. It calls ``src.pipeline.analyze_target`` and
+renders the returned TargetReport.
+"""
+
 import numpy as np
 import pandas as pd
-import os
+import plotly.graph_objects as go
+import streamlit as st
 
-from config import STAR_NAME, MODEL_PATH, OUTPUT_DIR
-from src.fetcher import fetch_lightcurve
-from src.preprocessor import preprocess
-from src.detector import run_bls
-from src.analyzer import analyze_transit
-from src.ml_model import build_dataset, train_model, predict
+from config import CONFIG, PRESETS
+from src.errors import PipelineError
+from src.log import setup_logging
+from src.pipeline import analyze_target
 
-# ── Page config ───────────────────────────────────────────────
-st.set_page_config(
-    page_title = "Exoplanet Transit Detector",
-    page_icon  = "🪐",
-    layout     = "wide"
-)
+setup_logging()
 
-st.title("🪐 Exoplanet Transit Detection Pipeline")
-st.markdown("Detects planetary transits from TESS photometric data using **BLS + XGBoost**")
+st.set_page_config(page_title="Exoplanet Transit Detector", page_icon="🪐", layout="wide")
+st.title("Exoplanet Transit Detection Pipeline")
+st.markdown("Searches all available TESS sectors of a star for repeating dips, "
+            "measures them, and sorts the signal into planet / eclipsing binary / "
+            "variable star / noise.")
 
-# ── Sidebar ───────────────────────────────────────────────────
 with st.sidebar:
-    st.header("⚙️ Configuration")
-    star_input = st.text_input("Star Name", value=STAR_NAME)
-    run_btn    = st.button("🚀 Analyze", width="stretch")
-    st.markdown("---")
-    st.caption("Data: NASA TESS via MAST Archive")
-    st.caption("ML: XGBoost Classifier")
-    st.caption("Single sector mode")
+    st.header("Configuration")
+    star_input = st.text_input("Star name or TIC ID", value=CONFIG.star_name,
+                               help="For example 'HD 209458' or 'TIC 420814525'.")
+    preset = st.selectbox("Preset", list(PRESETS), index=1,
+                          help="Quick: up to 3 sectors. Standard: up to 10. "
+                               "Thorough: all sectors and up to 3 signals.")
+    run_btn = st.button("Analyze", width="stretch", type="primary")
+    st.caption("Data: NASA TESS via the MAST archive")
 
-# ── Tabs ─────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4 = st.tabs([
-    "📈 Light Curves",
-    "🔍 BLS Detection",
-    "🌀 Phase-Folded Transit",
-    "🤖 Results"
-])
+
+def line_fig(x, y, xlabel, ylabel, title, mode="markers", color="#4c78a8", size=2):
+    fig = go.Figure(go.Scattergl(x=x, y=y, mode=mode,
+                                 marker=dict(size=size, color=color), line=dict(color=color)))
+    fig.update_layout(title=title, xaxis_title=xlabel, yaxis_title=ylabel, height=320,
+                      margin=dict(l=10, r=10, t=40, b=10))
+    return fig
+
+
+def render(report):
+    pdx = report.plot_data
+    sig = report.signals[0]
+    tab1, tab2, tab3, tab4 = st.tabs(["Light curves", "Detection", "Folded dip", "Results"])
+
+    with tab1:
+        st.subheader("Brightness over time")
+        ln = pdx["lc_norm"]
+        st.plotly_chart(line_fig(ln["time"], ln["flux"], "Time (BTJD)", "Relative brightness",
+                                 "Cleaned light curve (stellar variability kept)",
+                                 color="gray"), width="stretch")
+        lf = pdx["lc_flat"]
+        st.plotly_chart(line_fig(lf["time"], lf["flux"], "Time (BTJD)", "Relative brightness",
+                                 "Flattened light curve (used for the dip search)"),
+                        width="stretch")
+        st.info(f"Sectors used: {[s['sector'] for s in report.sectors]} | "
+                f"Cadences after cleaning: {report.preprocessing.get('n_cadences')} | "
+                f"Outliers removed: {report.preprocessing.get('n_clipped')}")
+
+    with tab2:
+        st.subheader("Box Least Squares periodogram")
+        pg = pdx["periodogram"]
+        fig = line_fig(pg["period"], pg["power"], "Period (days)", "BLS power", "Periodogram",
+                       mode="lines", color="navy")
+        fig.add_vline(x=sig["period"], line_dash="dash", line_color="red")
+        fig.update_xaxes(type="log")
+        st.plotly_chart(fig, width="stretch")
+        st.dataframe(pd.DataFrame([{"Rank": i + 1, "Period (days)": round(p["period"], 5),
+                                    "Power": round(p["power"], 1)}
+                                   for i, p in enumerate(sig["top_peaks"])]),
+                     width="stretch", hide_index=True)
+        if len(report.signals) > 1:
+            st.markdown("**Additional signals**")
+            st.dataframe(pd.DataFrame([{"Period (days)": round(s["period"], 5),
+                                        "Depth (ppm)": round(s["depth_ppm"]),
+                                        "SDE": round(s["sde"], 1)}
+                                       for s in report.signals[1:]]), hide_index=True)
+
+    with tab3:
+        st.subheader(f"Folded at P = {sig['period']:.5f} days")
+        fd = pdx["fold"]
+        fig = line_fig(fd["phase"], fd["flux"], "Phase", "Relative brightness",
+                       "All dips stacked", color="lightgray")
+        fig.add_trace(go.Scatter(x=fd["bin_phase"], y=fd["bin_flux"], mode="lines",
+                                 line=dict(color="red", width=2), name="Binned"))
+        st.plotly_chart(fig, width="stretch")
+        tz = pdx.get("trapezoid") or {}
+        fz = pdx["fold_zoom"]
+        fig = line_fig(fz["hours"], fz["flux"], "Hours from mid-dip", "Relative brightness",
+                       "Close-up of the dip", color="lightgray")
+        if tz.get("x"):
+            fig.add_trace(go.Scatter(x=np.array(tz["x"]) * 24, y=tz["model"], mode="lines",
+                                     line=dict(color="red", width=2), name="Trapezoid fit"))
+        st.plotly_chart(fig, width="stretch")
+
+    with tab4:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("### Signal")
+            ph = report.physical
+
+            def fmt(key, pattern):
+                v = ph.get(key)
+                return pattern.format(v) if v is not None and np.isfinite(v) else "n/a"
+
+            rows = [("Period", fmt("period_d", "{:.5f} d")),
+                    ("Dip depth", fmt("depth_ppm", "{:.0f} ppm")),
+                    ("Detection strength (SDE)", f"{sig['sde']:.1f}"),
+                    ("Size if it is a planet (Earth radii)", fmt("rp_rearth", "{:.2f}")),
+                    ("Size if it is a planet (Jupiter radii)", fmt("rp_rjup", "{:.2f}")),
+                    ("Orbit size", fmt("a_au", "{:.4f} AU")),
+                    ("Temperature", fmt("t_eq_k", "{:.0f} K"))]
+            st.table(pd.DataFrame(rows, columns=["Quantity", "Value"]).set_index("Quantity"))
+        with col2:
+            st.markdown("### Classification")
+            tri = report.triage
+            if tri.get("status") == "ok":
+                st.metric("Most likely", tri["predicted_class"].replace("_", " ").title(),
+                          f"{tri['confidence']} confidence", delta_color="off")
+                st.bar_chart(pd.Series(tri["probabilities"]), horizontal=True)
+            else:
+                st.warning("No trained classifier found. Build one with:")
+                st.code("python scripts/build_labels.py\npython scripts/build_features.py\n"
+                        "python scripts/train_triage.py", language="bash")
+        with st.expander("All vetting features"):
+            st.dataframe(pd.Series(report.features, name="value"), width="stretch")
+        star = report.star
+        st.caption(f"TIC {report.tic_id} | Tmag {star.get('tmag')} | Teff {star.get('teff')} K | "
+                   f"R {star.get('rad')} Rsun | flags: {', '.join(star.get('flags', [])) or 'none'}"
+                   f" | runtime {report.timings.get('total_s')} s")
+
 
 if run_btn:
+    progress = st.progress(0.0, text="Starting...")
     try:
-        # FETCH
-        with st.spinner("📡 Fetching TESS data..."):
-            lc_raw = fetch_lightcurve(star_input)
+        report = analyze_target(star_input, preset=preset,
+                                progress_cb=lambda stage, frac: progress.progress(frac, text=stage))
+        st.session_state["report"] = report
+        progress.empty()
+    except PipelineError as e:
+        progress.empty()
+        st.error(f"{e.user_message} {e.suggestion}")
+        with st.expander("Show technical details"):
+            st.code(str(e))
+    except Exception as e:  # noqa: BLE001
+        progress.empty()
+        st.error("Something unexpected went wrong. Try again or pick another star.")
+        with st.expander("Show technical details"):
+            st.exception(e)
 
-        # PREPROCESS
-        with st.spinner("🧹 Preprocessing..."):
-            lc_normalized, lc_flat, trend = preprocess(lc_raw)
-
-        # DETECT
-        with st.spinner("🔍 Running BLS periodogram (this takes ~30s)..."):
-            bls_output = run_bls(lc_flat)
-
-        # ANALYZE
-        with st.spinner("📐 Analyzing transit..."):
-            folded, features, physical = analyze_transit(lc_flat, bls_output)
-
-        # ML
-        with st.spinner("🤖 Training XGBoost..."):
-            X, y       = build_dataset(features, lc_flat, bls_output)
-            model      = train_model(X, y)
-            ml_label, ml_confidence = predict(features)
-
-        st.success("✅ Analysis complete!")
-
-        best_period = bls_output["best_period"]
-        phase       = folded.phase.value
-        flux_f      = folded.flux.value
-
-        # Binned curve for phase fold plot
-        bins        = np.linspace(-0.5, 0.5, 100)
-        bin_centers = 0.5 * (bins[:-1] + bins[1:])
-        bin_means   = [
-            np.median(flux_f[(phase >= bins[i]) & (phase < bins[i+1])])
-            if np.any((phase >= bins[i]) & (phase < bins[i+1])) else np.nan
-            for i in range(len(bins) - 1)
-        ]
-
-        # ── TAB 1 — Light Curves ─────────────────────────────
-        with tab1:
-            st.subheader("Raw vs Cleaned Light Curve")
-            col1, col2 = st.columns(2)
-
-            with col1:
-                st.markdown("**Before Preprocessing**")
-                fig, ax = plt.subplots(figsize=(7, 3))
-                ax.plot(lc_normalized.time.value,
-                        lc_normalized.flux.value,
-                        color="gray", lw=0.5, alpha=0.8)
-                ax.set_xlabel("Time (BTJD)")
-                ax.set_ylabel("Normalized Flux")
-                ax.set_title("Raw Light Curve")
-                st.pyplot(fig)
-                plt.close()
-
-            with col2:
-                st.markdown("**After Sigma Clipping + Flattening**")
-                fig, ax = plt.subplots(figsize=(7, 3))
-                ax.plot(lc_flat.time.value,
-                        lc_flat.flux.value,
-                        color="steelblue", lw=0.5, alpha=0.8)
-                ax.set_xlabel("Time (BTJD)")
-                ax.set_ylabel("Normalized Flux")
-                ax.set_title("Cleaned Light Curve")
-                st.pyplot(fig)
-                plt.close()
-
-            st.info(f"📦 Single sector | Cadences after cleaning: {len(lc_flat)}")
-
-        # ── TAB 2 — BLS Detection ────────────────────────────
-        with tab2:
-            st.subheader("Box Least Squares Periodogram")
-            bls_result = bls_output["bls_result"]
-
-            fig, ax = plt.subplots(figsize=(10, 4))
-            ax.plot(bls_result.period, bls_result.power,
-                    color="navy", lw=0.8, alpha=0.9)
-            ax.axvline(best_period, color="red", linestyle="--", lw=1.5,
-                       label=f"Best period: {best_period:.4f} d")
-            ax.set_xlabel("Period (days)")
-            ax.set_ylabel("BLS Power")
-            ax.set_title("BLS Periodogram")
-            ax.legend()
-            st.pyplot(fig)
-            plt.close()
-
-            st.markdown("**Top 3 Candidate Periods**")
-            st.dataframe(pd.DataFrame({
-                "Rank"         : [1, 2, 3],
-                "Period (days)": [f"{p:.5f}" for p in bls_output["top3_periods"]],
-                "BLS Power"    : [f"{pw:.4f}" for pw in bls_output["top3_powers"]]
-            }), width="stretch")
-
-        # ── TAB 3 — Phase-Folded Transit ─────────────────────
-        with tab3:
-            st.subheader(f"Phase-Folded Transit  |  P = {best_period:.5f} days")
-
-            fig, ax = plt.subplots(figsize=(10, 4))
-            ax.scatter(phase, flux_f, s=2, color="gray",
-                       alpha=0.3, label="Data")
-            ax.plot(bin_centers, bin_means, color="red",
-                    lw=2, label="Binned median")
-            ax.axvspan(-0.02, 0.02, alpha=0.12,
-                       color="cyan", label="Transit window")
-            ax.set_xlabel("Phase")
-            ax.set_ylabel("Normalized Flux")
-            ax.set_title("Phase-Folded Light Curve")
-            ax.legend()
-            st.pyplot(fig)
-            plt.close()
-
-        # ── TAB 4 — Results ──────────────────────────────────
-        with tab4:
-            st.subheader("Analysis Results")
-            col1, col2 = st.columns(2)
-
-            with col1:
-                st.markdown("### 🔭 Physical Parameters")
-                st.markdown(f"""
-| Parameter | Value |
-|---|---|
-| Period | `{physical['period']:.5f}` days |
-| Transit Depth | `{physical['depth']*100:.4f}%` |
-| Rp/Rs (measured) | `{physical['rp_over_rs']:.4f}` |
-| Rp/Rs (NASA) | `{physical['rp_over_rs_literature']:.4f}` |
-| Error | `{physical['error_percent']:.2f}%` |
-| Semi-major axis | `{physical['semi_major_axis_AU']:.4f}` AU |
-| Eq. Temperature | `{physical['eq_temperature_K']:.1f}` K |
-""")
-
-            with col2:
-                st.markdown("### 🤖 ML Classification")
-                verdict = "✅ Transit Detected" if ml_label == 1 else "❌ Noise"
-                if ml_label == 1:
-                    st.success(f"**{verdict}**")
-                else:
-                    st.error(f"**{verdict}**")
-                st.metric("Confidence",    f"{ml_confidence}%")
-                st.metric("SNR",           f"{features['snr']:.2f}")
-                st.metric("Symmetry Score",f"{features['symmetry']:.4f}")
-
-            st.markdown("---")
-            st.markdown("### 📊 Model Evaluation")
-            col3, col4 = st.columns(2)
-
-            with col3:
-                cm_path = os.path.join(OUTPUT_DIR, "confusion_matrix.png")
-                if os.path.exists(cm_path):
-                    st.image(cm_path, caption="Confusion Matrix")
-
-            with col4:
-                fi_path = os.path.join(OUTPUT_DIR, "feature_importance.png")
-                if os.path.exists(fi_path):
-                    st.image(fi_path, caption="Feature Importance (Gain)")
-
-    except Exception as e:
-        st.error(f"❌ Error: {str(e)}")
-        st.exception(e)
-
-else:
-    st.info("👈 Enter a star name in the sidebar and click **Analyze** to begin.")
+if "report" in st.session_state:
+    render(st.session_state["report"])
+elif not run_btn:
+    st.info("Enter a star name in the sidebar and click **Analyze** to begin.")

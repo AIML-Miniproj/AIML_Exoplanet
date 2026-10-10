@@ -2,10 +2,11 @@
 venv/
 env/
 
-# Cached TESS data (large files, re-downloadable)
-data/
+# Downloaded / generated data (re-creatable). data/examples/ is committed.
+data/*
+!data/examples/
 
-# Saved ML model (regenerates on run)
+# Trained models (re-creatable with scripts/train_triage.py)
 models/
 
 # Output plots (regenerate on run)
@@ -29,5 +30,9 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Streamlit cache
-.streamlit/
+# Streamlit secrets (config.toml is committed)
+.streamlit/secrets.toml
+
+# Test / lint caches
+.pytest_cache/
+.ruff_cache/
