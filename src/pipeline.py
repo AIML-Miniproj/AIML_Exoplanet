@@ -10,6 +10,7 @@ from typing import Any
 import numpy as np
 
 from config import CONFIG, Config
+from src.recycler.planet_module import physical_parameters
 from src.report import TargetReport
 
 log = logging.getLogger(__name__)
@@ -19,27 +20,6 @@ ProgressCallback = Callable[[str, float], None]
 
 def _noop(stage: str, frac: float) -> None:
     pass
-
-
-def physical_parameters(signal, star) -> dict[str, float]:
-    """Planet-like interpretation of the dip using the star's catalog values."""
-    from src import physics
-
-    nan = float("nan")
-    rad = getattr(star, "rad", nan)
-    mass = getattr(star, "mass", nan)
-    teff = getattr(star, "teff", nan)
-    out = {"period_d": signal.period, "depth_ppm": signal.depth * 1e6,
-           "rp_over_rs": physics.radius_ratio(signal.depth),
-           "rp_rearth": nan, "rp_rjup": nan, "a_au": nan, "t_eq_k": nan}
-    if np.isfinite(rad):
-        out["rp_rearth"] = physics.planet_radius_rearth(signal.depth, rad)
-        out["rp_rjup"] = out["rp_rearth"] * physics.R_EARTH_M / physics.R_JUP_M
-    if np.isfinite(mass):
-        out["a_au"] = physics.semi_major_axis_au(signal.period, mass)
-        if np.isfinite(teff) and np.isfinite(rad):
-            out["t_eq_k"] = physics.equilibrium_temp_k(teff, rad, out["a_au"])
-    return out
 
 
 def classify(features: dict[str, float], cfg: Config = CONFIG) -> dict[str, Any]:
@@ -200,6 +180,11 @@ def analyze_target(target: str, preset: str = "standard",
     report.signals[0]["detected"] = bool(signal.detected(cfg))
     report.features = features
     report.physical = physical_parameters(signal, info)
+
+    cb("Working out what it is", 0.95)
+    from src.recycler.recycle import recycle
+    recycle(report, pre, info, cfg)
+    lap("recycle")
     report.plot_data = _plot_data(pre, result, signal, details, cfg)
     report.timings = dict(timings, total_s=round(time.perf_counter() - t_start, 2))
     cb("Writing your report", 1.0)

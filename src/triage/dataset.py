@@ -16,6 +16,7 @@ Recovery check:
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 import logging
 import time
 from pathlib import Path
@@ -73,7 +74,8 @@ def run_one(row: dict[str, Any], preset: str, cfg: Config, out_dir: Path) -> dic
            "catalog_period": row.get("catalog_period"), "status": "ok", "reason": ""}
     t0 = time.perf_counter()
     try:
-        rep = analyze_target(f"TIC {tic}", preset=preset, cfg=cfg)
+        # training runs are not real results: keep them out of the recycler log
+        rep = analyze_target(f"TIC {tic}", preset=preset, cfg=replace(cfg, recycler_log=False))
         sig = rep.signals[0]
         out.update({f: rep.features.get(f) for f in FEATURE_NAMES})
         out.update({

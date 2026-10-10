@@ -107,6 +107,12 @@ The period the pipeline finds on its own, compared with the catalog value:
   uses it only when it gives a clearly stronger detection, so a binary whose
   light curve is itself almost a sine wave is not erased. This helps with enough
   data, but not always: TOI 862.01 (below) is found with 10 sectors, not with 2.
+- **Shallow planets can be mistaken for noise.** In the latest training run, 6
+  of the 25 planets were called "noise" (3 in the run before). These are mostly
+  planets with shallow dips, which look much like the small, irregular dips in
+  noisy light curves. The router therefore never sends a weak planet signal
+  straight to "noise": if "planet" is among the two most likely answers and the
+  model is unsure, the star is marked "needs review" instead.
 - **Weak second signals.** With the standard settings the search looks for a
   second signal after removing the first. On HD 209458 it reports a weak one
   (14.7 days, about 260 ppm, just above the detection threshold) that is
@@ -146,6 +152,22 @@ the verdict. It is shown in the app as a tricky case.
 | 25 binaries never used for training or design | **23 / 25** | 20 / 4 (1 at another ratio) |
 | 25 training binaries (*seen while designing the rule*) | 22 / 25 | 15 / 10 |
 
+## After the classifier: the recycler modules
+
+The classifier's answer goes to a router and then to one module per class.
+These modules use simple, stated rules, not trained models (25 examples per
+class are too few to learn sub-types). Checked against catalog labels:
+
+| Module | What it decides | Agreement with the catalog |
+|---|---|---|
+| Eclipsing binary | Orbital period (detected or twice it) | 23 / 25 on binaries never used in design |
+| Eclipsing binary | Type: detached / semi-detached / contact | 28 / 50 (training + fresh binaries). Every miss is one step too "close": 10 detached called semi-detached, 12 semi-detached called contact; never two steps off |
+| Variable star | Type: rotation, delta Scuti / gamma Doradus, RR Lyrae, Cepheid, other | 18 / 25: RR Lyrae 4/4, Cepheid 4/4, rotation 6/8, delta Scuti / gamma Doradus 4/7, other 0/2 |
+
+The router never sends a possible planet straight to "noise": when the model is
+unsure (top probability below 50%) the star is marked "needs review" and both
+likely modules run. Unsure and noise results are logged for later review.
+Eclipse-timing analysis (looking for a third body) is not included yet.
 <!-- METRICS_END -->
 
 ## What the model does

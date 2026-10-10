@@ -44,6 +44,10 @@ class TargetReport:
     features: dict[str, Any] = field(default_factory=dict)
     physical: dict[str, Any] = field(default_factory=dict)
     triage: dict[str, Any] = field(default_factory=dict)
+    routing: dict[str, Any] = field(default_factory=dict)
+    modules: dict[str, Any] = field(default_factory=dict)
+    plain_summary: str = ""
+    key_facts: list[tuple[str, str, str, str]] = field(default_factory=list)
     plot_data: dict[str, Any] = field(default_factory=dict)
     timings: dict[str, float] = field(default_factory=dict)
     versions: dict[str, str] = field(default_factory=dict)
@@ -64,6 +68,8 @@ class TargetReport:
             "depth_ppm": sig.get("depth_ppm"), "sde": sig.get("sde"),
             "predicted_class": self.triage.get("predicted_class"),
             "confidence": self.triage.get("confidence"),
+            "routed_to": self.routing.get("primary_class"),
+            "summary": self.plain_summary,
         }
         return _clean(row)
 

@@ -133,8 +133,12 @@ class Config:
     eb_contamination_target: float = 0.05
 
     # ── Routing / UI ─────────────────────────────────────────
-    uncertain_threshold: float = 0.5
-    conf_high: float = 0.8
+    uncertain_threshold: float = 0.5        # top probability below this -> NEEDS_REVIEW
+    conf_high: float = 0.8                  # top probability at or above this -> "High"
+    max_planet_rjup: float = 2.5            # implied radius above this: not a planet
+    secondary_snr_eb: float = 7.0           # a second eclipse this clear: an eclipsing binary
+    mc_draws: int = 1000                    # Monte Carlo draws for planet uncertainties
+    recycler_log: bool = True               # append NOISE / NEEDS_REVIEW results to the log
     batch_max_stars: int = 50
     plot_max_points: int = 20_000
 
