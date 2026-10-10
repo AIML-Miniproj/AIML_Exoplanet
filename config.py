@@ -113,7 +113,6 @@ class Config:
     chunk_size: int = 20                    # stars per progress report
     max_chunk_failure_frac: float = 0.10    # stop the batch if more fail within one chunk
     max_job_minutes: float = 30.0           # longer estimated runs need explicit confirmation
-    test_fraction: float = 0.2
     cv_folds: int = 5
     eb_contamination_target: float = 0.05
 

@@ -1,12 +1,13 @@
 """Train and evaluate the 4-class triage classifier.
 
 - Splits are grouped by TIC (``StratifiedGroupKFold``), so one star never appears
-  in both training and test data.
-- One grouped fold is held out as the test set; 5-fold grouped cross-validation on
-  the rest gives out-of-fold predictions for calibration and model comparison.
-- XGBoost is compared with logistic regression and a random forest on the same splits.
-- Probabilities are calibrated with per-class isotonic curves fitted on the
-  out-of-fold predictions, never on the test set.
+  on both sides of a split.
+- The dataset is small (~25 stars per class), so there is no separate test set:
+  5-fold grouped cross-validation scores every star once, and metrics are given
+  as mean +/- standard deviation across folds.
+- XGBoost is compared with logistic regression and a random forest on the same folds.
+- Probabilities are calibrated with per-class sigmoid curves. Calibrated scores are
+  themselves cross-validated (each fold's curve is fitted on the other folds).
 """
 
 from __future__ import annotations
@@ -25,7 +26,6 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 from sklearn.ensemble import RandomForestClassifier  # noqa: E402
 from sklearn.impute import SimpleImputer  # noqa: E402
-from sklearn.isotonic import IsotonicRegression  # noqa: E402
 from sklearn.linear_model import LogisticRegression  # noqa: E402
 from sklearn.metrics import (average_precision_score, confusion_matrix, f1_score,  # noqa: E402
                              log_loss, precision_recall_fscore_support)
@@ -94,32 +94,71 @@ def _fit(model, X, y):
     return model
 
 
-def split_test(ds: Dataset, cfg: Config) -> tuple[np.ndarray, np.ndarray]:
-    n = max(2, round(1 / cfg.test_fraction))
-    sgkf = StratifiedGroupKFold(n_splits=n, shuffle=True, random_state=cfg.random_state)
-    train_idx, test_idx = next(sgkf.split(ds.X, ds.y, ds.groups))
-    return train_idx, test_idx
+def cv_folds(ds: Dataset, cfg: Config) -> list[tuple[np.ndarray, np.ndarray]]:
+    """Grouped, stratified folds: a star (TIC) is never in both halves of a split.
 
-
-def oof_predict(factory, X: pd.DataFrame, y: np.ndarray, groups: np.ndarray,
-                cfg: Config) -> np.ndarray:
+    The same folds are used for every model, so their scores are comparable.
+    """
     sgkf = StratifiedGroupKFold(n_splits=cfg.cv_folds, shuffle=True,
-                                random_state=cfg.random_state + 1)
-    oof = np.zeros((len(y), len(CLASSES)))
-    for tr, va in sgkf.split(X, y, groups):
-        m = _fit(factory(), X.iloc[tr], y[tr])
-        oof[va] = m.predict_proba(X.iloc[va])
-    return oof
+                                random_state=cfg.random_state)
+    folds = list(sgkf.split(ds.X, ds.y, ds.groups))
+    for tr, va in folds:
+        assert not set(ds.groups[tr]) & set(ds.groups[va]), "a TIC is on both sides of a fold"
+    return folds
 
 
-def fit_calibration(oof: np.ndarray, y: np.ndarray) -> dict[str, dict[str, list[float]]]:
-    """Per-class isotonic curves (one-vs-rest), stored as plain lists."""
+def cv_predict(factory, ds: Dataset, folds, cfg: Config
+               ) -> tuple[np.ndarray, list[dict[str, Any]]]:
+    """Out-of-fold probabilities for every star, plus the metrics of each fold."""
+    oof = np.zeros((len(ds.y), len(CLASSES)))
+    per_fold = []
+    for tr, va in folds:
+        m = _fit(factory(), ds.X.iloc[tr], ds.y[tr])
+        oof[va] = m.predict_proba(ds.X.iloc[va])
+        per_fold.append(metrics(ds.y[va], oof[va], cfg))
+    return oof, per_fold
+
+
+def fold_summary(per_fold: list[dict[str, Any]]) -> dict[str, Any]:
+    """Mean and standard deviation across folds of the headline metrics."""
+    def ms(vals):
+        v = np.asarray([x for x in vals if x is not None and np.isfinite(x)], float)
+        return {"mean": float(v.mean()), "std": float(v.std(ddof=1)) if v.size > 1 else 0.0} \
+            if v.size else {"mean": float("nan"), "std": float("nan")}
+
+    out = {k: ms([m[k] for m in per_fold])
+           for k in ("macro_f1", "accuracy", "log_loss", "planet_recall_at_eb_rate")}
+    out["per_class"] = {c: {k: ms([m["per_class"][c][k] for m in per_fold])
+                            for k in ("precision", "recall", "f1", "pr_auc")} for c in CLASSES}
+    return out
+
+
+def fit_calibration(oof: np.ndarray, y: np.ndarray,
+                    n_points: int = 101) -> dict[str, dict[str, list[float]]]:
+    """Per-class sigmoid (Platt) curves, one class against the rest.
+
+    A sigmoid has two parameters, so it stays stable on ~100 stars where an
+    isotonic curve would overfit. Stored as sampled (x, y) points so inference
+    only needs interpolation.
+    """
+    x = np.linspace(0, 1, n_points)
     curves = {}
     for k, cls in enumerate(CLASSES):
-        iso = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1)
-        iso.fit(oof[:, k], (y == k).astype(float))
-        curves[cls] = {"x": iso.X_thresholds_.tolist(), "y": iso.y_thresholds_.tolist()}
+        z = np.log(np.clip(oof[:, [k]], 1e-6, 1 - 1e-6) / (1 - np.clip(oof[:, [k]], 1e-6,
+                                                                         1 - 1e-6)))
+        lr = LogisticRegression(C=1e6).fit(z, (y == k).astype(int))
+        zx = np.log(np.clip(x, 1e-6, 1 - 1e-6) / (1 - np.clip(x, 1e-6, 1 - 1e-6)))
+        curves[cls] = {"x": x.tolist(), "y": lr.predict_proba(zx[:, None])[:, 1].tolist()}
     return curves
+
+
+def cross_calibrate(oof: np.ndarray, y: np.ndarray, folds) -> np.ndarray:
+    """Calibrated out-of-fold probabilities: each fold's curves are fitted on the
+    other folds only, so no star is calibrated with its own label."""
+    out = np.zeros_like(oof)
+    for tr, va in folds:
+        out[va] = apply_calibration(oof[va], fit_calibration(oof[tr], y[tr]), CLASSES)
+    return out
 
 
 def planet_recall_at_eb_rate(p_planet: np.ndarray, y: np.ndarray,
@@ -233,47 +272,47 @@ def plot_shap_summary(model: XGBClassifier, X: pd.DataFrame, path, top: int = 15
 # ── Main entry ───────────────────────────────────────────────
 
 def train(features: pd.DataFrame, labels: pd.DataFrame, cfg: Config = CONFIG) -> dict[str, Any]:
+    """Grouped k-fold evaluation of XGBoost and two baselines, then a final fit on all stars.
+
+    With ~25 stars per class there is no separate held-out test set: every star is
+    scored exactly once by a model that never saw it (out-of-fold), and metrics are
+    reported as mean +/- standard deviation across the folds.
+    """
     ds = load_dataset(features)
-    tr, te = split_test(ds, cfg)
-    assert not set(ds.groups[tr]) & set(ds.groups[te]), "a TIC is in both train and test"
-    Xtr, ytr, gtr = ds.X.iloc[tr], ds.y[tr], ds.groups[tr]
-    Xte, yte = ds.X.iloc[te], ds.y[te]
-    log.info("Train %d / test %d stars; class counts train %s test %s", len(tr), len(te),
-             np.bincount(ytr, minlength=4).tolist(), np.bincount(yte, minlength=4).tolist())
+    folds = cv_folds(ds, cfg)
+    counts = np.bincount(ds.y, minlength=len(CLASSES)).tolist()
+    log.info("%d stars, class counts %s, %d grouped folds", len(ds.y), counts, len(folds))
 
     results: dict[str, Any] = {"models": {}}
     factories = {"xgboost": lambda: make_xgb(cfg),
                  **{k: (lambda v=v: __import__("sklearn").base.clone(v))
                     for k, v in make_baselines(cfg).items()}}
-    xgb_oof = None
     for name, factory in factories.items():
-        oof = oof_predict(factory, Xtr, ytr, gtr, cfg)
-        model = _fit(factory(), Xtr, ytr)
-        test_p = model.predict_proba(Xte)
-        results["models"][name] = {"cv": metrics(ytr, oof, cfg), "test": metrics(yte, test_p, cfg)}
-        log.info("%-20s CV macro-F1 %.3f | test macro-F1 %.3f", name,
-                 results["models"][name]["cv"]["macro_f1"],
-                 results["models"][name]["test"]["macro_f1"])
+        oof, per_fold = cv_predict(factory, ds, folds, cfg)
+        results["models"][name] = {"cv": metrics(ds.y, oof, cfg),
+                                   "folds": fold_summary(per_fold)}
+        fs = results["models"][name]["folds"]["macro_f1"]
+        log.info("%-20s macro-F1 %.3f +/- %.3f (5-fold, grouped by TIC)", name, fs["mean"],
+                 fs["std"])
         if name == "xgboost":
-            xgb_model, xgb_oof, xgb_test_raw = model, oof, test_p
+            xgb_oof = oof
 
-    curves = fit_calibration(xgb_oof, ytr)
-    cal_oof = apply_calibration(xgb_oof, curves, CLASSES)
-    cal_test = apply_calibration(xgb_test_raw, curves, CLASSES)
-    results["models"]["xgboost_calibrated"] = {"cv": metrics(ytr, cal_oof, cfg),
-                                               "test": metrics(yte, cal_test, cfg)}
-    # Planet threshold chosen on out-of-fold data, then checked on the test set.
-    thr, _ = planet_recall_at_eb_rate(cal_oof[:, 0], ytr, cfg.eb_contamination_target)
-    pl, eb = CLASSES.index("PLANET"), CLASSES.index("EB")
-    test_eb_rate = float(np.mean(cal_test[yte == eb, pl] >= thr)) if (yte == eb).any() else None
-    test_pl_rec = float(np.mean(cal_test[yte == pl, pl] >= thr)) if (yte == pl).any() else None
+    cal_oof = cross_calibrate(xgb_oof, ds.y, folds)
+    results["models"]["xgboost_calibrated"] = {
+        "cv": metrics(ds.y, cal_oof, cfg),
+        "folds": fold_summary([metrics(ds.y[va], cal_oof[va], cfg) for _, va in folds])}
+    curves = fit_calibration(xgb_oof, ds.y)                      # deployed calibration
+    thr, rec = planet_recall_at_eb_rate(cal_oof[:, CLASSES.index("PLANET")], ds.y,
+                                        cfg.eb_contamination_target)
 
+    xgb_model = _fit(make_xgb(cfg), ds.X, ds.y)                  # final model: all stars
     out = cfg.paths.outputs
     out.mkdir(parents=True, exist_ok=True)
-    plot_confusion(results["models"]["xgboost_calibrated"]["test"]["confusion_normalized"],
-                   out / "triage_confusion.png", "Test set (normalised by true class)")
-    plot_reliability(yte, xgb_test_raw, cal_test, out / "triage_reliability.png")
-    shap_top = plot_shap_summary(xgb_model, Xtr, out / "triage_shap_summary.png")
+    plot_confusion(results["models"]["xgboost_calibrated"]["cv"]["confusion_normalized"],
+                   out / "triage_confusion.png",
+                   "Out-of-fold predictions (normalised by true class)")
+    plot_reliability(ds.y, xgb_oof, cal_oof, out / "triage_reliability.png")
+    shap_top = plot_shap_summary(xgb_model, ds.X, out / "triage_shap_summary.png")
 
     cfg.paths.models.mkdir(parents=True, exist_ok=True)
     xgb_model.save_model(str(cfg.paths.models / MODEL_FILE))
@@ -281,19 +320,18 @@ def train(features: pd.DataFrame, labels: pd.DataFrame, cfg: Config = CONFIG) ->
         "classes": CLASSES,
         "features": ds.features,
         "calibration": curves,
+        "calibration_method": "sigmoid (Platt), one class against the rest",
         "thresholds": {"planet_at_eb_contamination": thr,
                        "eb_contamination_target": cfg.eb_contamination_target,
-                       "test_eb_rate_at_threshold": test_eb_rate,
-                       "test_planet_recall_at_threshold": test_pl_rec,
+                       "cv_planet_recall_at_threshold": rec,
                        "uncertain": cfg.uncertain_threshold, "high": cfg.conf_high},
         "trained_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
         "label_hash": label_hash(labels),
-        "n_train": int(len(tr)), "n_test": int(len(te)),
-        "class_counts_train": dict(zip(CLASSES, np.bincount(ytr, minlength=4).tolist())),
-        "class_counts_test": dict(zip(CLASSES, np.bincount(yte, minlength=4).tolist())),
-        "test_tic_ids": sorted(int(t) for t in ds.groups[te]),
-        "metrics": {k: v["test"] for k, v in results["models"].items()},
-        "cv_metrics": {k: v["cv"] for k, v in results["models"].items()},
+        "evaluation": f"{len(folds)}-fold StratifiedGroupKFold by TIC, no held-out test set",
+        "n_train": int(len(ds.y)), "n_test": 0,
+        "class_counts_train": dict(zip(CLASSES, counts)),
+        "metrics": {k: v["cv"] for k, v in results["models"].items()},
+        "fold_metrics": {k: v["folds"] for k, v in results["models"].items()},
         "shap_top_features": shap_top,
         "xgb_params": {k: v for k, v in xgb_model.get_params().items()
                        if isinstance(v, (int, float, str, bool)) or v is None},

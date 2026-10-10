@@ -59,7 +59,8 @@ def test_training_writes_native_model_and_meta(trained):
     assert meta["classes"] == CLASSES
     assert "ruwe" not in meta["features"] and "n_sectors" not in meta["features"]
     assert set(meta["calibration"]) == set(CLASSES)
-    assert meta["n_train"] + meta["n_test"] == 4 * 70          # failed row excluded
+    assert meta["n_train"] == 4 * 70 and meta["n_test"] == 0  # failed row excluded
+    assert "StratifiedGroupKFold" in meta["evaluation"]
     for name in ("xgboost", "xgboost_calibrated", "logistic_regression", "random_forest"):
         assert name in meta["metrics"]
     for f in ("triage_confusion.png", "triage_reliability.png", "triage_shap_summary.png"):
@@ -68,16 +69,27 @@ def test_training_writes_native_model_and_meta(trained):
 
 def test_metrics_reasonable_on_separable_data(trained):
     res, _ = trained
-    t = res["models"]["xgboost_calibrated"]["test"]
-    assert t["macro_f1"] > 0.85
-    assert set(t["per_class"]) == set(CLASSES)
-    assert np.allclose(np.sum(t["confusion_normalized"], axis=1), 1, atol=0.01)
+    m = res["models"]["xgboost_calibrated"]
+    assert m["cv"]["macro_f1"] > 0.85
+    assert set(m["cv"]["per_class"]) == set(CLASSES)
+    assert np.allclose(np.sum(m["cv"]["confusion_normalized"], axis=1), 1, atol=0.01)
+    f = m["folds"]["macro_f1"]
+    assert f["mean"] > 0.85 and 0 <= f["std"] < 0.15
+    for name in ("xgboost", "logistic_regression", "random_forest"):
+        assert set(res["models"][name]["folds"]["per_class"]) == set(CLASSES)
 
 
-def test_test_set_is_grouped_by_tic(trained):
-    res, cfg = trained
-    meta = res["meta"]
-    assert len(set(meta["test_tic_ids"])) == meta["n_test"]
+def test_folds_are_grouped_by_tic():
+    from src.triage.train import cv_folds, load_dataset
+
+    feats = synthetic_table(n_per_class=20)
+    feats = pd.concat([feats, feats[feats["status"] == "ok"].head(10)])  # repeat 10 TICs
+    ds = load_dataset(feats)
+    folds = cv_folds(ds, CONFIG)
+    assert len(folds) == CONFIG.cv_folds
+    for tr, va in folds:
+        assert not set(ds.groups[tr]) & set(ds.groups[va])
+    assert sorted(np.concatenate([va for _, va in folds])) == list(range(len(ds.y)))
 
 
 def test_model_predict_and_explain(trained):
