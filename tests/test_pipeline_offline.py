@@ -50,6 +50,8 @@ def test_prewhitening_uncovers_a_transit_under_fast_variability():
     report = analyze_target("synthetic active star", collection=_planet_on_fast_variable(0.006))
     removed = report.preprocessing["prewhitened"]
     assert removed and removed[0]["period_d"] == pytest.approx(1.19, rel=0.02)
+    pw = report.extra["prewhitening"]
+    assert pw["used"] and pw["sde"] - pw["sde_without"] >= 1.0
     assert report.signals[0]["period"] == pytest.approx(3.31, rel=0.002)
     assert report.signals[0]["depth_ppm"] == pytest.approx(5000, rel=0.35)   # untouched curve
 
@@ -58,3 +60,22 @@ def test_prewhitening_leaves_a_quiet_planet_alone(planet_factory):
     coll = planet_factory(period=3.0, depth=0.006, duration=0.12, n_sectors=2)
     report = analyze_target("quiet planet", collection=coll)
     assert report.preprocessing["prewhitened"] == []
+
+
+def test_prewhitening_does_not_remove_a_contact_binary():
+    """Near-sinusoidal binary (two almost equal minima per orbit): its "variability" is
+    the signal itself, so the prewhitened search must not replace the normal one."""
+    from tests.conftest import build_collection
+
+    p_orb = 2.55
+
+    def model(t):
+        x = 2 * np.pi * t / p_orb
+        return 1 - 0.008 * np.cos(x) ** 2 + 0.0004 * np.cos(x)
+
+    report = analyze_target("synthetic contact binary",
+                            collection=build_collection(model, n_sectors=2, noise_ppm=400))
+    pw = report.extra.get("prewhitening")
+    assert pw is None or not pw["used"]
+    ratio = report.signals[0]["period"] / p_orb
+    assert min(abs(ratio - 0.5), abs(ratio - 1.0)) < 0.01

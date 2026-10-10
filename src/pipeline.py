@@ -148,8 +148,22 @@ def analyze_target(target: str, preset: str = "standard",
     lc_search = bin_lightcurve(pre.lc_flat, cfg.search_bin_minutes)
     # The search runs on a copy with strong, fast stellar variability removed;
     # depths and features below are measured on the untouched light curve.
+    result = search(lc_search, cfg)
     lc_detect, prewhitened = prewhiten(lc_search, cfg)
-    result = search(lc_detect, cfg)
+    if prewhitened:
+        alt = search(lc_detect, cfg)
+        sde_without = result.signal.sde
+        used = (alt.signal.detected(cfg)
+                and alt.signal.sde - sde_without >= cfg.prewhiten_min_sde_gain)
+        log.info("Prewhitened search: P=%.5f SDE %.1f vs %.1f without -> %s", alt.signal.period,
+                 alt.signal.sde, sde_without, "used" if used else "not used")
+        if used:
+            result = alt
+        else:
+            lc_detect = lc_search
+        report.extra["prewhitening"] = {"removed": prewhitened, "used": bool(used),
+                                        "period_d": alt.signal.period, "sde": alt.signal.sde,
+                                        "sde_without": sde_without}
     if cfg.use_tls:
         from src.detect.tls import search_tls, tls_available
         if tls_available():
@@ -166,9 +180,11 @@ def analyze_target(target: str, preset: str = "standard",
     signal = evaluate(lc_search, result.signal, cfg)
     result = SearchResult(result.periods, result.power, signal, result.grid_size_full,
                           result.grid_size_used)
-    results = (multi_search(prewhiten(lc_search, cfg)[0], cfg, first=result)
-               if cfg.max_signals > 1 else [result])
-    report.preprocessing = dict(pre.stats, prewhitened=prewhitened)
+    used_pw = report.extra.get("prewhitening", {}).get("used", False)
+    results = (multi_search(prewhiten(lc_search, cfg)[0] if used_pw else lc_search, cfg,
+                            first=result) if cfg.max_signals > 1 else [result])
+    report.preprocessing = dict(pre.stats, prewhitened=prewhitened if used_pw else [],
+                                prewhitening_tried=prewhitened)
     lap("redetrend")
 
     cb("Checking whether it's really a planet", 0.8)

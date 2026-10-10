@@ -100,6 +100,10 @@ class Config:
     prewhiten_max_period_factor: float = 3.0
     prewhiten_min_power: float = 0.1
     prewhiten_max_terms: int = 3
+    # The prewhitened search replaces the normal one only if its signal passes all
+    # detection tests and its SDE is higher by at least this much; otherwise the
+    # removed "variability" may have been the signal itself (e.g. a contact binary).
+    prewhiten_min_sde_gain: float = 1.0
 
     # ── Detection ────────────────────────────────────────────
     period_min_d: float = 0.5
