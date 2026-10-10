@@ -7,7 +7,7 @@ Reads what training and the evaluation scripts already wrote (no retraining):
   models/triage_meta.json + model      to recompute global mean |SHAP| on the training stars
   data/processed/features_summary.json recovery per class
   data/processed/eb_eval/*.json        EB true-period accuracy, fresh vs training binaries
-and writes outputs/model_evaluation.json.
+and writes models/model_evaluation.json (committed, so the app works on a clean clone).
 """
 
 from __future__ import annotations
@@ -90,7 +90,7 @@ def main() -> None:
         "recovery": recovery,
         "eb_true_period": eb_period_accuracy(),
     }
-    path = CONFIG.paths.outputs / "model_evaluation.json"
+    path = CONFIG.paths.models / "model_evaluation.json"
     path.write_text(json.dumps(out, indent=1), encoding="utf-8")
     print(f"wrote {path}")
     print(json.dumps({k: out[k] for k in ("macro_f1", "eb_true_period")}, indent=1))

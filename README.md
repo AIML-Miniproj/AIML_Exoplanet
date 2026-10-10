@@ -114,9 +114,8 @@ streamlit run app.py
 
 Open http://localhost:8501, pick a star in the sidebar and click **Analyze**. Tick
 "Re-run live analysis" to download fresh TESS data and analyse it (about 1-2 min;
-needs internet). The live verdict and the Results tab's model evaluation need the
-trained model and saved results (see below); the six precomputed demos work
-without them.
+needs internet). The trained model and its evaluation summary are committed in
+`models/`, so everything works straight after cloning.
 
 Tests (offline, about 4-6 min):
 ```bash
@@ -127,8 +126,10 @@ ruff check .
 
 ## For developers: rebuilding everything
 
-Downloaded data (`data/`, except `data/examples/`), the model (`models/`) and
-evaluation outputs (`outputs/`) are not in git. Rebuild them in this order. Times
+Downloaded data (`data/`, except `data/examples/`) and evaluation plots
+(`outputs/`) are not in git; the trained model (`models/triage_xgb.json`,
+`models/triage_meta.json`, which holds the calibration) and
+`models/model_evaluation.json` are. To rebuild everything from scratch, run these in order. Times
 are for a laptop with 2 worker processes; scripts that would run longer than 10
 minutes stop and ask for `--confirm-long`.
 
@@ -139,7 +140,7 @@ minutes stop and ask for `--confirm-long`.
 | 3. Run the pipeline on every training star | `python scripts/build_features.py` | ~8 min with light curves cached; over an hour when every light curve must be downloaded |
 | 4. Train and cross-validate | `python scripts/train_triage.py` | about a minute |
 | 5. Precomputed demo reports | `python scripts/build_examples.py` | ~3 min |
-| 6. Evaluation summary for the app | `python scripts/save_evaluation.py` | seconds |
+| 6. Evaluation summary for the app (`models/model_evaluation.json`) | `python scripts/save_evaluation.py` | seconds |
 
 Optional checks: `scripts/eval_eb_period.py` (EB true-period accuracy),
 `scripts/eval_eb_module.py`, `scripts/eval_recycler_rules.py`,

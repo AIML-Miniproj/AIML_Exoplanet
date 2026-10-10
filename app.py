@@ -26,7 +26,7 @@ TITLE = "🪐 Exoplanet Detection & False Positive Recycler"
 SUBTITLE = ("Finds planets in TESS data, and identifies what the signal really is when it "
             "isn't a planet.")
 EXAMPLES_FILE = CONFIG.paths.examples / "examples.json"
-EVAL_FILE = CONFIG.paths.outputs / "model_evaluation.json"
+EVAL_FILE = CONFIG.paths.models / "model_evaluation.json"
 TYPE_ICONS = {"Confirmed planets": "🪐", "Eclipsing binaries": "🌗", "Variable stars": "✨",
               "Unconfirmed candidates": "❓", "Tricky cases": "⚠️"}
 MODULE_TITLES = {"planet": "🪐 If it is a planet", "eb": "🌗 If it is a binary",
@@ -297,6 +297,23 @@ def main() -> None:
                     "unsure": "🔍 we're not sure yet, kept for review", "none": "—"}[kind_c]
             st.markdown(f'<div class="catalog">NASA catalog says: <b>{what}</b> → {mark}</div>',
                         unsafe_allow_html=True)
+            cp = explain.catalog_period(report, final_period(report)[0])
+            if cp:
+                verdict_p = {"match": "✅ match (within 1%)",
+                             "half": "⚠️ we found half the catalog period",
+                             "double": "⚠️ we found double the catalog period",
+                             "differs": "⚠️ the periods differ"}[cp["kind"]]
+                st.markdown(f'<div class="catalog">Catalog period: <b>{cp["catalog"]:.4f} d</b>'
+                            f' | Our period: <b>{cp["ours"]:.4f} d</b> → {verdict_p}</div>',
+                            unsafe_allow_html=True)
+                if final == "EB" and cp["kind"] == "half":
+                    st.warning(f"Our pipeline measures {cp['ours']:.2f} d, NASA's catalog says "
+                               f"{cp['catalog']:.2f} d. When both eclipses look alike, "
+                               f"brightness data alone can't tell these apart. Known "
+                               f"limitation.")
+            else:
+                st.markdown('<div class="catalog">Catalog period: none known for this star, '
+                            'so there is nothing to compare.</div>', unsafe_allow_html=True)
 
         # Section 2: findings
         with st.container(key="glass-cls-findings"):

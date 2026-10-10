@@ -45,8 +45,8 @@ EXAMPLES = [
     ("Unconfirmed candidates", 156987351, "TOI 476.01", "Unconfirmed planet candidate",
      "A TESS planet candidate with a dip every 3.1 days that nobody has confirmed yet."),
     ("Tricky cases", 329864959, "TOI 1385.01", "Tricky case (binary, period ambiguous)",
-     "Two stars whose eclipses look almost alike, so it is hard to tell their orbit from "
-     "half of it."),
+     "Our pipeline measures 4.52 d, NASA's catalog says 9.05 d. When both eclipses look "
+     "alike, brightness data alone can't tell these apart. Known limitation."),
     ("Tricky cases", 309254930, "TOI 862.01",
      "Tricky case (transit hidden by star's variability)",
      "A possible planet whose small dips are buried under the star's own brightness "

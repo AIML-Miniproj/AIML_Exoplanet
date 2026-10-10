@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import math
-import re
 from typing import Any
 
 from ui.theme import label
@@ -140,15 +139,6 @@ def feature_sentence(feature: str, value: Any, cls: str) -> str | None:
     return None
 
 
-def _class_words(sentence: str) -> str:
-    """'... from Planet to Eb.' -> '... from planet to eclipsing binary.'"""
-    m = re.search(r"from (\w+) to (\w+)\.$", sentence)
-    if not m:
-        return sentence
-    a, b = (label(w.upper()).lower() for w in m.groups())
-    return sentence[:m.start()] + f"from {a} to {b}."
-
-
 def review_hint(report: dict[str, Any]) -> str | None:
     for r in (report.get("routing") or {}).get("reasons") or []:
         if r.startswith(REVIEW_PREFIX):
@@ -167,7 +157,7 @@ def reasons(report: dict[str, Any], n: int = 5) -> list[str]:
     for r in routing.get("reasons") or []:
         if r.startswith((UNSURE_PREFIX, REVIEW_PREFIX)):   # the hint is shown on its own
             continue
-        out.append(_class_words(r))
+        out.append(r)
     predicted = triage.get("predicted_class")
     target = routing.get("secondary_class") if final == "NEEDS_REVIEW" else final
     if predicted and target and predicted != target and final != "NEEDS_REVIEW":
@@ -214,3 +204,22 @@ def catalog_statement(report: dict[str, Any]) -> tuple[str, str]:
         return "unsure", what
     agree = (claim == final) or (claim == "NOT_PLANET" and final != "PLANET")
     return ("agree" if agree else "disagree"), what
+
+
+def catalog_period(report: dict[str, Any], ours: float) -> dict[str, Any] | None:
+    """Compare our final period with the catalog period (EB catalog for binaries,
+    the TESS candidate list otherwise). None when no catalog period is known."""
+    mods = report.get("modules") or {}
+    final = (report.get("routing") or {}).get("primary_class")
+    eb = ((mods.get("eb") or {}).get("details") or {}).get("catalog") or {}
+    pm = ((mods.get("planet") or {}).get("details") or {}).get("catalog_match") or {}
+    sources = [(eb.get("period_d"), "EB"), (pm.get("catalog_period_d"), "TOI")]
+    if final != "EB":
+        sources.reverse()
+    cat = next((_num(p) for p, _ in sources if math.isfinite(_num(p))), math.nan)
+    if not (math.isfinite(cat) and math.isfinite(ours) and cat > 0):
+        return None
+    r = ours / cat
+    kind = ("match" if abs(r - 1) < 0.01 else "half" if abs(r / 0.5 - 1) < 0.01
+            else "double" if abs(r / 2 - 1) < 0.01 else "differs")
+    return {"catalog": cat, "ours": ours, "kind": kind}

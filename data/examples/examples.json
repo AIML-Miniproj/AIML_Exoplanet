@@ -52,7 +52,7 @@
    "tic_id": 329864959,
    "display_name": "TOI 1385.01",
    "type": "Tricky case (binary, period ambiguous)",
-   "hint": "Two stars whose eclipses look almost alike, so it is hard to tell their orbit from half of it.",
+   "hint": "Our pipeline measures 4.52 d, NASA's catalog says 9.05 d. When both eclipses look alike, brightness data alone can't tell these apart. Known limitation.",
    "n_sectors": 8,
    "verdict": "EB",
    "demo_file": "demo/329864959.json"

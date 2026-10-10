@@ -179,6 +179,17 @@ vs even eclipses) to decide the period. It did not help: 45 -> 44 correct out of
 is still measured and saved in the report (JSON, `modules.eb.details`), for
 information only.
 
+*Side effect on TOI 1385.01 (demo, tricky case).* Before this change the period
+was reported as ambiguous ("4.5 or 9.0 days"); after it, a confident 4.52 d, half
+of the catalog's 9.0457 d. The classifier's feature looks for a second dip at
+exactly phase 0.5 and finds none there (SNR -0.5), so the rule said "can't tell".
+The module's own measurement searches every phase and finds a shallow dip (0.10%
+deep, SNR 59) at phase 0.46, which the rule reads as "second eclipse seen: keep
+the detected period". The two real eclipses are almost equally deep, so at
+4.52 d they fold on top of each other and the alternate-eclipse comparison shows
+no clear difference either. The rule was not changed for this star: it is the
+equal-eclipse limitation, and the app states it next to the result.
+
 **Binary type** is judged from the module's own measurements at the true period
 (fitted eclipse width; smooth light change between eclipses on the light curve
 with stellar variability kept). This agrees slightly better with the catalog than

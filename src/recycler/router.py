@@ -27,6 +27,8 @@ from src.recycler.common import period_words
 
 CLASSES = ("PLANET", "EB", "VARIABLE", "NOISE")
 MODULE_FOR = {"PLANET": "planet", "EB": "eb", "VARIABLE": "variable", "NOISE": "noise"}
+CLASS_NAMES = {"PLANET": "Planet", "EB": "Eclipsing binary", "VARIABLE": "Variable star",
+               "NOISE": "Noise"}
 NEEDS_REVIEW = "NEEDS_REVIEW"
 
 
@@ -108,12 +110,13 @@ def route(probabilities: dict[str, float] | None, features: dict[str, Any],
     p_top = probs[top]
     if excluded and top != max(probs, key=probs.get):
         reasons.append(f"Physics checks moved the verdict from "
-                       f"{max(probs, key=probs.get).title()} to {top.title()}.")
+                       f"{CLASS_NAMES[max(probs, key=probs.get)].lower()} to "
+                       f"{CLASS_NAMES[top].lower()}.")
 
     # A clear second eclipse is physical evidence on its own: no review needed.
     if p_top < cfg.uncertain_threshold and not forced_eb:
-        why = (f"The classifier is unsure: {top.title()} {p_top:.0%}, "
-               f"{second.title()} {probs[second]:.0%}.")
+        why = (f"The classifier is unsure: {CLASS_NAMES[top]} {p_top:.0%}, "
+               f"{CLASS_NAMES[second]} {probs[second]:.0%}.")
         if "PLANET" in (top, second) and "PLANET" not in excluded:
             why += " A possible planet is kept for review rather than discarded."
         reasons.append(why)

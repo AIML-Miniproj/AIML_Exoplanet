@@ -78,10 +78,9 @@ def test_each_star_renders_all_four_tabs_offline(offline, tic):
     assert html.escape(rep["plain_summary"]) in _texts(at)          # shown in the verdict card
 
 
-def test_results_tab_shows_the_confusion_matrix(offline):
-    if not (CONFIG.paths.outputs / "model_evaluation.json").exists():
-        pytest.skip("run scripts/save_evaluation.py first")
-    at = _analyze(TICS[0])
+@pytest.mark.parametrize("tic", TICS)
+def test_results_tab_shows_the_confusion_matrix(offline, tic):
+    at = _analyze(tic)
     results = at.tabs[3]
     assert "Confusion matrix" in "\n".join(m.value for m in results.markdown)
     assert any(c.proto.id and "confusion" in str(c.proto) for c in results.get("plotly_chart")) \
@@ -118,3 +117,24 @@ def test_live_failure_shows_a_friendly_error(monkeypatch):
     assert "Traceback" not in errs                    # details stay in the collapsed expander
     assert at.expander and at.expander[0].label == "Technical details"
     assert not at.tabs
+
+
+def test_catalog_period_check(offline):
+    eb = _analyze(300871545)
+    text = "\n".join(m.value for m in eb.tabs[3].markdown)
+    assert "Catalog period: <b>4.8171 d</b>" in text and "✅ match" in text
+    tricky = _analyze(329864959)
+    text = "\n".join(m.value for m in tricky.tabs[3].markdown)
+    assert "we found half the catalog period" in text
+    warn = " ".join(w.value for w in tricky.tabs[3].warning)
+    assert "Our pipeline measures 4.52 d, NASA's catalog says 9.05 d." in warn
+    assert "Known limitation" in warn
+    side = " ".join(m.value for m in tricky.sidebar.markdown)
+    assert "Our pipeline measures 4.52 d, NASA's catalog says 9.05 d." in side
+
+
+def test_router_reasons_use_full_class_names():
+    for tic in TICS:
+        rep = json.loads((CONFIG.paths.examples / "demo" / f"{tic}.json").read_text("utf-8"))
+        for r in rep["routing"]["reasons"]:
+            assert " Eb " not in f" {r} " and "Eb." not in r and "Eb 1" not in r, r

@@ -210,10 +210,6 @@ def test_noise_module_summary():
 
 def test_pipeline_fills_summary_and_key_facts(planet_factory):
     from src.pipeline import analyze_target
-    from src.triage.model import load_model
-
-    if load_model() is None:
-        pytest.skip("needs the trained model in models/ (not in git; scripts/train_triage.py)")
     rep = analyze_target("synthetic", collection=planet_factory(period=3.0, depth=0.006,
                                                                 duration=0.12, n_sectors=2),
                          target_info=SUN_LIKE)

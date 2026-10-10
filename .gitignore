@@ -6,8 +6,12 @@ env/
 data/*
 !data/examples/
 
-# Trained models (re-creatable with scripts/train_triage.py)
-models/
+# Trained model: only the files the app and tests need are committed
+# (re-create with scripts/train_triage.py and scripts/save_evaluation.py).
+models/*
+!models/triage_xgb.json
+!models/triage_meta.json
+!models/model_evaluation.json
 
 # Output plots (regenerate on run)
 outputs/

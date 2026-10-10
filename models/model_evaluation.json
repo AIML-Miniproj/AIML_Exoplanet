@@ -1,0 +1,265 @@
+{
+ "classes": [
+  "PLANET",
+  "EB",
+  "VARIABLE",
+  "NOISE"
+ ],
+ "evaluation": "5-fold StratifiedGroupKFold by TIC (every star scored once by a model that never saw it); no separate held-out set",
+ "n_stars": 100,
+ "confusion": [
+  [
+   19,
+   0,
+   0,
+   6
+  ],
+  [
+   1,
+   19,
+   4,
+   1
+  ],
+  [
+   0,
+   1,
+   20,
+   4
+  ],
+  [
+   4,
+   1,
+   1,
+   19
+  ]
+ ],
+ "confusion_normalized": [
+  [
+   0.76,
+   0.0,
+   0.0,
+   0.24
+  ],
+  [
+   0.04,
+   0.76,
+   0.16,
+   0.04
+  ],
+  [
+   0.0,
+   0.04,
+   0.8,
+   0.16
+  ],
+  [
+   0.16,
+   0.04,
+   0.04,
+   0.76
+  ]
+ ],
+ "per_class": {
+  "PLANET": {
+   "precision": {
+    "mean": 0.8066666666666669,
+    "std": 0.1422048600513436
+   },
+   "recall": {
+    "mean": 0.76,
+    "std": 0.16733200530681513
+   },
+   "f1": {
+    "mean": 0.7718181818181818,
+    "std": 0.11228284827403039
+   },
+   "pr_auc": {
+    "mean": 0.891796451914099,
+    "std": 0.08091261153506164
+   }
+  },
+  "EB": {
+   "precision": {
+    "mean": 0.9428571428571428,
+    "std": 0.12777531299998798
+   },
+   "recall": {
+    "mean": 0.76,
+    "std": 0.21908902300206645
+   },
+   "f1": {
+    "mean": 0.8166666666666668,
+    "std": 0.10865337342004415
+   },
+   "pr_auc": {
+    "mean": 0.9200317460317461,
+    "std": 0.07351454968144203
+   }
+  },
+  "VARIABLE": {
+   "precision": {
+    "mean": 0.8033333333333333,
+    "std": 0.12270108212870642
+   },
+   "recall": {
+    "mean": 0.8,
+    "std": 0.14142135623730953
+   },
+   "f1": {
+    "mean": 0.7987878787878788,
+    "std": 0.12555844036439817
+   },
+   "pr_auc": {
+    "mean": 0.782950187067834,
+    "std": 0.14208089284678
+   }
+  },
+  "NOISE": {
+   "precision": {
+    "mean": 0.6139682539682539,
+    "std": 0.1800114774762422
+   },
+   "recall": {
+    "mean": 0.76,
+    "std": 0.3286335345030997
+   },
+   "f1": {
+    "mean": 0.664978354978355,
+    "std": 0.23721987846890744
+   },
+   "pr_auc": {
+    "mean": 0.6766068376068376,
+    "std": 0.20023406020515833
+   }
+  }
+ },
+ "macro_f1": {
+  "mean": 0.7630627705627706,
+  "std": 0.09990841326305486
+ },
+ "comparison": [
+  {
+   "model": "XGBoost (calibrated)",
+   "macro_f1": {
+    "mean": 0.7630627705627706,
+    "std": 0.09990841326305486
+   },
+   "accuracy": {
+    "mean": 0.7699999999999999,
+    "std": 0.09082951062292476
+   },
+   "pooled_macro_f1": 0.7731265628781158
+  },
+  {
+   "model": "Logistic regression",
+   "macro_f1": {
+    "mean": 0.6311130536130536,
+    "std": 0.08659960710994673
+   },
+   "accuracy": {
+    "mean": 0.65,
+    "std": 0.07071067811865477
+   },
+   "pooled_macro_f1": 0.6459312330132999
+  },
+  {
+   "model": "Random forest",
+   "macro_f1": {
+    "mean": 0.7080286380286379,
+    "std": 0.11783768992774382
+   },
+   "accuracy": {
+    "mean": 0.7100000000000001,
+    "std": 0.11401754250991378
+   },
+   "pooled_macro_f1": 0.7135640841702534
+  }
+ ],
+ "importance": [
+  [
+   "acf_peak_height",
+   1.0862
+  ],
+  [
+   "skew",
+   1.0629
+  ],
+  [
+   "ingress_to_total_ratio",
+   1.0507
+  ],
+  [
+   "duration_ratio_expected",
+   0.9582
+  ],
+  [
+   "red_noise_beta",
+   0.8746
+  ],
+  [
+   "sector_depth_cv",
+   0.8096
+  ],
+  [
+   "odd_even_depth_ratio",
+   0.7802
+  ],
+  [
+   "teff",
+   0.7322
+  ],
+  [
+   "ls_period_matches_bls",
+   0.6206
+  ],
+  [
+   "refl_amp_ppm",
+   0.5283
+  ]
+ ],
+ "recovery": {
+  "PLANET": {
+   "n": 25,
+   "n_ok": 25,
+   "n_recovery_checked": 25,
+   "recovery_rate": 1.0,
+   "recovered_at_ratio": {
+    "1.0": 25
+   }
+  },
+  "EB": {
+   "n": 25,
+   "n_ok": 25,
+   "n_recovery_checked": 25,
+   "recovery_rate": 1.0,
+   "recovered_at_ratio": {
+    "1.0": 15,
+    "0.5": 10
+   }
+  },
+  "VARIABLE": {
+   "n": 25,
+   "n_ok": 25,
+   "n_recovery_checked": 25,
+   "recovery_rate": 1.0,
+   "recovered_at_ratio": {}
+  },
+  "NOISE": {
+   "n": 25,
+   "n_ok": 25,
+   "n_recovery_checked": 0,
+   "recovery_rate": null,
+   "recovered_at_ratio": {}
+  }
+ },
+ "eb_true_period": {
+  "fresh": {
+   "correct": 23,
+   "n": 25
+  },
+  "training": {
+   "correct": 22,
+   "n": 25
+  }
+ }
+}
