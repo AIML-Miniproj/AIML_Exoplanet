@@ -213,12 +213,20 @@ def build_features(labels: pd.DataFrame, cfg: Config = CONFIG, preset: str = "tr
     for i in range(0, len(pending), cfg.chunk_size):
         chunk = pending[i:i + cfg.chunk_size]
         res = run_with_timeout(chunk, preset, cfg, out_dir, workers, cfg.star_timeout_s)
+        chunk_fail = [r for r in res if r["status"] != "ok"]
         n_done += len(res)
-        n_fail += sum(r["status"] != "ok" for r in res)
+        n_fail += len(chunk_fail)
         per_star = (time.monotonic() - start) / n_done
         eta_min = per_star * (len(pending) - n_done) / 60
         log.info("Progress: %d/%d done, %d failed, %.1f s per star (wall clock), "
                  "ETA %.1f min", n_done, len(pending), n_fail, per_star, eta_min)
+        if len(chunk_fail) > cfg.max_chunk_failure_frac * len(res):
+            for r in chunk_fail:
+                log.error("TIC %s (%s): %s: %s", r["tic_id"], r["label"], r["status"],
+                          r.get("reason", ""))
+            raise RuntimeError(f"{len(chunk_fail)} of {len(res)} stars failed in one chunk "
+                               f"(limit {cfg.max_chunk_failure_frac:.0%}); stopping so the "
+                               "cause can be checked. Re-running resumes where it stopped.")
     return collect(todo, cfg)
 
 

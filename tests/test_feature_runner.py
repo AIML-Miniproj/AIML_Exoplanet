@@ -140,3 +140,17 @@ def test_summary_uses_fap_for_variables_and_reports_catalog_match_separately():
     assert s["EB"]["recovery_rate"] == 1.0 and s["EB"]["n_failed"] == 1
     assert s["EB"]["recovered_at_ratio"] == {0.5: 1}
     assert s["NOISE"]["recovery_rate"] is None
+
+
+def test_build_stops_when_a_chunk_fails_too_often(tmp_path, monkeypatch):
+    import pandas as pd
+
+    cfg = replace(CONFIG, paths=replace(CONFIG.paths, processed=tmp_path), chunk_size=4)
+    real = dataset.run_with_timeout
+    monkeypatch.setattr(dataset, "run_with_timeout",
+                        lambda rows, *a, **k: real(rows, *a, **{**k, "target": crashing_worker}))
+    labels = pd.DataFrame([_row(i) for i in range(20, 28)])
+    with pytest.raises(RuntimeError, match="failed in one chunk"):
+        dataset.build_features(labels, cfg=cfg)
+    # stopped after the first chunk; those results are kept so a re-run resumes
+    assert len(list(tmp_path.glob("features/tic_*.json"))) == 4
