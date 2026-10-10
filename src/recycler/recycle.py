@@ -27,11 +27,13 @@ def run_module(name: str, report, pre, info, cfg: Config):
     if name == "planet":
         return planet_module.characterize(sig, info, report.tic_id, cfg)
     if name == "eb":
-        t = f = None
+        t = f = tv = fv = None
         if pre is not None:
             t = np.asarray(pre.lc_flat.time.value, float)
             f = np.asarray(pre.lc_flat.flux.value, float)
-        return eb_module.characterize(sig, report.features, t, f, report.tic_id, cfg)
+            tv = np.asarray(pre.lc_norm.time.value, float)
+            fv = np.asarray(pre.lc_norm.flux.value, float)
+        return eb_module.characterize(sig, report.features, t, f, report.tic_id, cfg, tv, fv)
     if name == "variable":
         return variable_module.characterize(report.features, info, cfg)
     return systematics_log.characterize(sig, report.features,
@@ -41,7 +43,7 @@ def run_module(name: str, report, pre, info, cfg: Config):
 def recycle(report, pre=None, info=None, cfg: Config = CONFIG) -> None:
     """Route the signal, run the module(s) and write the plain-language results."""
     probs = report.triage.get("probabilities") if report.triage.get("status") == "ok" else None
-    decision = route(probs, report.features, cfg)
+    decision = route(probs, report.features, cfg, report.signals[0] if report.signals else None)
     report.routing = decision.to_dict()
     results: dict[str, Any] = {}
     for name in decision.modules:

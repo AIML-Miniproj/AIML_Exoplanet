@@ -59,6 +59,16 @@ def test_second_dip_explained_by_reflection_keeps_planet():
     assert any("reflected" in r for r in d.reasons)
 
 
+def test_review_mentions_a_detected_repeating_dip():
+    d = route(probs(VARIABLE=0.39, NOISE=0.26, PLANET=0.2, EB=0.15), {},
+              signal={"period": 3.31, "detected": True})
+    assert d.needs_review and any("repeating dip was found every 3.3 days" in r
+                                  for r in d.reasons)
+    d = route(probs(VARIABLE=0.39, NOISE=0.26, PLANET=0.2, EB=0.15), {},
+              signal={"period": 3.31, "detected": False})
+    assert not any("repeating dip" in r for r in d.reasons)
+
+
 def test_no_model_means_review():
     assert route(None, {}).primary_class == NEEDS_REVIEW
 
@@ -142,8 +152,9 @@ def test_eb_summary_mentions_ambiguous_period():
     sig = {"period": 2.0, "t0": 0.0, "duration": 0.1}
     res = eb_module.characterize(sig, {"odd_even_depth_sigma": 0.5, "secondary_snr": 0.5,
                                        "depth_ppm": 50_000, "t14_hr": 2.5})
-    assert "eclipsing each other every 2.0 days" in res.plain_summary
-    assert "possibly every 4.0 days" in res.plain_summary
+    assert "every 2.0 days or 4.0 days; this data can't tell which" in res.plain_summary
+    period_fact = next(k for k in res.key_facts if k.label == "Orbital period")
+    assert period_fact.value == "2.0000 or 4.0000"
 
 
 # ── Variable module ──────────────────────────────────────────
@@ -180,7 +191,12 @@ def test_only_noise_and_review_are_logged(tmp_path):
     systematics_log.append(dict(base, routing={"primary_class": "NOISE", "reasons": ["x"]}), cfg)
     systematics_log.append(dict(base, routing={"primary_class": NEEDS_REVIEW}), cfg)
     df = pd.read_parquet(tmp_path / "recycler_log.parquet")
-    assert list(df["primary_class"]) == ["NOISE", NEEDS_REVIEW]
+    assert list(df["primary_class"]) == [NEEDS_REVIEW]          # same star + model: latest
+    systematics_log.append(dict(base, tic_id=6, routing={"primary_class": "NOISE"}), cfg)
+    systematics_log.append(dict(base, triage={"model_version": "v2"},
+                                routing={"primary_class": "NOISE"}), cfg)
+    df = pd.read_parquet(tmp_path / "recycler_log.parquet")
+    assert len(df) == 3 and set(zip(df.tic_id, df.model_version)) ==         {(5, "test"), (6, "test"), (5, "v2")}
 
 
 def test_noise_module_summary():
@@ -202,3 +218,43 @@ def test_pipeline_fills_summary_and_key_facts(planet_factory):
     assert set(rep.modules) == set(rep.routing["modules"])
     assert math.isfinite(rep.physical["rp_rearth"])
     assert rep.to_json()
+
+
+def _alternating_eclipses(width_b, depth_b=0.05, period=1.5, days=54.0, seed=0):
+    """Eclipses every ``period``: even ones 0.10 d wide and 5% deep, odd ones
+    ``width_b`` wide and ``depth_b`` deep (2-minute cadence, 0.1% noise)."""
+    from tests.conftest import trapezoid
+
+    rng = np.random.default_rng(seed)
+    t = np.arange(0, days, 2 / 1440)
+    a = trapezoid(t, 2 * period, 0.3, 0.05, 0.10, 0.3)
+    b = trapezoid(t, 2 * period, 0.3 + period, depth_b, width_b, 0.3)
+    return t, 1 - a - b + rng.normal(0, 1e-3, t.size)
+
+
+def test_alternate_eclipse_check_finds_different_widths():
+    t, f = _alternating_eclipses(width_b=0.16)                   # same depth, wider
+    chk = eb_module.odd_even_at_double(t, f, 1.5, 0.3, 0.12)
+    assert chk["sigma_width"] >= 3 and chk["n_odd"] >= 15 and chk["n_even"] >= 15
+    sig = {"period": 1.5, "t0": 0.3, "duration": 0.12}
+    tp, _ = eb_module.true_period_with_data(sig, {"odd_even_depth_sigma": 0.5,
+                                                  "secondary_snr": 0.5}, t, f)
+    assert tp.period_d == pytest.approx(3.0) and tp.rule == "alternate_eclipses_differ"
+
+
+def test_alternate_eclipse_check_quiet_for_identical_eclipses():
+    t, f = _alternating_eclipses(width_b=0.10)
+    chk = eb_module.odd_even_at_double(t, f, 1.5, 0.3, 0.12)
+    assert all(chk[k] < 3 for k in ("sigma_depth", "sigma_width", "sigma_shape"))
+    tp, _ = eb_module.true_period_with_data({"period": 1.5, "t0": 0.3, "duration": 0.12},
+                                            {"odd_even_depth_sigma": 0.5,
+                                             "secondary_snr": 0.5}, t, f)
+    assert tp.ambiguous and tp.period_d == pytest.approx(1.5)
+
+
+def test_measured_morphology_uses_fitted_width():
+    ecl = {"primary_depth": 0.10, "primary_width_d": 0.15, "out_of_eclipse_amp": 0.001}
+    assert eb_module.morphology_measured(ecl, 5.0)[0] == "detached"
+    assert eb_module.morphology_measured(dict(ecl, primary_width_d=1.0), 5.0)[0] == "contact"
+    assert eb_module.morphology_measured(dict(ecl, out_of_eclipse_amp=0.012), 5.0)[0] ==         "semi-detached"
+    assert eb_module.morphology_measured({}, 5.0) is None

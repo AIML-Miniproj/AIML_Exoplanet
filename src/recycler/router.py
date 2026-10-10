@@ -23,6 +23,7 @@ from typing import Any
 
 from config import CONFIG, Config
 from src import physics
+from src.recycler.common import period_words
 
 CLASSES = ("PLANET", "EB", "VARIABLE", "NOISE")
 MODULE_FOR = {"PLANET": "planet", "EB": "eb", "VARIABLE": "variable", "NOISE": "noise"}
@@ -64,8 +65,12 @@ def _num(features: dict[str, Any], key: str) -> float:
 
 
 def route(probabilities: dict[str, float] | None, features: dict[str, Any],
-          cfg: Config = CONFIG) -> RoutingDecision:
-    """Decide which class (and which modules) a signal goes to."""
+          cfg: Config = CONFIG, signal: dict[str, Any] | None = None) -> RoutingDecision:
+    """Decide which class (and which modules) a signal goes to.
+
+    ``signal``: the main detected signal; when the result needs review and the dip
+    search found a significant repeating dip, that is added as a hint.
+    """
     if not probabilities:
         return RoutingDecision(NEEDS_REVIEW, "Low", None,
                                ["No trained classifier is available, so the signal "
@@ -113,6 +118,9 @@ def route(probabilities: dict[str, float] | None, features: dict[str, Any],
         if "PLANET" in (top, second) and "PLANET" not in excluded:
             why += " A possible planet is kept for review rather than discarded."
         reasons.append(why)
+        if signal and signal.get("detected"):
+            reasons.append(f"Worth a look: a repeating dip was found every "
+                           f"{period_words(float(signal['period']))}.")
         modules = [MODULE_FOR[c] for c in (top, second)]
         return RoutingDecision(NEEDS_REVIEW, confidence_label(p_top, cfg), top, reasons, probs,
                                modules, p_top)

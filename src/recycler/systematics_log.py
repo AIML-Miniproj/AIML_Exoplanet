@@ -1,7 +1,8 @@
 """NOISE results and the log of rejected / unsure signals.
 
 NOISE and NEEDS_REVIEW results are appended to ``data/logs/recycler_log.parquet``
-so they can be reviewed and reused as training examples later.
+so they can be reviewed and reused as training examples later. Each star keeps
+one row per model version (the latest run).
 """
 
 from __future__ import annotations
@@ -72,6 +73,8 @@ def append(report: dict[str, Any], cfg: Config = CONFIG) -> Path | None:
     path.parent.mkdir(parents=True, exist_ok=True)
     new = pd.DataFrame([row])
     df = pd.concat([pd.read_parquet(path), new], ignore_index=True) if path.exists() else new
+    # one row per star and model version: re-running a star replaces its entry
+    df = df.drop_duplicates(["tic_id", "model_version"], keep="last").reset_index(drop=True)
     df.to_parquet(path, index=False)
     log.info("Logged %s result for %s to %s", row["primary_class"], row["target"], path.name)
     return path

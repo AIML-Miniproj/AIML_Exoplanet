@@ -12,6 +12,11 @@ Which period is right is decided from the light curve alone:
    secondary too faint to see). The detected period is kept and flagged as
    ambiguous: the true period may be twice as long.
 
+When the period is ambiguous, the module looks again at alternate eclipses
+(folding at twice the period) using every point and every sector of the run:
+depth, width and shape of the odd and even eclipses, with per-eclipse errors.
+A clear difference means the true period is twice the detected one.
+
 Binary type (detached / semi-detached / contact) is rule-based from the
 light-curve shape; no model is trained on the small set of binaries.
 Eclipse-timing (O-C) analysis is future work.
@@ -101,8 +106,118 @@ def catalog_morph_class(morph: float) -> str:
     return "detached" if morph < 0.5 else "semi-detached" if morph < 0.7 else "contact"
 
 
+def morphology_measured(ecl: dict[str, float], period_true: float
+                        ) -> tuple[str, dict[str, float]] | None:
+    """Same rules as ``morphology``, from the module's own measurements at the true
+    period: the fitted eclipse width and the out-of-eclipse variation measured on
+    the light curve with stellar variability kept. None if they are missing."""
+    depth = ecl.get("primary_depth", math.nan)
+    width_d = ecl.get("primary_width_d", math.nan)
+    ooe = ecl.get("out_of_eclipse_amp", math.nan)
+    if not (math.isfinite(depth) and depth > 0 and math.isfinite(width_d)):
+        return None
+    feats = {"depth_ppm": depth * 1e6, "ellip_amp_ppm": (ooe if math.isfinite(ooe) else 0) * 1e6,
+             "refl_amp_ppm": 0.0, "t14_hr": width_d * 24}
+    return morphology(feats, period_true)
+
+
+def out_of_eclipse_amplitude(t: np.ndarray, f: np.ndarray, period: float, t0: float,
+                             mask_halfwidth: float, sec_phase: float) -> float:
+    """Smooth brightness change between eclipses (sum of the once- and twice-per-orbit
+    semi-amplitudes), fitted with both eclipses left out."""
+    from src.vetting.common import phase, phase_time
+
+    ok = np.isfinite(t) & np.isfinite(f)
+    t, f = t[ok], f[ok]
+    if t.size < 200:
+        return math.nan
+    ph = phase(t, period, t0)
+    sec = np.abs(phase_time(t, period, t0 + sec_phase * period))
+    keep = (np.abs(phase_time(t, period, t0)) > mask_halfwidth) & (sec > mask_halfwidth)
+    if keep.sum() < 100:
+        return math.nan
+    x = 2 * np.pi * ph[keep]
+    X = np.column_stack([np.ones(x.size), np.cos(x), np.sin(x), np.cos(2 * x), np.sin(2 * x)])
+    c, *_ = np.linalg.lstsq(X, f[keep] / np.median(f[keep]), rcond=None)
+    return float(np.hypot(c[1], c[2]) + np.hypot(c[3], c[4]))
+
+
+def _eclipse_events(t: np.ndarray, period: float, t0: float, halfwidth: float
+                    ) -> np.ndarray:
+    """Index of the eclipse each point belongs to (-1 if outside every eclipse window)."""
+    n = np.round((t - t0) / period)
+    near = np.abs(t - (t0 + n * period)) < halfwidth
+    return np.where(near, n, -1).astype(np.int64)
+
+
+def odd_even_at_double(t: np.ndarray, f: np.ndarray, period: float, t0: float,
+                       duration: float, n_boot: int = 40, seed: int = 0) -> dict[str, float]:
+    """Compare alternate eclipses (odd vs even, i.e. folding at 2x ``period``).
+
+    Depth: one depth per eclipse (local baseline), compared as the mean of odd vs
+    even with errors from the eclipse-to-eclipse scatter. Width and shape
+    (ingress share): a trapezoid fit to the stacked odd and stacked even eclipses,
+    with errors from resampling whole eclipses. Returns the significance of each
+    difference in standard deviations.
+    """
+    from src.vetting.common import phase_time
+    from src.vetting.transit_features import fit_trapezoid
+
+    out = {"sigma_depth": math.nan, "sigma_width": math.nan, "sigma_shape": math.nan,
+           "n_odd": 0, "n_even": 0}
+    ok = np.isfinite(t) & np.isfinite(f)
+    t, f = np.asarray(t, float)[ok], np.asarray(f, float)[ok]
+    if t.size < 200 or not (period > 0 and duration > 0):
+        return out
+    cadence = float(np.median(np.diff(t)))
+    win = 2.5 * duration
+    ev = _eclipse_events(t, period, t0, win)
+    depths = {0: [], 1: []}
+    for n in np.unique(ev[ev >= 0]):
+        m = ev == n
+        dt = np.abs(t[m] - (t0 + n * period))
+        inside, base = dt < duration / 2, dt > duration
+        if inside.sum() >= 3 and base.sum() >= 5:
+            depths[int(n % 2)].append(np.median(f[m][base]) - np.mean(f[m][inside]))
+    d0, d1 = np.asarray(depths[0]), np.asarray(depths[1])
+    out["n_even"], out["n_odd"] = int(d0.size), int(d1.size)
+    if d0.size >= 2 and d1.size >= 2:
+        e = np.hypot(d0.std(ddof=1) / np.sqrt(d0.size), d1.std(ddof=1) / np.sqrt(d1.size))
+        out["sigma_depth"] = float(abs(d0.mean() - d1.mean()) / e) if e > 0 else math.nan
+
+    rng = np.random.default_rng(seed)
+
+    def fit(parity: int, events: np.ndarray | None = None):
+        m = (ev >= 0) & (ev % 2 == parity)
+        if events is not None:
+            idx = np.concatenate([np.flatnonzero(ev == n) for n in events])
+            tt, ff = t[idx], f[idx]
+        else:
+            tt, ff = t[m], f[m]
+        depth0 = max(float(np.mean(depths[parity])) if depths[parity] else 0.0, 1e-6)
+        pt = phase_time(tt, 2 * period, t0 + parity * period)
+        r = fit_trapezoid(pt, ff, duration, depth0, cadence)
+        return (r["t14"], r["frac"]) if r["ok"] else (math.nan, math.nan)
+
+    stats = {}
+    for parity in (0, 1):
+        evs = np.unique(ev[(ev >= 0) & (ev % 2 == parity)])
+        if evs.size < 2:
+            return out
+        best = fit(parity)
+        boots = np.array([fit(parity, rng.choice(evs, evs.size)) for _ in range(n_boot)])
+        stats[parity] = (best, np.nanstd(boots, axis=0))
+    for k, name in ((0, "sigma_width"), (1, "sigma_shape")):
+        a, b = stats[0][0][k], stats[1][0][k]
+        e = math.hypot(stats[0][1][k], stats[1][1][k])
+        if math.isfinite(a) and math.isfinite(b) and e > 0:
+            out[name] = float(abs(a - b) / e)
+    return out
+
+
 def measure_eclipses(t: np.ndarray, f: np.ndarray, period: float, t0: float,
-                     duration: float) -> dict[str, float]:
+                     duration: float, t_var: np.ndarray | None = None,
+                     f_var: np.ndarray | None = None) -> dict[str, float]:
     """Primary and secondary eclipse depth, phase and width at the true period.
 
     The deeper of the two eclipses is called primary. Approximations (labelled
@@ -112,6 +227,9 @@ def measure_eclipses(t: np.ndarray, f: np.ndarray, period: float, t0: float,
     - e sin(w) ~ (w_sec - w_pri) / (w_sec + w_pri): from the eclipse widths;
     - temperature ratio ~ (secondary depth / primary depth) ** 0.25, assuming
       similar eclipse geometry and that the depths compare surface brightness.
+
+    ``t_var, f_var``: the light curve with stellar variability kept, used for the
+    out-of-eclipse variation (the flattened curve has it removed).
     """
     from src.vetting.common import box_depth, phase_time
     from src.vetting.transit_features import fit_trapezoid, secondary_search
@@ -119,7 +237,7 @@ def measure_eclipses(t: np.ndarray, f: np.ndarray, period: float, t0: float,
     nan = math.nan
     out = {k: nan for k in ("primary_depth", "secondary_depth", "secondary_phase",
                             "secondary_snr", "primary_width_d", "secondary_width_d",
-                            "ecosw", "esinw", "temp_ratio")}
+                            "ecosw", "esinw", "temp_ratio", "out_of_eclipse_amp")}
     t, f = np.asarray(t, float), np.asarray(f, float)
     ok = np.isfinite(t) & np.isfinite(f)
     t, f = t[ok], f[ok]
@@ -157,6 +275,11 @@ def measure_eclipses(t: np.ndarray, f: np.ndarray, period: float, t0: float,
             out["esinw"] = (w_s - w_p) / (w_s + w_p)
         if out["primary_depth"] > 0 and out["secondary_depth"] > 0:
             out["temp_ratio"] = (out["secondary_depth"] / out["primary_depth"]) ** 0.25
+    if t_var is not None and f_var is not None:
+        sp = out["secondary_phase"] if out["secondary_snr"] >= SIGMA_MIN else 0.5
+        out["out_of_eclipse_amp"] = out_of_eclipse_amplitude(
+            np.asarray(t_var, float), np.asarray(f_var, float), period, t0,
+            0.75 * max(w_p, duration), sp)
     return out
 
 
@@ -180,29 +303,60 @@ def catalog_entry(tic_id: int | None, cfg: Config = CONFIG) -> dict[str, Any] | 
     return {"period_d": float(r["Per"]), "morph": morph, "type": catalog_morph_class(morph)}
 
 
+def true_period_with_data(signal: dict[str, Any], features: dict[str, Any],
+                          t: np.ndarray | None, f: np.ndarray | None
+                          ) -> tuple[TruePeriod, dict[str, float]]:
+    """``true_period``; if that is ambiguous, look again at alternate eclipses with
+    all the data (``odd_even_at_double``)."""
+    tp = true_period(float(signal["period"]), features)
+    check: dict[str, float] = {}
+    if tp.ambiguous and t is not None and f is not None:
+        check = odd_even_at_double(np.asarray(t, float), np.asarray(f, float),
+                                   float(signal["period"]), float(signal["t0"]),
+                                   float(signal["duration"]))
+        sig = [check.get(k, math.nan) for k in ("sigma_depth", "sigma_width", "sigma_shape")]
+        if any(math.isfinite(x) and x >= SIGMA_MIN for x in sig):
+            tp = TruePeriod(2 * float(signal["period"]), 2, "alternate_eclipses_differ", False)
+    return tp, check
+
+
 def characterize(signal: dict[str, Any], features: dict[str, Any], t: np.ndarray | None = None,
                  f: np.ndarray | None = None, tic_id: int | None = None,
-                 cfg: Config = CONFIG) -> ModuleResult:
-    """EB module: true period, eclipses and binary type, in plain words."""
-    tp = true_period(float(signal["period"]), features)
-    kind, morph_inputs = morphology(features, tp.period_d)
-    ecl = (measure_eclipses(t, f, tp.period_d, float(signal["t0"]), float(signal["duration"]))
-           if t is not None and f is not None else {})
+                 cfg: Config = CONFIG, t_var: np.ndarray | None = None,
+                 f_var: np.ndarray | None = None) -> ModuleResult:
+    """EB module: true period, eclipses and binary type, in plain words.
+
+    ``t, f``: flattened light curve (eclipses); ``t_var, f_var``: light curve with
+    stellar variability kept (out-of-eclipse variation).
+    """
+    tp, check = true_period_with_data(signal, features, t, f)
+    ecl = (measure_eclipses(t, f, tp.period_d, float(signal["t0"]), float(signal["duration"]),
+                            t_var, f_var) if t is not None and f is not None else {})
+    measured = morphology_measured(ecl, tp.period_d) if ecl else None
+    kind, morph_inputs = measured if measured else morphology(features, tp.period_d)
     cat = catalog_entry(tic_id, cfg)
     nan = math.nan
     sec_seen = ecl.get("secondary_snr", 0) >= SIGMA_MIN
 
-    maybe = f" (or possibly every {period_words(2 * tp.period_d)})" if tp.ambiguous else ""
+    if tp.ambiguous:
+        when = (f"every {period_words(tp.period_d)} or {period_words(2 * tp.period_d)}; this "
+                f"data can't tell which")
+    else:
+        when = f"every {period_words(tp.period_d)}"
     summary = (f"Not a planet, but still interesting: this is a pair of {MORPH_WORDS[kind]} "
-               f"stars eclipsing each other every {period_words(tp.period_d)}{maybe}.")
+               f"stars eclipsing each other {when}.")
 
     def pct(x: float) -> str:
         return fmt(x * 100, 3) if math.isfinite(x) else "unknown"
 
     facts = [
-        KeyFact("Orbital period", fmt(tp.period_d, 4), "days",
+        KeyFact("Orbital period",
+                f"{fmt(tp.period_d, 4)} or {fmt(2 * tp.period_d, 4)}" if tp.ambiguous
+                else fmt(tp.period_d, 4), "days",
                 "Time for the two stars to go once around each other."
-                + (" The data cannot rule out twice this period." if tp.ambiguous else "")),
+                + (" Two equal eclipses per orbit and one eclipse per orbit (the second one "
+                   "too faint to see) look the same in this data, so both are possible."
+                   if tp.ambiguous else "")),
         KeyFact("Binary type", kind, "",
                 "Detached: well apart. Semi-detached: one star fills its space and may pass "
                 "gas to the other. Contact: the stars touch. Judged from the light-curve shape."),
@@ -230,7 +384,8 @@ def characterize(signal: dict[str, Any], features: dict[str, Any], t: np.ndarray
                 f"type {cat['type']}" if cat else "not in the TESS eclipsing binary catalog", "",
                 "Cached copy of the TESS eclipsing binary catalog."),
     ]
-    details = {"true_period": tp.__dict__, "morphology": kind,
+    details = {"true_period": tp.__dict__, "alternate_eclipse_check": check,
+               "morphology": kind, "morphology_source": "measured" if measured else "features",
                "morphology_inputs": morph_inputs, "eclipses": ecl, "catalog": cat,
                "future_work": ["eclipse-timing (O-C) analysis across sectors"]}
     return ModuleResult("eb", summary, facts, details)

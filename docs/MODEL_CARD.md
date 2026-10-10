@@ -140,10 +140,11 @@ the verdict. It is shown in the app as a tricky case.
 | Star | What it is | Verdict | Period found | Catalog period |
 |---|---|---|---|---|
 | HD 209458 b | Confirmed planet | **Planet** (High, 98%) | 3.5248 d | 3.5247 d |
-| TOI 1385.01 | Candidate later shown to be an eclipsing binary | **Eclipsing binary** (High, 87%) | 4.523 d (orbit 9.046 d after the binary check) | 9.0457 d |
+| TOI 184.01 | Candidate later shown to be an eclipsing binary | **Eclipsing binary** (the classifier leaned planet; a clear second eclipse moved it to binary) | 4.8170 d | 4.8171 d |
 | HIP 36213 | RR Lyrae pulsating star (not in training) | **Variable** (Medium, 70%) | 0.6284 d | 0.6284 d |
 | TOI 476.01 | Unconfirmed candidate | **Planet** (Low, 44%) | 3.0630 d | 3.0630 d |
-| *Tricky case:* TOI 862.01 | Unconfirmed candidate on a fast-varying star | Variable (Low, 39%) | 3.3102 d | 3.3102 d |
+| *Tricky case:* TOI 862.01 | Unconfirmed candidate on a fast-varying star | Needs review (Variable 39%, Noise 26%; a repeating dip found every 3.3 days) | 3.3102 d | 3.3102 d |
+| *Tricky case:* TOI 1385.01 | Candidate later shown to be an eclipsing binary | Eclipsing binary (High, 87%), period "4.5 or 9.0 days" | 4.523 d | 9.0457 d: its two eclipses look alike, so the data can't tell |
 
 **Eclipsing-binary orbital period** (binary rule vs catalog, match within 1%):
 
@@ -160,9 +161,25 @@ class are too few to learn sub-types). Checked against catalog labels:
 
 | Module | What it decides | Agreement with the catalog |
 |---|---|---|
-| Eclipsing binary | Orbital period (detected or twice it) | 23 / 25 on binaries never used in design |
-| Eclipsing binary | Type: detached / semi-detached / contact | 28 / 50 (training + fresh binaries). Every miss is one step too "close": 10 detached called semi-detached, 12 semi-detached called contact; never two steps off |
+| Eclipsing binary | Orbital period (detected or twice it) | 24 / 25 on binaries never used in design; 20 / 25 on the training binaries (see below) |
+| Eclipsing binary | Type: detached / semi-detached / contact | 32 / 50 (training + fresh binaries). Every miss is one step too "close": 8 detached called semi-detached, 10 semi-detached called contact; never two steps off |
 | Variable star | Type: rotation, delta Scuti / gamma Doradus, RR Lyrae, Cepheid, other | 18 / 25: RR Lyrae 4/4, Cepheid 4/4, rotation 6/8, delta Scuti / gamma Doradus 4/7, other 0/2 |
+
+These checks use the data the app itself would load (up to 10 sectors per star).
+
+**Orbital period of a binary.** When the period is ambiguous, the module compares
+alternate eclipses (depth, width and shape, with per-eclipse errors) using every
+point of every sector the run loaded; a clear difference doubles the period.
+Its effect is small and mixed: on the 25 fresh binaries it fixed one (23 -> 24
+correct), on the 25 training binaries it wrongly doubled two (22 -> 20). Together,
+45 -> 44 out of 50. It runs three tests and acts on any of them, so chance
+differences can trigger it.
+
+**Binary type** is judged from the module's own measurements at the true period
+(fitted eclipse width; smooth light change between eclipses on the light curve
+with stellar variability kept). This agrees slightly better with the catalog than
+the earlier version (30 -> 32 of 50) but keeps a systematic lean towards "closer"
+types: treat "semi-detached" and "contact" as possibly one step too close.
 
 The router never sends a possible planet straight to "noise": when the model is
 unsure (top probability below 50%) the star is marked "needs review" and both
