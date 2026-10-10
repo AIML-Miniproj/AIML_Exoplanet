@@ -8,6 +8,7 @@ downlink gap, a few short random gaps, its own raw flux level, and a
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -25,6 +26,16 @@ DOWNLINK_GAP_D = 1.0
 SECTOR_GAP_D = 0.6
 T_START = 1325.3            # BTJD, near the start of sector 1
 QUALITY_FLAG = 32           # "desaturation event", in lightkurve's default bitmask
+
+
+def pytest_collection_modifyitems(config, items):
+    """On CI (env CI=true) network tests are reported as skipped, never run."""
+    if os.environ.get("CI", "").lower() != "true":
+        return
+    skip = pytest.mark.skip(reason="network test: skipped in CI")
+    for item in items:
+        if "network" in item.keywords:
+            item.add_marker(skip)
 
 
 # ── Building blocks ──────────────────────────────────────────

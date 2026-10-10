@@ -196,7 +196,8 @@ def test_only_noise_and_review_are_logged(tmp_path):
     systematics_log.append(dict(base, triage={"model_version": "v2"},
                                 routing={"primary_class": "NOISE"}), cfg)
     df = pd.read_parquet(tmp_path / "recycler_log.parquet")
-    assert len(df) == 3 and set(zip(df.tic_id, df.model_version)) ==         {(5, "test"), (6, "test"), (5, "v2")}
+    assert len(df) == 3
+    assert set(zip(df.tic_id, df.model_version)) == {(5, "test"), (6, "test"), (5, "v2")}
 
 
 def test_noise_module_summary():
@@ -209,7 +210,10 @@ def test_noise_module_summary():
 
 def test_pipeline_fills_summary_and_key_facts(planet_factory):
     from src.pipeline import analyze_target
+    from src.triage.model import load_model
 
+    if load_model() is None:
+        pytest.skip("needs the trained model in models/ (not in git; scripts/train_triage.py)")
     rep = analyze_target("synthetic", collection=planet_factory(period=3.0, depth=0.006,
                                                                 duration=0.12, n_sectors=2),
                          target_info=SUN_LIKE)
@@ -274,5 +278,6 @@ def test_measured_morphology_uses_fitted_width():
     ecl = {"primary_depth": 0.10, "primary_width_d": 0.15, "out_of_eclipse_amp": 0.001}
     assert eb_module.morphology_measured(ecl, 5.0)[0] == "detached"
     assert eb_module.morphology_measured(dict(ecl, primary_width_d=1.0), 5.0)[0] == "contact"
-    assert eb_module.morphology_measured(dict(ecl, out_of_eclipse_amp=0.012), 5.0)[0] ==         "semi-detached"
+    assert (eb_module.morphology_measured(dict(ecl, out_of_eclipse_amp=0.012), 5.0)[0]
+            == "semi-detached")
     assert eb_module.morphology_measured({}, 5.0) is None

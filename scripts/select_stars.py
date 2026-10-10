@@ -4,7 +4,8 @@
 
 No light curves are downloaded and no catalogs are re-fetched: everything
 comes from data/labels/, apart from one batched TIC lookup to screen the chosen
-stars' catalog entries (cached in data/labels/tic_screen.json). Writes data/labels/training_set.parquet,
+stars' catalog entries (cached in data/labels/tic_screen.json). Writes
+data/labels/training_set.parquet,
 data/labels/demo_candidates.csv and data/labels/demo_set.csv, and prints them.
 
 Training filters (all classes): Tmag 8-12 and at least 2 SPOC 2-minute sectors.
@@ -15,8 +16,8 @@ window can show, and swaps 8 rotators for large-amplitude pulsators (4 RR Lyrae,
 batched TIC query, cached): entries flagged SPLIT/DUPLICATE/ARTIFACT, and random
 noise stars in the cached Gaia variable list, are replaced by the next eligible
 star of the same class (replacements are checked too). Also writes a separate
-set of 25 EBs, never used for training, for checking the EB period rule. Stars whose features were already
-built are kept first. Demo candidates are never used for training.
+set of 25 EBs, never used for training, for checking the EB period rule. Stars
+whose features were already built are kept first. Demo candidates are never used for training.
 """
 
 from __future__ import annotations

@@ -20,7 +20,8 @@ class PipelineError(Exception):
 
 class TargetNotFoundError(PipelineError):
     user_message = "We couldn't find a star with that name or TIC ID."
-    suggestion = "Check the spelling, try the TIC number (e.g. 'TIC 420814525'), or pick an example."
+    suggestion = ("Check the spelling, try the TIC number (e.g. 'TIC 420814525'), "
+                  "or pick an example.")
 
 
 class NoDataError(PipelineError):

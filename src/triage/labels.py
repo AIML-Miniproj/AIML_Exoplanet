@@ -151,7 +151,8 @@ def build_labels(toi: pd.DataFrame, ebs: pd.DataFrame, gaia_x: pd.DataFrame,
             exclude("PLANET: period outside search range")
             continue
         best = inrange.sort_values("pl_trandep", ascending=False).iloc[0]
-        rows.append({"tic_id": tic, "label": "PLANET", "source": "toi_" + best["tfopwg_disp"].lower(),
+        rows.append({"tic_id": tic, "label": "PLANET",
+                     "source": "toi_" + best["tfopwg_disp"].lower(),
                      "catalog_period": best["pl_orbper"], "catalog_epoch": best["epoch_btjd"],
                      "catalog_depth": best["pl_trandep"],
                      "catalog_periods": ";".join(f"{p:.6f}" for p in grp["pl_orbper"].dropna()),

@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: ruff + offline tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      CI: "true"
+      MPLBACKEND: Agg
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13.1"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt ruff==0.16.10
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      # -m "" replaces the default "not network" filter so network tests are collected
+      # and reported as skipped (tests/conftest.py skips them when CI=true).
+      - name: Offline tests
+        run: python -m pytest -q -m "" -rs

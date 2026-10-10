@@ -128,7 +128,8 @@ def _download_gaia_bin(g_lo: float, g_hi: float, slice_dir: Path | None) -> list
     stack = [(g_lo, g_hi, 0.0, 360.0)]
     while stack:
         lo, hi, ra_lo, ra_hi = stack.pop()
-        f = slice_dir / f"g{lo:.4f}_{hi:.4f}_ra{ra_lo:.2f}_{ra_hi:.2f}.parquet"             if slice_dir else None
+        f = (slice_dir / f"g{lo:.4f}_{hi:.4f}_ra{ra_lo:.2f}_{ra_hi:.2f}.parquet"
+             if slice_dir else None)
         if f is not None and f.exists():
             frames.append(pd.read_parquet(f))
             continue
@@ -194,14 +195,16 @@ def _download_gaia_periods(source_ids: list[int]) -> pd.DataFrame:
             res = Gaia.launch_job(q).get_results().to_pandas()
             res.columns = [c.lower() for c in res.columns]
             frames.append(res.assign(table=table))
-    out = pd.concat(frames, ignore_index=True) if frames else         pd.DataFrame(columns=["source_id", "period", "table"])
+    out = (pd.concat(frames, ignore_index=True) if frames
+           else pd.DataFrame(columns=["source_id", "period", "table"]))
     return out.dropna(subset=["period"]).drop_duplicates("source_id")
 
 
 def fetch_gaia_periods(source_ids, cfg: Config = CONFIG) -> pd.DataFrame:
     """Gaia periods for the given sources, cached and extended on demand."""
     path = _raw_dir(cfg) / "gaia_periods.parquet"
-    have = pd.read_parquet(path) if path.exists() else         pd.DataFrame(columns=["source_id", "period", "table", "queried"])
+    have = (pd.read_parquet(path) if path.exists()
+            else pd.DataFrame(columns=["source_id", "period", "table", "queried"]))
     asked = set(have["source_id"].astype("int64")) if len(have) else set()
     todo = sorted({int(x) for x in source_ids} - asked)
     if todo:

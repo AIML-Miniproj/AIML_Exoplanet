@@ -24,7 +24,7 @@ def catalogs():
         (4.01, 4, "FP", 1.2, 20000),                              # FP + EB catalog -> EB
         (5.01, 5, "FP", 4.0, 900),                                # FP not in EB catalog -> excluded
         (6.01, 6, "FA", 9.0, 100),                                # NOISE
-        (7.01, 7, "FA", 3.0, 100),                                # FA but also Gaia variable -> excluded
+        (7.01, 7, "FA", 3.0, 100),                                # FA + Gaia variable -> excluded
         (12.01, 12, "CP", 2.5, 3000),                             # CP and EB catalog -> PLANET
     ])
     ebs = pd.DataFrame({"tic_id": [4, 8, 9, 12, 3], "period": [1.2, 2.0, np.nan, 2.5, 2.0],
@@ -103,7 +103,8 @@ def test_crossmatch_uses_proper_motion():
 
 @pytest.mark.parametrize("period,cats,expected", [
     (3.0, [3.01], (True, 1.0)), (1.5, [3.0], (True, 0.5)), (9.0, [3.0], (True, 3.0)),
-    (3.2, [3.0], (False, None)), (7.0, [2.0, 3.5], (True, 2.0)), (float("nan"), [3.0], (False, None)),
+    (3.2, [3.0], (False, None)), (7.0, [2.0, 3.5], (True, 2.0)),
+    (float("nan"), [3.0], (False, None)),
 ])
 def test_recovery_check(period, cats, expected):
     ok, ratio = recovered(period, cats)

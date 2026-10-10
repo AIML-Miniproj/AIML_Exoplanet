@@ -102,7 +102,8 @@ def clean_sector(lc: lk.LightCurve, cfg: Config = CONFIG) -> tuple[dict[str, np.
 
     med = np.nanmedian(f) if f.size else np.nan
     if not np.isfinite(med) or med <= 0:
-        return {"time": t[:0], "flux": f[:0], "flux_err": e[:0]}, {"sector": sector, "skipped": True}
+        return ({"time": t[:0], "flux": f[:0], "flux_err": e[:0]},
+                {"sector": sector, "skipped": True})
     f, e = f / med, e / med
 
     clip = upper_outlier_mask(t, f, cfg.clip_sigma_upper, cfg.clip_window_d)

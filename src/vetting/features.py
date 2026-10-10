@@ -14,7 +14,8 @@ from src.vetting.transit_features import transit_features
 from src.vetting.variability_features import variability_features
 
 TRANSIT_FEATURES = [
-    "period_d", "duration_hr", "duty_cycle", "depth_ppm", "depth_snr", "sde", "single_event_fraction",
+    "period_d", "duration_hr", "duty_cycle", "depth_ppm", "depth_snr", "sde",
+    "single_event_fraction",
     "n_transits_observed",
     "odd_even_depth_sigma", "odd_even_depth_ratio", "odd_even_depth_sigma_2p",
     "secondary_depth_ppm", "secondary_snr", "secondary_best_phase", "secondary_best_snr",

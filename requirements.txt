@@ -1,11 +1,20 @@
-numpy
-pandas
-matplotlib
-astropy
-lightkurve
-xgboost
-scikit-learn
-joblib
-streamlit
-plotly
-scipy
+# Exact versions tested with Python 3.13.1 (Windows 11 and Ubuntu CI).
+numpy==2.4.4
+pandas==2.3.3
+pyarrow==24.0.0          # parquet engine used by pandas for the label / feature tables
+scipy==1.17.1
+matplotlib==3.10.8
+astropy==7.2.0
+astroquery==0.4.11
+lightkurve==2.6.0
+wotan==1.10
+requests==2.33.1
+scikit-learn==1.8.0
+joblib==1.5.3
+xgboost==3.2.0
+shap==0.53.0
+streamlit==1.56.0
+plotly==6.7.0
+
+# Tests
+pytest==9.1.1
