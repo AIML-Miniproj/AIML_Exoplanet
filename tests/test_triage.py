@@ -30,10 +30,11 @@ def synthetic_table(n_per_class=70, seed=0):
     for k, cls in enumerate(CLASSES):
         for i in range(n_per_class):
             r = {f: rng.normal() for f in FEATURE_NAMES}
-            r["odd_even_depth_sigma"] = rng.gamma(2, 1) + (6 if cls == "EB" else 0)
-            r["secondary_snr"] = rng.normal(0, 1) + (10 if cls == "EB" else 0)
+            # class signal goes into model inputs (per-transit features, not raw SNRs)
+            r["odd_even_sigma_per_transit"] = rng.gamma(2, 1) + (6 if cls == "EB" else 0)
+            r["secondary_snr_per_transit"] = rng.normal(0, 1) + (10 if cls == "EB" else 0)
             r["ingress_to_total_ratio"] = rng.uniform(0.05, 0.2) + (0.25 if cls == "EB" else 0)
-            r["sde"] = rng.normal(5, 1) + (8 if cls in ("PLANET", "EB") else 0)
+            r["depth_snr_per_transit"] = rng.normal(1, 1) + (8 if cls in ("PLANET", "EB") else 0)
             r["ls_power_1"] = rng.uniform(0, 0.1) + (0.6 if cls == "VARIABLE" else 0)
             r["ruwe"] = np.nan                                  # all-missing: dropped
             if rng.random() < 0.1:
@@ -89,7 +90,8 @@ def test_model_predict_and_explain(trained):
     assert out["confidence"] in ("High", "Medium", "Low")
     assert len(out["top_contributions"]) == 5
     top = {c["feature"] for c in out["top_contributions"]}
-    assert top & {"odd_even_depth_sigma", "secondary_snr", "ingress_to_total_ratio"}
+    assert top & {"odd_even_sigma_per_transit", "secondary_snr_per_transit",
+                  "ingress_to_total_ratio"}
     # missing features are tolerated
     assert model.predict({"sde": 12.0}, cfg)["status"] == "ok"
     assert load_model(cfg) is not None

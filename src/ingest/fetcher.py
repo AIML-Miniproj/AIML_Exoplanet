@@ -72,8 +72,8 @@ def _spoc_index(path: str) -> dict[int, list[tuple[int, str]]]:
 
 def _index_products(tic_id: int, cfg: Config) -> list[dict[str, Any]]:
     """SPOC 2-minute products from the bulk-script index (no archive search)."""
-    path = cfg.paths.labels / "raw" / "spoc_lc_index.parquet"
-    if not path.exists():
+    path = cfg.paths.labels / "raw" / cfg.spoc_index_file
+    if not path.exists() and cfg.spoc_index_file == "spoc_lc_index.parquet":
         from src.ingest.catalogs import fetch_spoc_lc_index
         fetch_spoc_lc_index(cfg)
     return [{"sector": sec, "author": "SPOC", "exptime_s": 120.0, "filename": fn,
@@ -143,8 +143,10 @@ def select_sectors(available: list[SectorInfo], max_sectors: int | None = None,
                    cfg: Config = CONFIG) -> list[SectorInfo]:
     """Apply an explicit sector list, or keep the best ``max_sectors``.
 
-    Sectors from higher-priority authors win; among equals, the earliest sectors win
-    (consecutive early sectors give the longest unbroken stretches).
+    ``cfg.sector_choice == "earliest"``: sectors from higher-priority authors win;
+    among equals, the earliest sectors win.
+    ``"closest"`` (training preset): the neighbouring sectors closest together in
+    time, which keeps the period search small and its grid fine.
     """
     if sectors:
         wanted = set(int(s) for s in sectors)
@@ -155,6 +157,15 @@ def select_sectors(available: list[SectorInfo], max_sectors: int | None = None,
         return out
     if max_sectors is None or len(available) <= max_sectors:
         return list(available)
+    if cfg.sector_choice == "closest":
+        # The run of max_sectors neighbouring sectors spanning the least time
+        # (consecutive when possible); ties go to the best author, then the earliest.
+        by_sector = sorted(available, key=lambda s: s.sector)
+        windows = [by_sector[i:i + max_sectors]
+                   for i in range(len(by_sector) - max_sectors + 1)]
+        return min(windows, key=lambda w: (w[-1].sector - w[0].sector,
+                                           max(cfg.author_priority.index(s.author) for s in w),
+                                           w[0].sector))
     ranked = sorted(available, key=lambda s: (cfg.author_priority.index(s.author), s.sector))
     return sorted(ranked[:max_sectors], key=lambda s: s.sector)
 

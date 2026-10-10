@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 from config import CONFIG
-from src.detect.bls import distinct_peaks, mask_signal, multi_search, search
+from src.detect.bls import distinct_peaks, full_grid_size, mask_signal, multi_search, search
 from src.detect.tls import tls_available
 from src.preprocess.preprocessor import bin_lightcurve, preprocess
 from tests.conftest import T_START, make_planet_lc
@@ -47,6 +47,44 @@ def test_coarse_grid_is_refined_across_a_long_gap():
     cfg = replace(CONFIG, max_grid_size=20_000)
     res = search(_flat(lk.LightCurveCollection([a[0], b[0]])), cfg)
     assert res.grid_size_full > res.grid_size_used
+    assert res.signal.period == pytest.approx(period, rel=2e-4)
+
+
+def test_grid_size_formula_matches_autoperiod():
+    from astropy.timeseries import BoxLeastSquares
+
+    t = np.linspace(0, 60, 5000)
+    durations = CONFIG.search_durations()
+    full = BoxLeastSquares(t, np.ones_like(t)).autoperiod(
+        durations, minimum_period=0.5, maximum_period=15, frequency_factor=1.0)
+    assert full_grid_size(60.0, durations.min(), 0.5, 15, 1.0) == len(full)
+
+
+def test_long_baseline_search_stays_small_and_fast():
+    """A ~700-day baseline must never allocate the full-resolution grid (tens of
+    millions of periods). Regression for the 3.6 GB MemoryError."""
+    import time
+    import tracemalloc
+
+    period, t0 = 4.1234, T_START + 1.0
+    a = make_planet_lc(period=period, t0=t0, depth=0.005, n_sectors=1, first_sector=1, seed=1)
+    b = make_planet_lc(period=period, t0=t0, depth=0.005, n_sectors=1, first_sector=26, seed=2)
+    lc = _flat(lk.LightCurveCollection([a[0], b[0]]))
+    assert np.ptp(lc.time.value) >= 700
+
+    tracemalloc.start()
+    start = time.perf_counter()
+    try:
+        res = search(lc)
+        elapsed = time.perf_counter() - start
+        peak = tracemalloc.get_traced_memory()[1]
+    finally:
+        tracemalloc.stop()
+
+    assert res.grid_size_full > 10_000_000          # the full grid would be enormous...
+    assert res.grid_size_used <= CONFIG.max_grid_size
+    assert peak < 500 * 1024**2, f"peak {peak / 1024**2:.0f} MB"
+    assert elapsed < 60, f"{elapsed:.1f} s"
     assert res.signal.period == pytest.approx(period, rel=2e-4)
 
 

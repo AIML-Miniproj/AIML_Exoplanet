@@ -220,14 +220,16 @@ Also add `list_available_sectors(tic) -> list[SectorInfo]`. It is cheap (search 
 
 - Verify column names and Gaia class strings from live data.
 - Conflict priority: CP/KP > EB catalog > Gaia variable > FA/random. Log every conflict.
-- v1 uses SPOC 2-min only. `--limit-per-class` defaults to 400.
+- v1 uses SPOC 2-min only. `--limit-per-class` defaults to **25** (academic scale, ~100 stars total; see §11).
+- Reuse the catalogs and labels already in `data/`. Do not re-download catalogs.
+- Training-star selection prefers Tmag 8–12, ≥2 SPOC 2-min sectors, and (for EB/PLANET) a catalog period of 0.5–15 d.
 
 **Features**: run the **actual pipeline** on each labelled TIC (parallel, resumable, failures logged with reasons). Add a **recovery check**: a detected period matching the catalog within 1% (or at 0.5×/2×/3×) counts as `recovered`. Features always come from the pipeline, never from the catalog ephemeris. Report the recovery rate per class.
 
 **Stop and report** (class counts, recovery rates, failure reasons).
 
 ### Phase 4 — Triage classifier
-- 4-class XGBoost with class weights. **`StratifiedGroupKFold` by TIC** plus a grouped held-out test set.
+- 4-class XGBoost with class weights. **5-fold `StratifiedGroupKFold` by TIC**, reporting mean ± std across folds. With ~25 stars per class there is no separate held-out test set.
 - Baselines: logistic regression and random forest on the same splits.
 - Metrics:
   - Per-class precision, recall, F1, and PR-AUC; macro-F1
@@ -236,7 +238,7 @@ Also add `list_available_sectors(tic) -> list[SectorInfo]`. It is cheap (search 
 - Probability calibration (isotonic or sigmoid) + reliability plot.
 - SHAP `TreeExplainer`: a global summary, plus a per-candidate top-5 used by `ui/explain.py`.
 - Save `models/triage_xgb.json` (native format) + `models/triage_meta.json` (features, class order, thresholds, date, label hash, metrics).
-- `docs/MODEL_CARD.md` in plain language, with no citations. State honestly that flux-only vetting cannot rule out background eclipsing binaries.
+- `docs/MODEL_CARD.md` in plain language, with no citations. State honestly that flux-only vetting cannot rule out background eclipsing binaries, and that the dataset is small (academic scale).
 - **Remove all training from `app.py`.** The app only loads the model.
 
 **Stop and report** (metrics table in the report).
@@ -265,9 +267,9 @@ Also add `list_available_sectors(tic) -> list[SectorInfo]`. It is cheap (search 
 ### Phase 6 — Frontend overhaul (spec in §5)
 Build everything in §5. Also:
 - `scripts/build_examples.py`:
-  - Picks curated example stars from the label catalogs, about 4 per group: confirmed planets, eclipsing binaries, variable stars, unconfirmed TOI candidates. Require good data (≥2 SPOC sectors, bright, Tmag < 11).
+  - The demo set is **exactly 4 stars**: one confirmed planet (HD 209458 b), one TOI false positive that is an eclipsing binary, one variable star, and one unconfirmed TOI candidate. Require good data (≥2 SPOC sectors, bright, obvious signal).
   - Runs the full pipeline on each and saves `data/examples/examples.json` (display name, TIC, group, one-line description, sector count) plus `data/examples/demo/<tic>.json` precomputed reports. Keep the total small (< 10 MB) and committed.
-  - Also adds one **"Tricky case"** group: real examples where the model is wrong or unsure, shown honestly with an explanation. Don't hide mistakes.
+  - If one of the 4 demo stars is misclassified, keep it and explain it honestly. Don't hide mistakes.
 - `test_app_smoke.py` uses `streamlit.testing.v1.AppTest`: every page loads, picking a demo example renders a verdict with no network, and a bad TIC input shows a friendly error instead of a traceback.
 
 **Stop and report** (include screenshots or a description of each page).
@@ -387,7 +389,9 @@ Optional: `transitleastsquares`, `batman-package`, `exovetter` (cross-check metr
 Pin versions once Phase 7 passes.
 
 ## 7. Config defaults (in config, not code)
-`AUTHOR_PRIORITY=["SPOC","TESS-SPOC","QLP"]`, presets `{quick: max_sectors=3, tls=False, max_signals=1; standard: max_sectors=10, tls=False, max_signals=2; thorough: max_sectors=None, tls=True, max_signals=3}`, `DETREND_METHOD="biweight"`, `DETREND_WINDOW_D=0.75`, `CLIP_SIGMA_UPPER=5`, `PERIOD_MIN_D=0.5`, `PERIOD_MAX_D=30`, `DURATIONS_D=geomspace(0.02,0.5,12)`, `SDE_MIN=7`, `UNCERTAIN_THRESHOLD=0.5`, `CONF_HIGH=0.8`, `LIMIT_PER_CLASS=400`, `BATCH_MAX_STARS=50`, `PLOT_MAX_POINTS=20000`, `N_JOBS=-1`, `RANDOM_STATE=42`.
+`AUTHOR_PRIORITY=["SPOC","TESS-SPOC","QLP"]`, presets `{quick: max_sectors=3, tls=False, max_signals=1; standard: max_sectors=10, tls=False, max_signals=2; thorough: max_sectors=None, tls=True, max_signals=3}`, `DETREND_METHOD="biweight"`, `DETREND_WINDOW_D=0.75`, `CLIP_SIGMA_UPPER=5`, `PERIOD_MIN_D=0.5`, `PERIOD_MAX_D=30`, `DURATIONS_D=geomspace(0.02,0.5,12)`, `MAX_GRID_SIZE=40000`, `SDE_MIN=7`, `UNCERTAIN_THRESHOLD=0.5`, `CONF_HIGH=0.8`, `LIMIT_PER_CLASS=25`, `BATCH_MAX_STARS=50`, `PLOT_MAX_POINTS=20000`, `N_JOBS=2` (never more than 3), `RANDOM_STATE=42`.
+
+Training / feature-build mode: `MAX_SECTORS=2`, 10-minute binning for the search step only, `PERIOD_MAX_D=15`, per-star timeout 120 s.
 
 ## 8. Things NOT to do
 - Don't train on TOI PCs/APCs. Don't split by row; split by TIC.
@@ -413,3 +417,13 @@ Next phase preview: ...
 
 ## 10. Stretch ideas (only if I ask later)
 Pixel-level centroid tests; a 1D-CNN second triage model; an active-learning "help us label" page fed from `recycler_log.parquet`; Kepler labels for cross-mission training; deployment to Streamlit Community Cloud or Hugging Face Spaces.
+
+## 11. Scope and resource limits (academic project)
+- **Training set:** 25 stars per class (PLANET, EB, VARIABLE, NOISE), about 100 stars in total.
+- **Demo set:** exactly 4 stars (see Phase 6).
+- **Never allocate the uncapped BLS period grid.** Compute its size from a formula and build the capped grid directly.
+- **CPU:** at most 3 parallel workers (default 2).
+- **Per-star timeout:** 120 s. On a timeout, skip the star, log the reason "timeout", and continue.
+- **Progress:** process stars in chunks of 20 and print a progress line after each chunk (done / failed / avg s per star / ETA).
+- **Long jobs:** if a job is estimated to take more than 30 minutes, stop and ask first. Never launch a background job and wait without reporting.
+- Run a 5-star pilot before any full feature build, and report its time, peak RAM and failures.

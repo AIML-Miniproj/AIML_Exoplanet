@@ -68,7 +68,8 @@ def make_xgb(cfg: Config) -> XGBClassifier:
     return XGBClassifier(objective="multi:softprob", n_estimators=400, max_depth=4,
                          learning_rate=0.05, subsample=0.8, colsample_bytree=0.8,
                          min_child_weight=2, reg_lambda=1.0, tree_method="hist",
-                         eval_metric="mlogloss", random_state=cfg.random_state, n_jobs=4)
+                         eval_metric="mlogloss", random_state=cfg.random_state,
+                         n_jobs=cfg.workers())
 
 
 def make_baselines(cfg: Config) -> dict[str, Any]:
@@ -80,7 +81,7 @@ def make_baselines(cfg: Config) -> dict[str, Any]:
             SimpleImputer(strategy="median", add_indicator=True),
             RandomForestClassifier(n_estimators=500, min_samples_leaf=2,
                                    class_weight="balanced_subsample",
-                                   random_state=cfg.random_state, n_jobs=4)),
+                                   random_state=cfg.random_state, n_jobs=cfg.workers())),
     }
 
 

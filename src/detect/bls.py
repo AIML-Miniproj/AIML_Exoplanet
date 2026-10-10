@@ -3,10 +3,11 @@
 The search slides a box-shaped dip across the light curve for many trial
 periods and durations, and scores how much better a dip fits than a flat line.
 
-Grid: the period grid is uniform in frequency (``autoperiod``). With sectors
-years apart, a full-resolution grid has tens of millions of periods, so the
-search runs on a coarser grid capped at ``cfg.max_grid_size`` and then refines
-the strongest peaks at full resolution in narrow windows.
+Grid: the period grid is uniform in frequency, with the same spacing as
+``autoperiod``. With sectors years apart, a full-resolution grid has hundreds of
+millions of periods, so only its size is computed. The search runs on a coarser
+grid capped at ``cfg.max_grid_size`` and then refines the strongest peaks at full
+resolution in narrow windows.
 """
 
 from __future__ import annotations
@@ -104,17 +105,30 @@ def _arrays(lc: lk.LightCurve) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     return t[ok], f[ok], np.full(ok.sum(), np.std(f[ok]))
 
 
-def period_grid(model: BoxLeastSquares, durations: np.ndarray, pmin: float, pmax: float,
+def full_grid_size(baseline: float, min_duration: float, pmin: float, pmax: float,
+                   frequency_factor: float = 1.0) -> int:
+    """Number of periods ``BoxLeastSquares.autoperiod`` would generate, without building it.
+
+    The full-resolution frequency step is ``frequency_factor * min_duration / baseline**2``.
+    With sectors years apart this count reaches hundreds of millions, so the
+    array itself must never be allocated.
+    """
+    df = frequency_factor * min_duration / baseline**2
+    return 1 + int(round((1 / pmin - 1 / pmax) / df))
+
+
+def period_grid(baseline: float, durations: np.ndarray, pmin: float, pmax: float,
                 cfg: Config = CONFIG) -> tuple[np.ndarray, int]:
-    """Frequency-uniform grid, coarsened to at most ``cfg.max_grid_size`` periods."""
-    full = model.autoperiod(durations, minimum_period=pmin, maximum_period=pmax,
-                            frequency_factor=cfg.frequency_factor)
-    n_full = len(full)
-    if n_full <= cfg.max_grid_size:
-        return np.asarray(full), n_full
-    log.warning("Full period grid has %d periods; searching %d and refining the best peaks",
-                n_full, cfg.max_grid_size)
-    freqs = np.linspace(1 / pmax, 1 / pmin, cfg.max_grid_size)
+    """Frequency-uniform grid of at most ``cfg.max_grid_size`` periods.
+
+    Returns the grid and the size the full-resolution grid would have had.
+    """
+    n_full = full_grid_size(baseline, float(np.min(durations)), pmin, pmax,
+                            cfg.frequency_factor)
+    if n_full > cfg.max_grid_size:
+        log.warning("Full period grid has %d periods; searching %d and refining the best peaks",
+                    n_full, cfg.max_grid_size)
+    freqs = np.linspace(1 / pmax, 1 / pmin, min(n_full, cfg.max_grid_size))
     return np.sort(1 / freqs), n_full
 
 
@@ -179,7 +193,7 @@ def search(lc: lk.LightCurve, cfg: Config = CONFIG, period_min: float | None = N
         raise ValueError(f"baseline {baseline:.1f} d too short for periods >= {pmin} d")
 
     model = BoxLeastSquares(t, f, dy=e)
-    periods, n_full = period_grid(model, durations, pmin, pmax, cfg)
+    periods, n_full = period_grid(baseline, durations, pmin, pmax, cfg)
     res = model.power(periods, durations, objective="likelihood")
     power = np.asarray(res.power, float)
     finite = np.isfinite(power)

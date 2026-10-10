@@ -22,6 +22,9 @@ class Preset:
     max_sectors: int | None
     use_tls: bool
     max_signals: int
+    period_max_d: float | None = None          # None keeps the config value
+    search_bin_minutes: float | None = None    # None keeps the config value
+    sector_choice: str | None = None           # None keeps the config value
 
 
 PRESETS: dict[str, Preset] = {
@@ -29,6 +32,10 @@ PRESETS: dict[str, Preset] = {
     "standard": Preset("standard", max_sectors=10, use_tls=False, max_signals=2),
     "thorough": Preset("thorough", max_sectors=None, use_tls=True, max_signals=3),
 }
+
+# Feature-build mode for the training set: small and fast. Not shown in the UI.
+TRAINING_PRESET = Preset("training", max_sectors=2, use_tls=False, max_signals=1,
+                         period_max_d=15.0, search_bin_minutes=10.0, sector_choice="closest")
 
 
 @dataclass(frozen=True)
@@ -65,11 +72,13 @@ class Config:
     spoc_exptime_s: float = 120.0          # never mix 20 s and 120 s within a sector
     max_sectors: int | None = 10
     sectors: tuple[int, ...] | None = None  # explicit sector list overrides max_sectors
+    sector_choice: str = "earliest"         # "earliest" or "closest" (neighbouring in time)
     download_retries: int = 3
     download_backoff_s: float = 5.0
     download_timeout_s: int = 300
     query_timeout_s: int = 90               # TIC / product-search calls
     sector_source: str = "search"           # "search" (all authors) or "spoc_index" (training)
+    spoc_index_file: str = "spoc_lc_index.parquet"  # under data/labels/raw; batch runs use a subset
     resolver_cache_days: float = 30.0
     sector_list_cache_days: float = 7.0
     use_gaia_ruwe: bool = False
@@ -97,8 +106,12 @@ class Config:
 
     # ── Labels / training ────────────────────────────────────
     random_state: int = 42
-    limit_per_class: int = 400
-    n_jobs: int = -1
+    limit_per_class: int = 25               # academic scale: ~100 training stars in total
+    n_jobs: int = 2                         # parallel workers; clamped to max_n_jobs
+    max_n_jobs: int = 3                     # hard ceiling, whatever is requested
+    star_timeout_s: float = 120.0           # one star's pipeline run is killed after this
+    chunk_size: int = 20                    # stars per progress report
+    max_job_minutes: float = 30.0           # longer estimated runs need explicit confirmation
     test_fraction: float = 0.2
     cv_folds: int = 5
     eb_contamination_target: float = 0.05
@@ -122,9 +135,24 @@ class Config:
         """Return a copy with a run preset applied."""
         from dataclasses import replace
 
-        p = PRESETS[preset] if isinstance(preset, str) else preset
-        return replace(self, max_sectors=p.max_sectors, use_tls=p.use_tls,
-                       max_signals=p.max_signals)
+        if isinstance(preset, str):
+            p = TRAINING_PRESET if preset == TRAINING_PRESET.name else PRESETS[preset]
+        else:
+            p = preset
+        out = replace(self, max_sectors=p.max_sectors, use_tls=p.use_tls,
+                      max_signals=p.max_signals)
+        if p.period_max_d is not None:
+            out = replace(out, period_max_d=p.period_max_d)
+        if p.search_bin_minutes is not None:
+            out = replace(out, search_bin_minutes=p.search_bin_minutes)
+        if p.sector_choice is not None:
+            out = replace(out, sector_choice=p.sector_choice)
+        return out
+
+    def workers(self, requested: int | None = None) -> int:
+        """Number of parallel workers to use: never more than ``max_n_jobs``."""
+        n = requested if requested is not None else self.n_jobs
+        return max(1, min(n, self.max_n_jobs)) if n > 0 else 1
 
 
 CONFIG = Config()

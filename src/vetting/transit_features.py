@@ -128,6 +128,35 @@ def odd_even_from_transits(t: np.ndarray, flux: np.ndarray, period: float, t0: f
     return float(sig), float(min(mo, me) / hi) if hi > 0 else NAN
 
 
+def per_transit_features(feats: dict[str, float], signal: Signal) -> dict[str, float]:
+    """Ratios, and versions of the significance features that don't grow with data.
+
+    A signal-to-noise ratio grows like the square root of the number of dips
+    observed, so a star seen for 10 sectors scores ~2x higher than the same star
+    seen for 2. Dividing by sqrt(number of dips) gives the evidence per dip, which
+    is the same however many sectors were downloaded.
+    """
+    n = feats.get("n_transits_observed", NAN)
+    root = np.sqrt(n) if np.isfinite(n) and n > 0 else NAN
+    out = {f"{k}_per_transit": safe_ratio(feats.get(k, NAN), root)
+           for k in ("depth_snr", "secondary_snr", "secondary_best_snr")}
+    # depth of the second dip relative to the main one: near 0 for a planet,
+    # large for two stars eclipsing each other
+    for k in ("secondary_depth_ppm", "secondary_best_depth_ppm"):
+        out[k.replace("_depth_ppm", "_to_primary_ratio")] = safe_ratio(
+            feats.get(k, NAN), feats.get("depth_ppm", NAN))
+    out["odd_even_sigma_per_transit"] = safe_ratio(feats.get("odd_even_depth_sigma", NAN), root)
+    out["odd_even_sigma_2p_per_transit"] = safe_ratio(feats.get("odd_even_depth_sigma_2p", NAN),
+                                                      root)
+    dll = signal.stats.get("harmonic_delta_log_likelihood", NAN)
+    out["harmonic_dll_per_transit"] = (signed_log10(dll / n) if np.isfinite(n) and n > 0
+                                       else NAN)
+    # strongest dip's share of the evidence x number of dips: 1 when all dips are equal
+    sef = feats.get("single_event_fraction", NAN)
+    out["single_event_excess"] = float(sef * n) if np.isfinite(n) and n > 0 else NAN
+    return out
+
+
 def transit_features(lc_flat: lk.LightCurve, signal: Signal, star=None,
                      search_cadence_d: float | None = None,
                      ) -> tuple[dict[str, float], dict[str, Any]]:
@@ -194,6 +223,7 @@ def transit_features(lc_flat: lk.LightCurve, signal: Signal, star=None,
         feats["implied_rp_gt_2rjup"] = NAN
     obs_dur = trap["t14"] if trap["ok"] else dur
     feats["duration_ratio_expected"] = safe_ratio(obs_dur, physics.expected_duration_d(P, rho))
+    feats.update(per_transit_features(feats, signal))
 
     details = {"trapezoid": {k: trap[k] for k in ("x", "y", "model", "frac", "t14", "depth")},
                "red_noise_beta": beta}

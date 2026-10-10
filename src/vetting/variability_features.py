@@ -36,11 +36,46 @@ def lomb_scargle(t: np.ndarray, f: np.ndarray, pmin: float = LS_PMIN_D,
     baseline = t.max() - t.min()
     pmax = min(pmax, baseline / 2)
     ls = LombScargle(t, f)
-    freq = np.linspace(1 / pmax, 1 / pmin, int(spp * baseline / pmin) + 10)
-    if freq.size > 400_000:
-        freq = np.linspace(1 / pmax, 1 / pmin, 400_000)
+    freq = np.linspace(1 / pmax, 1 / pmin, min(int(spp * baseline / pmin) + 10, 400_000))
     power = ls.power(freq, method="fast")
     return ls, freq, power
+
+
+def choose_fold_period(t: np.ndarray, f: np.ndarray, period: float, n_bins: int = 25,
+                       min_chi2: float = 3.0, min_rel_diff: float = 0.05) -> dict[str, float]:
+    """Decide whether the periodogram period P or twice it (2P) is the true period.
+
+    Folding at 2P puts two consecutive cycles side by side. If the star really
+    repeats every P, both halves look the same. If it repeats every 2P (for
+    example two eclipses of different depth, or alternating maxima), the halves
+    differ. 2P is chosen only when the halves differ both clearly (beyond the
+    noise) and noticeably (by more than ``min_rel_diff`` of the full amplitude),
+    so slow amplitude drifts in a large-amplitude star don't flip the answer.
+    """
+    out = {"var_period_d": NAN, "var_period_halves_diff": NAN, "var_period_halves_chi2": NAN}
+    if not np.isfinite(period) or period <= 0 or t.size < 4 * n_bins:
+        return out
+    ph = ((t - t.min()) / (2 * period)) % 1.0
+    edges = np.linspace(0, 0.5, n_bins + 1)
+    mean = np.full((2, n_bins), np.nan)
+    err = np.full((2, n_bins), np.nan)
+    for h in (0, 1):
+        for i in range(n_bins):
+            m = (ph >= edges[i] + 0.5 * h) & (ph < edges[i + 1] + 0.5 * h)
+            if m.sum() >= 3:
+                mean[h, i] = np.mean(f[m])
+                err[h, i] = np.std(f[m], ddof=1) / np.sqrt(m.sum())
+    ok = np.all(np.isfinite(mean), axis=0) & np.all(err > 0, axis=0)
+    if ok.sum() < n_bins // 2:
+        return out
+    diff = mean[0, ok] - mean[1, ok]
+    chi2 = float(np.mean(diff**2 / (err[0, ok] ** 2 + err[1, ok] ** 2)))
+    amp = float(np.ptp(mean[:, ok]))
+    rel = float(np.sqrt(np.mean(diff**2)) / amp) if amp > 0 else NAN
+    doubled = chi2 > min_chi2 and np.isfinite(rel) and rel > min_rel_diff
+    out.update(var_period_d=float(2 * period if doubled else period),
+               var_period_halves_diff=rel, var_period_halves_chi2=chi2)
+    return out
 
 
 def fourier_params(t: np.ndarray, f: np.ndarray, period: float) -> dict[str, float]:
@@ -162,8 +197,11 @@ def variability_features(lc_norm: lk.LightCurve, signal: Signal | None,
     else:
         feats["ls_period_matches_bls"] = NAN
 
+    feats.update(choose_fold_period(t, f, p1))
+
     feats["acf_period"], feats["acf_peak_height"] = acf_period(t, f, sec)
-    feats.update(fourier_params(t, f, p1) if np.isfinite(p1) else
+    p_fold = feats["var_period_d"]
+    feats.update(fourier_params(t, f, p_fold) if np.isfinite(p_fold) else
                  {"fourier_R21": NAN, "fourier_R31": NAN, "fourier_phi21": NAN,
                   "fourier_phi31": NAN})
 

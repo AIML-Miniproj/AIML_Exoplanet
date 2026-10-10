@@ -313,3 +313,22 @@ def fetch_spoc_lc_index(cfg: Config = CONFIG, max_sector: int = 150,
     log.info("SPOC 2-min index: %d files, %d stars, sectors %d-%d", len(idx),
              idx["tic_id"].nunique(), idx["sector"].min(), idx["sector"].max())
     return idx
+
+
+def write_spoc_index_subset(tic_ids, cfg: Config = CONFIG,
+                            name: str = "spoc_lc_index_subset.parquet") -> str:
+    """Write the index rows for ``tic_ids`` only and return the file name.
+
+    The full index covers ~600k stars; turning it into a lookup table costs about
+    1 GB of memory per process. Batch workers read this small file instead (pass
+    the returned name as ``cfg.spoc_index_file``). Only the needed rows are read.
+    """
+    full = _raw_dir(cfg) / "spoc_lc_index.parquet"
+    if not full.exists():
+        fetch_spoc_lc_index(cfg)
+    tics = sorted({int(t) for t in tic_ids})
+    sub = pd.read_parquet(full, filters=[("tic_id", "in", tics)])
+    sub.to_parquet(_raw_dir(cfg) / name, index=False)
+    log.info("SPOC index subset: %d files for %d of %d stars", len(sub),
+             sub["tic_id"].nunique(), len(tics))
+    return name

@@ -21,6 +21,9 @@ TRANSIT_FEATURES = [
     "secondary_best_depth_ppm", "ingress_to_total_ratio", "t14_hr",
     "trapezoid_chi2_vs_box_chi2", "transit_asymmetry", "harmonic_dll",
     "implied_rp_rearth", "implied_rp_gt_2rjup", "duration_ratio_expected", "red_noise_beta",
+    "depth_snr_per_transit", "secondary_snr_per_transit", "secondary_best_snr_per_transit",
+    "odd_even_sigma_per_transit", "odd_even_sigma_2p_per_transit", "harmonic_dll_per_transit",
+    "single_event_excess", "secondary_to_primary_ratio", "secondary_best_to_primary_ratio",
 ]
 SECTOR_FEATURES = [
     "n_sectors", "n_sectors_with_transit", "frac_sectors_with_transit", "sector_depth_cv",
@@ -29,7 +32,8 @@ SECTOR_FEATURES = [
 VARIABILITY_FEATURES = [
     "rms_ppm", "amp_p2p_ppm", "skew", "kurtosis",
     "ls_period_1", "ls_power_1", "ls_period_2", "ls_power_2", "ls_period_3", "ls_power_3",
-    "ls_log10_fap", "ls_period_matches_bls", "acf_period", "acf_peak_height",
+    "ls_log10_fap", "ls_period_matches_bls", "var_period_d", "var_period_halves_diff",
+    "var_period_halves_chi2", "acf_period", "acf_peak_height",
     "fourier_R21", "fourier_R31", "fourier_phi21", "fourier_phi31", "ls_period_sector_std",
     "ellip_amp_ppm", "ellip_snr", "refl_amp_ppm",
 ]
@@ -37,11 +41,21 @@ STELLAR_FEATURES = ["teff", "rad", "logg", "tmag", "contratio", "ruwe"]
 
 FEATURE_NAMES = TRANSIT_FEATURES + SECTOR_FEATURES + VARIABILITY_FEATURES + STELLAR_FEATURES
 
-# Counts that depend on how many sectors were downloaded (the run preset), not on
-# the star. They are kept in reports but not fed to the classifier, so a model
-# trained on few sectors still works on runs with many.
-PRESET_DEPENDENT = {"n_sectors", "n_sectors_with_transit", "n_transits_observed"}
-MODEL_FEATURES = [f for f in FEATURE_NAMES if f not in PRESET_DEPENDENT]
+# Features that grow with the amount of data (how many sectors the run preset
+# downloaded), not with what the star is: counts, signal-to-noise ratios,
+# likelihood sums, false-alarm probabilities, and maxima/ranges over sectors.
+# They stay in reports for display but are not fed to the classifier, so a model
+# trained on 2 sectors gives the same answer on a 10-sector run. The
+# "*_per_transit" and "single_event_excess" features replace them.
+DATA_AMOUNT_DEPENDENT = {
+    "n_sectors", "n_sectors_with_transit", "n_transits_observed",
+    "depth_snr", "sde", "single_event_fraction",
+    "odd_even_depth_sigma", "odd_even_depth_sigma_2p",
+    "secondary_snr", "secondary_best_snr", "harmonic_dll",
+    "max_sector_depth_ratio", "crowdsap_range",
+    "ls_log10_fap", "ellip_snr", "var_period_halves_chi2",
+}
+MODEL_FEATURES = [f for f in FEATURE_NAMES if f not in DATA_AMOUNT_DEPENDENT]
 
 
 def extract_features(pre: Preprocessed, signal: Signal, star=None,

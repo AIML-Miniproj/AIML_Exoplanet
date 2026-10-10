@@ -110,6 +110,24 @@ def test_select_sectors():
     assert [s.sector for s in select_sectors(avail, 3, sectors=[1, 9, 99])] == [1, 9]
 
 
+def test_select_closest_sectors_for_training():
+    cfg = CONFIG.with_preset("training")
+    assert cfg.sector_choice == "closest"
+
+    def pick(sectors, k=2):
+        avail = [SectorInfo(s, "SPOC", 120, "f", "u") for s in sectors]
+        return [s.sector for s in select_sectors(avail, k, cfg=cfg)]
+
+    assert pick([11, 91]) == [11, 91]                      # only two: keep both
+    assert pick([11, 40, 41, 91]) == [40, 41]              # consecutive beats earliest
+    assert pick([3, 30, 57, 58, 84, 85]) == [57, 58]       # ties: earliest consecutive pair
+    assert pick([5, 9, 30, 32]) == [30, 32]                # smallest gap when none consecutive
+    assert pick([1, 2, 5, 6, 7], k=3) == [5, 6, 7]
+    # UI presets keep the old behaviour
+    avail = [SectorInfo(s, "SPOC", 120, "f", "u") for s in (11, 40, 41)]
+    assert [s.sector for s in select_sectors(avail, 2)] == [11, 40]
+
+
 # ── Download with retries and caching ────────────────────────
 
 def _fake_fits_writer(collection):
@@ -205,3 +223,24 @@ def test_prefetch_tic_fills_cache_in_batches(cfg, monkeypatch):
     assert resolver.prefetch_tic([11, 12, 13], cfg) == 0          # all cached now
     monkeypatch.setattr(resolver, "_query_tic_by_id", lambda t: pytest.fail("cached"))
     assert resolver.resolve_target("TIC 12", cfg).tic_id == 12
+
+
+def test_spoc_index_subset_keeps_only_needed_stars(cfg, monkeypatch):
+    import pandas as pd
+
+    from src.ingest.catalogs import write_spoc_index_subset
+
+    raw = cfg.paths.labels / "raw"
+    raw.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame({"tic_id": [7, 7, 8, 9], "sector": [3, 1, 2, 5],
+                  "filename": ["tess-s0003-7-s_lc.fits", "tess-s0001-7-s_lc.fits",
+                               "tess-s0002-8-s_lc.fits", "tess-s0005-9-s_lc.fits"],
+                  }).to_parquet(raw / "spoc_lc_index.parquet")
+    name = write_spoc_index_subset([7, 9, 42], cfg)
+    assert sorted(pd.read_parquet(raw / name)["tic_id"]) == [7, 7, 9]
+    sub_cfg = replace(cfg, sector_source="spoc_index", spoc_index_file=name)
+    fetcher._spoc_index.cache_clear()
+    monkeypatch.setattr(fetcher, "_search_products", lambda tic: pytest.fail("no search"))
+    assert [s.sector for s in fetcher.list_available_sectors(7, sub_cfg)] == [1, 3]
+    assert fetcher.list_available_sectors(8, sub_cfg) == []     # not in the subset
+    fetcher._spoc_index.cache_clear()
