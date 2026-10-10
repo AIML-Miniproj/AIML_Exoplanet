@@ -120,8 +120,9 @@ def fold(view: dict[str, Any], col: str, windows: list[tuple[float, float]], tit
 
 def overlay(a: dict[str, Any], b: dict[str, Any], names: tuple[str, str],
             cols: tuple[str, str], title: str) -> go.Figure:
-    fig = _fig(320, title, xaxis_title="Hours from eclipse centre",
-               yaxis_title="Normalized flux", legend=dict(orientation="h", y=-0.28))
+    fig = _fig(350, title, xaxis_title="Hours from eclipse centre",
+               yaxis_title="Normalized flux", legend=dict(orientation="h", y=-0.42),
+               margin=dict(l=60, r=20, t=40, b=100))
     for v, name, col in ((a, names[0], cols[0]), (b, names[1], cols[1])):
         _points(fig, v.get("hours"), v.get("flux"), name=f"{name} (points)",
                 col=rgba(col, 0.22), size=2, showlegend=False)
