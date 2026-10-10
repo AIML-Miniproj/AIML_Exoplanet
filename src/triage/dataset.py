@@ -55,7 +55,7 @@ def _parse_periods(s: Any) -> list[float]:
 
 
 def feature_dir(cfg: Config) -> Path:
-    return cfg.paths.processed / "features"
+    return cfg.paths.processed / cfg.feature_set
 
 
 def run_one(row: dict[str, Any], preset: str, cfg: Config, out_dir: Path) -> dict[str, Any]:

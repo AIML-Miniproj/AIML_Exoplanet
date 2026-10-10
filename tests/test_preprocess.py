@@ -125,3 +125,12 @@ def test_masked_redetrend_is_skipped_when_dips_would_hide_most_points(variable_f
     assert out.lc_flat is pre.lc_flat
     assert out.stats["redetrended"] is False
     assert out.stats["redetrend_skipped_masked_frac"] > 0.5
+
+
+def test_prewhitening_ignores_slow_variability(variable_factory):
+    from src.preprocess.preprocessor import prewhiten
+
+    lc = bin_lightcurve(preprocess(variable_factory(kind="sinusoid", period=6.0, amp=0.01,
+                                                    n_sectors=2)).lc_norm, 10)
+    out, removed = prewhiten(lc)
+    assert removed == [] and out is lc          # 6 d is slower than 3x the detrend window

@@ -91,6 +91,15 @@ class Config:
     break_tolerance_d: float = 0.5
     search_bin_minutes: float | None = 10.0
     max_masked_fraction: float = 0.5        # skip the masked re-detrend if dips cover more
+    # Prewhitening (dip-search copy only): subtract strong, fast sinusoids that the
+    # detrending window is too long to remove. "Fast" = period below
+    # prewhiten_max_period_factor x the detrend window; "strong" = Lomb-Scargle
+    # power (share of the light-curve variance one sinusoid explains) of at least
+    # prewhiten_min_power.
+    prewhiten: bool = True
+    prewhiten_max_period_factor: float = 3.0
+    prewhiten_min_power: float = 0.1
+    prewhiten_max_terms: int = 3
 
     # ── Detection ────────────────────────────────────────────
     period_min_d: float = 0.5
@@ -113,6 +122,7 @@ class Config:
     max_n_jobs: int = 3                     # hard ceiling, whatever is requested
     star_timeout_s: float = 120.0           # one star's pipeline run is killed after this
     chunk_size: int = 20                    # stars per progress report
+    feature_set: str = "features"           # folder under data/processed for per-star results
     max_chunk_failure_frac: float = 0.10    # stop the batch if more fail within one chunk
     max_job_minutes: float = 30.0           # longer estimated runs need explicit confirmation
     cv_folds: int = 5

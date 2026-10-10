@@ -9,8 +9,8 @@ decided from the light curve alone:
 2. Otherwise, a clear second eclipse halfway between the dips -> the detected
    period already contains both eclipses: true period = detected.
 3. Otherwise the two cases look identical in the data (two equal eclipses, or a
-   secondary too faint to see). Two eclipses per orbit is the normal case for a
-   binary, so 2x detected is reported, flagged as ambiguous.
+   secondary too faint to see). The detected period is kept and flagged as
+   ambiguous: the true period may be twice as long.
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ SIGMA_MIN = 3.0          # "clearly different" / "clearly present": 3 standard d
 class TruePeriod:
     period_d: float
     factor: int           # true period / detected period
-    rule: str             # "odd_even_differ" | "secondary_seen" | "ambiguous_twin"
+    rule: str             # "odd_even_differ" | "secondary_seen" | "ambiguous"
     ambiguous: bool
 
 
@@ -38,4 +38,4 @@ def true_period(detected_period: float, features: dict[str, float]) -> TruePerio
         return TruePeriod(2 * detected_period, 2, "odd_even_differ", False)
     if np.isfinite(sec) and sec >= SIGMA_MIN:
         return TruePeriod(detected_period, 1, "secondary_seen", False)
-    return TruePeriod(2 * detected_period, 2, "ambiguous_twin", True)
+    return TruePeriod(detected_period, 1, "ambiguous", True)

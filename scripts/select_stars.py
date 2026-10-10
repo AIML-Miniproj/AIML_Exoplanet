@@ -10,11 +10,12 @@ data/labels/demo_candidates.csv and data/labels/demo_set.csv, and prints them.
 Training filters (all classes): Tmag 8-12 and at least 2 SPOC 2-minute sectors.
 PLANET and EB also need a catalog period of 0.5-15 days. VARIABLE skips the
 long-period/irregular class, whose changes are far slower than a 2-sector
-window can show, and swaps 3 rotators for large-amplitude pulsators (2 RR Lyrae,
-1 Cepheid) from the cached Gaia list. Random NOISE stars in the cached Gaia
-variable list are replaced. Every chosen star's TIC entry is checked (one
-batched query, cached); entries flagged SPLIT/DUPLICATE/ARTIFACT are replaced by
-the next eligible star of the same class. Stars whose features were already
+window can show, and swaps 8 rotators for large-amplitude pulsators (4 RR Lyrae,
+4 Cepheids) from the cached Gaia list. Last, every chosen star is checked (one
+batched TIC query, cached): entries flagged SPLIT/DUPLICATE/ARTIFACT, and random
+noise stars in the cached Gaia variable list, are replaced by the next eligible
+star of the same class (replacements are checked too). Also writes a separate
+set of 25 EBs, never used for training, for checking the EB period rule. Stars whose features were already
 built are kept first. Demo candidates are never used for training.
 """
 
@@ -36,6 +37,7 @@ HD209458_TIC = 420814525
 # The 4 demo stars: HD 209458 b, TOI 1385.01 (EB, TOI false positive),
 # HIP 36213 (RR Lyrae), TOI 862.01 (unconfirmed candidate)
 DEMO_SET = (420814525, 329864959, 441584047, 309254930)
+N_RR, N_CEP = 4, 4         # large-amplitude pulsators among the 25 training variables
 TRAIN_SECTORS = 2          # the training preset uses the 2 SPOC sectors closest in time
 CLASSES = ("PLANET", "EB", "VARIABLE", "NOISE")
 SLOW_VARIABLE_CLASS = "LONG_PERIOD/IRREGULAR"
@@ -171,58 +173,124 @@ def training_set(lab: pd.DataFrame, per_class: int, exclude: set[int],
     return pd.concat(picks, ignore_index=True)
 
 
-def screen_tic_entries(tics, batch: int = 100) -> dict[int, str]:
-    """TIC id -> problem with its catalog entry ("" if fine).
+def screen_tic_entries(tics, batch: int = 100) -> dict[int, dict[str, str]]:
+    """TIC id -> {"problem": "" if the catalog entry is fine, "gaia": Gaia DR id}.
 
     Entries flagged SPLIT, DUPLICATE or ARTIFACT (or missing) are rejected by the
     resolver, so a training run on them always fails. One batched query per 100
-    stars; answers are cached in data/labels/tic_screen.json.
+    stars; answers are cached in data/labels/tic_screen_v2.json.
     """
     from src.ingest.resolver import _BAD_DISPOSITIONS, _query_tic_by_id
 
-    path = CONFIG.paths.labels / "tic_screen.json"
+    path = CONFIG.paths.labels / "tic_screen_v2.json"
     cache = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     todo = [int(t) for t in tics if str(int(t)) not in cache]
     for i in range(0, len(todo), batch):
         chunk = todo[i:i + batch]
-        rows = {}
+        rows: dict[int, list[dict]] = {}
         for r in _query_tic_by_id(chunk):
-            rows.setdefault(int(r["ID"]), []).append(str(r.get("disposition") or ""))
+            rows.setdefault(int(r["ID"]), []).append(r)
         for t in chunk:
-            disp = rows.get(t)
-            bad = sorted(set(disp) & _BAD_DISPOSITIONS) if disp else []
-            cache[str(t)] = ("no TIC entry" if disp is None else
-                             f"TIC disposition {bad[0]}" if len(bad) == len(set(disp)) else "")
+            entries = rows.get(t)
+            if not entries:
+                cache[str(t)] = {"problem": "no TIC entry", "gaia": ""}
+                continue
+            disp = {str(r.get("disposition") or "") for r in entries}
+            bad = sorted(disp & _BAD_DISPOSITIONS)
+            gaia = str(entries[0].get("GAIA") or "")
+            cache[str(t)] = {"problem": f"TIC disposition {bad[0]}" if bad and disp <= set(bad)
+                             else "", "gaia": "" if gaia in ("--", "None") else gaia}
         path.write_text(json.dumps(cache, indent=0), encoding="utf-8")
     return {int(t): cache[str(int(t))] for t in tics}
 
 
-def replace_flagged(train: pd.DataFrame, lab: pd.DataFrame, exclude: set[int],
-                    seed: int) -> tuple[pd.DataFrame, list[tuple[pd.Series, pd.Series, str]]]:
-    """Swap stars with a bad TIC entry for the next eligible star of the same class."""
-    problems = screen_tic_entries(train["tic_id"])
+def _gaia_variables() -> set[str]:
+    path = CONFIG.paths.labels / "raw" / "gaia_vari_simple_g11.parquet"
+    return set(pd.read_parquet(path)["source_id"].astype(np.int64).astype(str))
+
+
+def problems(rows: pd.DataFrame, gaia_vari: set[str]) -> dict[int, str]:
+    """Why each star is unusable ("" if fine): bad TIC entry, or a random noise star
+    that the cached Gaia variable list contains (only covers Gaia G < 11)."""
+    screen = screen_tic_entries(rows["tic_id"])
+    out = {}
+    for _, r in rows.iterrows():
+        s = screen[int(r["tic_id"])]
+        if s["problem"]:
+            out[int(r["tic_id"])] = s["problem"]
+        elif (r["label"] == "NOISE" and r["source"] == "random_2min"
+              and s["gaia"] in gaia_vari):
+            out[int(r["tic_id"])] = "in the Gaia variable list"
+        else:
+            out[int(r["tic_id"])] = ""
+    return out
+
+
+def enforce_quality(train: pd.DataFrame, lab: pd.DataFrame, exclude: set[int], seed: int
+                    ) -> tuple[pd.DataFrame, list[tuple[pd.Series, pd.Series, str]], int]:
+    """Replace unusable stars by the next eligible, usable star of the same class.
+
+    Runs after every other selection step, so replacements are checked too.
+    Returns the set, the swaps, and how many random noise stars were purity-checked.
+    """
+    gaia_vari = _gaia_variables()
+    bad = problems(train, gaia_vari)
     swaps = []
-    for idx in [i for i, t in train["tic_id"].items() if problems[int(t)]]:
+    for idx in [i for i, t in train["tic_id"].items() if bad[int(t)]]:
         old = train.loc[idx]
-        used = set(train["tic_id"]) | exclude
-        pool = eligible_pool(lab, old["label"], used, seed)
-        if old["label"] == "NOISE" and old["source"] == "random_2min":
-            pool = pool[pool["source"] == "random_2min"]
+        pool = eligible_pool(lab, old["label"], set(train["tic_id"]) | exclude, seed)
+        if old["label"] == "NOISE":
+            pool = pool[pool["source"] == old["source"]]
         new = None
         for k in range(0, len(pool), 10):
             cand = pool.iloc[k:k + 10]
-            ok = screen_tic_entries(cand["tic_id"])
-            good = cand[[not ok[int(t)] for t in cand["tic_id"]]]
+            why = problems(cand, gaia_vari)
+            good = cand[[not why[int(t)] for t in cand["tic_id"]]]
             if len(good):
                 new = good.iloc[0]
                 break
         if new is None:
-            print(f"WARNING: no clean replacement for {old['label']} TIC {old['tic_id']}")
+            print(f"WARNING: no usable replacement for {old['label']} TIC {old['tic_id']}")
             continue
-        train.loc[idx, new.index.intersection(train.columns)] = new[
-            new.index.intersection(train.columns)]
-        swaps.append((old, new, problems[int(old["tic_id"])]))
-    return train, swaps
+        cols = new.index.intersection(train.columns)
+        train.loc[idx, cols] = new[cols]
+        swaps.append((old, new, bad[int(old["tic_id"])]))
+    n_noise = int(((train["label"] == "NOISE") & (train["source"] == "random_2min")).sum())
+    return train, swaps, n_noise
+
+
+def fresh_eb_set(train: pd.DataFrame, exclude: set[int], sec: pd.DataFrame, n: int,
+                 seed: int) -> pd.DataFrame:
+    """EBs never used for training or design, for an honest check of the EB period rule.
+
+    Same filters as the training EBs (Tmag 8-12, >= 2 SPOC sectors, period 0.5-15 d),
+    drawn from the full TESS EB catalog, excluding training and demo stars, and
+    screened the same way.
+    """
+    raw = CONFIG.paths.labels / "raw"
+    ebs = pd.read_parquet(raw / "tess_ebs.parquet")
+    ebs = ebs.assign(tic_id=ebs["TIC"].astype(np.int64)).drop_duplicates("tic_id")
+    ebs = _with_sectors(ebs, sec)
+    pool = ebs[ebs["Tmag"].between(8, 12) & (ebs["n_spoc"] >= 2) & ebs["Per"].between(0.5, 15)
+               & ~ebs["tic_id"].isin(set(train["tic_id"]) | exclude)]
+    pool = pool.sample(frac=1, random_state=seed + 7)
+    rows = pd.DataFrame({
+        "tic_id": pool["tic_id"], "label": "EB", "source": "ebcat_fresh",
+        "catalog_period": pool["Per"].astype(float), "catalog_epoch": np.nan,
+        "catalog_depth": np.nan, "catalog_periods": pool["Per"].map(lambda p: f"{p:.6f}"),
+        "tmag": pool["Tmag"].astype(float),
+        "notes": pool["Morph"].map(lambda m: f"morph={m:.2f}"),
+        "gaia_source_id": None, "n_spoc": pool["n_spoc"], "train_sectors": pool["train_sectors"],
+    })
+    gaia_vari = _gaia_variables()
+    picked = []
+    for k in range(0, len(rows), 30):
+        cand = rows.iloc[k:k + 30]
+        why = problems(cand, gaia_vari)
+        picked += [r for _, r in cand.iterrows() if not why[int(r["tic_id"])]]
+        if len(picked) >= n:
+            break
+    return pd.DataFrame(picked[:n]).reset_index(drop=True)
 
 
 def swap_in_pulsators(train: pd.DataFrame, exclude: set[int], n_rr: int = 2,
@@ -270,40 +338,6 @@ def swap_in_pulsators(train: pd.DataFrame, exclude: set[int], n_rr: int = 2,
     return out, added, dropped
 
 
-def drop_variable_noise(train: pd.DataFrame, lab: pd.DataFrame,
-                        exclude: set[int], seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Drop random NOISE stars that the cached Gaia variable list contains.
-
-    Uses the Gaia id from the resolver cache. (Gaia's ``phot_variable_flag`` is not
-    in any cached file, so only this weaker check is possible offline.) Replacements
-    come from the same filtered pool.
-    """
-    gaia_vari = set(pd.read_parquet(CONFIG.paths.labels / "raw" / "gaia_vari_simple_g11.parquet")
-                    ["source_id"].astype(np.int64).astype(str))
-    gaia_ids = {}
-    for p in (CONFIG.paths.cache / "resolver").glob("tic_*.json"):
-        d = json.loads(p.read_text(encoding="utf-8"))
-        if d.get("gaia_id"):
-            gaia_ids[int(d["tic_id"])] = str(d["gaia_id"])
-
-    def flagged(tic: int) -> bool:
-        return gaia_ids.get(int(tic)) in gaia_vari
-
-    noise = train[(train["label"] == "NOISE") & (train["source"] == "random_2min")]
-    bad = noise[noise["tic_id"].map(flagged)]
-    n_unknown = int((~noise["tic_id"].isin(gaia_ids)).sum())
-    print(f"NOISE purity: {len(noise)} random noise stars checked against the cached Gaia "
-          f"variable list; {len(bad)} flagged; {n_unknown} have no cached Gaia id")
-    if bad.empty:
-        return train, bad
-    pool = lab[(lab["label"] == "NOISE") & (lab["source"] == "random_2min")
-               & lab["tmag"].between(8, 12) & (lab["n_spoc"] >= 2)
-               & ~lab["tic_id"].isin(set(train["tic_id"]) | exclude)
-               & ~lab["tic_id"].map(flagged)]
-    repl = pool.sample(min(len(bad), len(pool)), random_state=seed).assign(reused_build=False)
-    return pd.concat([train.drop(bad.index), repl], ignore_index=True), bad
-
-
 def check_dispositions(demo: pd.DataFrame) -> None:
     """Re-read the cached TOI table: demo TOIs must still have their expected status."""
     toi = pd.read_parquet(CONFIG.paths.labels / "raw" / "toi.parquet")
@@ -320,6 +354,8 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--per-class", type=int, default=CONFIG.limit_per_class)
     ap.add_argument("--seed", type=int, default=CONFIG.random_state)
+    ap.add_argument("--fresh-ebs", type=int, default=25,
+                    help="size of the separate EB set for checking the EB period rule")
     args = ap.parse_args()
 
     sec = _sector_table()
@@ -331,28 +367,31 @@ def main() -> None:
     demo = demo_candidates(lab, sec, names)
     exclude = set(demo["tic_id"])
     train = training_set(lab, args.per_class, exclude, args.seed)
-    train, added, dropped = swap_in_pulsators(train, exclude)
-    train, bad_noise = drop_variable_noise(train, lab, exclude, args.seed)
-    train, swaps = replace_flagged(train, lab, exclude, args.seed)
+    train, added, dropped = swap_in_pulsators(train, exclude, n_rr=N_RR, n_cep=N_CEP)
+    train, swaps, n_noise_checked = enforce_quality(train, lab, exclude, args.seed)
     assert (train.groupby("label").size() == args.per_class).all(), train.groupby("label").size()
     final_demo = demo[demo["tic_id"].isin(DEMO_SET)].drop_duplicates("slot")
+    fresh = fresh_eb_set(train, exclude, sec, args.fresh_ebs, args.seed)
 
     out = CONFIG.paths.labels
     train.to_parquet(out / "training_set.parquet", index=False)
     demo.to_csv(out / "demo_candidates.csv", index=False)
     final_demo.to_csv(out / "demo_set.csv", index=False)
+    fresh.to_parquet(out / "fresh_eb_set.parquet", index=False)
     check_dispositions(final_demo)
     print("Pulsators added:\n" + added[["tic_id", "tmag", "n_spoc", "train_sectors", "notes"]]
           .to_string(index=False))
     print("Rotators dropped:\n" + dropped[["tic_id", "name", "tmag", "notes"]]
           .to_string(index=False))
-    print(f"TIC screening: {len(swaps)} star(s) replaced")
+    print(f"Quality check (TIC entry, then Gaia variables for {n_noise_checked} random noise "
+          f"stars): {len(swaps)} star(s) replaced")
     for old_row, new_row, why in swaps:
         print(f"  {old_row['label']}: TIC {old_row['tic_id']} ({why}) -> TIC {new_row['tic_id']} "
               f"Tmag {new_row['tmag']:.2f}, {int(new_row['n_spoc'])} sectors, "
               f"{new_row['source']}, uses sectors {new_row['train_sectors']}")
-    if not bad_noise.empty:
-        print("Noise stars dropped:\n" + bad_noise[["tic_id", "tmag"]].to_string(index=False))
+    print(f"Fresh EB set: {len(fresh)} stars, periods {fresh['catalog_period'].min():.2f}-"
+          f"{fresh['catalog_period'].max():.2f} d, Tmag {fresh['tmag'].min():.1f}-"
+          f"{fresh['tmag'].max():.1f}")
 
     pd.set_option("display.width", 200, "display.max_colwidth", 70, "display.max_rows", 200)
     cols = ["label", "tic_id", "name", "tmag", "n_spoc", "train_sectors", "catalog_period",

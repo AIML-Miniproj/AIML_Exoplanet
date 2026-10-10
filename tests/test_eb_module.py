@@ -22,4 +22,4 @@ def test_visible_secondary_keeps_detected_period(eb_factory):
 
 def test_no_evidence_either_way_is_flagged_ambiguous():
     tp = true_period(1.2, {"odd_even_depth_sigma": 0.5, "secondary_snr": 0.8})
-    assert tp.period_d == pytest.approx(2.4) and tp.ambiguous
+    assert tp.period_d == pytest.approx(1.2) and tp.ambiguous and tp.factor == 1

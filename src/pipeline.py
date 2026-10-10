@@ -107,7 +107,8 @@ def analyze_target(target: str, preset: str = "standard",
     from src.detect.bls import SearchResult, evaluate, multi_search, search
     from src.ingest.fetcher import fetch_lightcurves
     from src.ingest.resolver import TargetInfo, resolve_target
-    from src.preprocess.preprocessor import bin_lightcurve, preprocess, redetrend_masked
+    from src.preprocess.preprocessor import (bin_lightcurve, prewhiten, preprocess,
+                                             redetrend_masked)
     from src.vetting.features import extract_features
 
     cfg = cfg.with_preset(preset)
@@ -145,11 +146,14 @@ def analyze_target(target: str, preset: str = "standard",
 
     cb("Searching for repeating dips", 0.5)
     lc_search = bin_lightcurve(pre.lc_flat, cfg.search_bin_minutes)
-    result = search(lc_search, cfg)
+    # The search runs on a copy with strong, fast stellar variability removed;
+    # depths and features below are measured on the untouched light curve.
+    lc_detect, prewhitened = prewhiten(lc_search, cfg)
+    result = search(lc_detect, cfg)
     if cfg.use_tls:
         from src.detect.tls import search_tls, tls_available
         if tls_available():
-            tls_sig = search_tls(lc_search, cfg, info)
+            tls_sig = search_tls(lc_detect, cfg, info)
             log.info("TLS cross-check: P=%.5f (BLS %.5f)", tls_sig.period, result.signal.period)
             report.extra["tls"] = tls_sig.to_dict()
         else:
@@ -162,8 +166,9 @@ def analyze_target(target: str, preset: str = "standard",
     signal = evaluate(lc_search, result.signal, cfg)
     result = SearchResult(result.periods, result.power, signal, result.grid_size_full,
                           result.grid_size_used)
-    results = multi_search(lc_search, cfg, first=result) if cfg.max_signals > 1 else [result]
-    report.preprocessing = pre.stats
+    results = (multi_search(prewhiten(lc_search, cfg)[0], cfg, first=result)
+               if cfg.max_signals > 1 else [result])
+    report.preprocessing = dict(pre.stats, prewhitened=prewhitened)
     lap("redetrend")
 
     cb("Checking whether it's really a planet", 0.8)

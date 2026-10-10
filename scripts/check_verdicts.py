@@ -26,6 +26,7 @@ from src.pipeline import analyze_target  # noqa: E402
 
 HD209458 = 420814525
 TOI862 = 309254930          # 18 SPOC sectors: a real few-vs-many comparison
+TOI476 = 156987351          # back-up unconfirmed-candidate demo star
 
 
 def verdict(tic: int, preset, cfg) -> dict:
@@ -65,6 +66,14 @@ def main() -> None:
         print(f"{row['slot']:<10} {row['name']:<12} sectors {v['sectors']}: {v['label']} "
               f"({v['confidence']}) P={v['period_d']:.5f} var_P={v['var_period_d']:.5f} "
               f"probs {v['probabilities']}", flush=True)
+
+    toi = pd.read_parquet(CONFIG.paths.labels / "raw" / "toi.parquet")
+    disp = sorted(set(toi.loc[toi["tid"] == TOI476, "tfopwg_disp"].dropna()))
+    v = verdict(TOI476, "standard", cfg)
+    v.update(slot="toi_pc_backup", name="TOI 476.01", tfopwg_disp=disp)
+    out["demo"].append(v)
+    print(f"backup     TOI 476.01   (TOI table: {disp}) sectors {v['sectors']}: {v['label']} "
+          f"({v['confidence']}) P={v['period_d']:.5f} probs {v['probabilities']}", flush=True)
 
     path = CONFIG.paths.outputs / "verdict_checks.json"
     path.write_text(json.dumps(out, indent=1, default=float))

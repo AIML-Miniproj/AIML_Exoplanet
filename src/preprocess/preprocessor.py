@@ -240,3 +240,62 @@ def bin_lightcurve(lc: lk.LightCurve, minutes: float | None) -> lk.LightCurve:
     sec = lc["sector"].value[np.searchsorted(idx, uniq)] if "sector" in lc.colnames else \
         np.zeros(uniq.size)
     return _make_lc(tb, fb, eb, sec)
+
+
+PREWHITEN_MIN_PERIOD_D = 1 / 48          # 30 minutes
+
+
+def prewhiten(lc: lk.LightCurve, cfg: Config = CONFIG) -> tuple[lk.LightCurve, list[dict]]:
+    """Subtract up to ``cfg.prewhiten_max_terms`` strong, fast sinusoids (dip search only).
+
+    Some stars vary on roughly the same timescale as the detrending window
+    (about a day). The window can't follow that, so the leftover wiggles can
+    outscore a shallow transit in the dip search. Shortening the window would
+    also start to eat real transits, so instead the strongest sinusoids are
+    measured and subtracted, one at a time:
+
+    - only periods shorter than ``prewhiten_max_period_factor`` x the detrend window,
+    - only while one sinusoid explains at least ``prewhiten_min_power`` of the
+      variance (Lomb-Scargle power),
+    - fitted without the lowest points (more than 3 sigma below the median), so a
+      transit or eclipse does not steer the fit.
+
+    Returns the cleaned copy and what was removed. The input is not changed; all
+    depths and vetting features are measured on the original light curve.
+    """
+    from astropy.timeseries import LombScargle
+
+    if not cfg.prewhiten or len(lc) < 100:
+        return lc, []
+    t = np.asarray(lc.time.value, float)
+    f = np.asarray(lc.flux.value, float)
+    ok = np.isfinite(t) & np.isfinite(f)
+    resid = f - np.nanmedian(f[ok])
+    pmax = cfg.prewhiten_max_period_factor * cfg.detrend_window()
+    baseline = float(t[ok].max() - t[ok].min())
+    if pmax <= PREWHITEN_MIN_PERIOD_D or baseline < 2 * pmax:
+        return lc, []
+    freq = np.linspace(1 / pmax, 1 / PREWHITEN_MIN_PERIOD_D,
+                       min(int(5 * baseline / PREWHITEN_MIN_PERIOD_D), 200_000))
+    removed: list[dict] = []
+    for _ in range(cfg.prewhiten_max_terms):
+        sd = 1.4826 * np.nanmedian(np.abs(resid[ok] - np.nanmedian(resid[ok])))
+        fit = ok & (resid > np.nanmedian(resid[ok]) - 3 * sd)
+        ls = LombScargle(t[fit], resid[fit])
+        power = ls.power(freq, method="fast")
+        k = int(np.nanargmax(power))
+        if power[k] < cfg.prewhiten_min_power:
+            break
+        model = ls.model(t, freq[k])
+        resid = resid - (model - ls.offset())
+        amp = float(np.ptp(model) / 2)
+        removed.append({"period_d": float(1 / freq[k]), "power": float(power[k]),
+                        "amplitude_ppm": amp * 1e6})
+    if not removed:
+        return lc, []
+    log.info("Prewhitened %d sinusoid(s) before the dip search: %s", len(removed),
+             ", ".join(f"P={r['period_d']:.3f} d ({r['amplitude_ppm']:.0f} ppm)"
+                       for r in removed))
+    out = lc.copy()
+    out.flux = (resid + np.nanmedian(f[ok])) * lc.flux.unit
+    return out, removed

@@ -1,5 +1,6 @@
 """End-to-end smoke test of the pipeline on a synthetic planet, no network."""
 
+import numpy as np
 import pytest
 
 from src.pipeline import analyze_target
@@ -31,3 +32,29 @@ def test_short_period_pulsator_does_not_break_the_pipeline(variable_factory, kin
     assert sig["duration"] <= 0.2 * sig["period"] * 1.02     # astropy rounds durations ~1%
     assert report.features["duty_cycle"] <= 0.2 * 1.02
     assert report.preprocessing["n_cadences"] > 1000
+
+
+def _planet_on_fast_variable(var_amp, seed=4):
+    from tests.conftest import T_START, build_collection, trapezoid
+
+    def model(t):
+        return (1 + var_amp * np.sin(2 * np.pi * t / 1.19)
+                + 0.4 * var_amp * np.sin(2 * np.pi * t / 0.61 + 1.0)
+                - trapezoid(t, 3.31, T_START + 0.7, 0.005, 0.11, 0.015))
+
+    return build_collection(model, n_sectors=2, noise_ppm=600, seed=seed)
+
+
+def test_prewhitening_uncovers_a_transit_under_fast_variability():
+    """Transit (0.5%, 3.31 d) on a star varying by ~1% every ~1.2 days."""
+    report = analyze_target("synthetic active star", collection=_planet_on_fast_variable(0.006))
+    removed = report.preprocessing["prewhitened"]
+    assert removed and removed[0]["period_d"] == pytest.approx(1.19, rel=0.02)
+    assert report.signals[0]["period"] == pytest.approx(3.31, rel=0.002)
+    assert report.signals[0]["depth_ppm"] == pytest.approx(5000, rel=0.35)   # untouched curve
+
+
+def test_prewhitening_leaves_a_quiet_planet_alone(planet_factory):
+    coll = planet_factory(period=3.0, depth=0.006, duration=0.12, n_sectors=2)
+    report = analyze_target("quiet planet", collection=coll)
+    assert report.preprocessing["prewhitened"] == []

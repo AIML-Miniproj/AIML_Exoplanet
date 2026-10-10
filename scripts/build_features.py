@@ -45,13 +45,15 @@ def main() -> None:
     ap.add_argument("--n-jobs", type=int, default=None,
                     help=f"parallel workers (default {CONFIG.n_jobs}, max {CONFIG.max_n_jobs})")
     ap.add_argument("--retry-failed", action="store_true")
+    ap.add_argument("--feature-set", default="features",
+                    help="output folder under data/processed (e.g. fresh_eb for a check set)")
     ap.add_argument("--confirm-long", action="store_true",
                     help=f"allow runs estimated above {CONFIG.max_job_minutes:.0f} minutes")
     ap.add_argument("--sector-source", default="spoc_index", choices=["spoc_index", "search"],
                     help="spoc_index: SPOC 2-min files from MAST's bulk lists (fast, v1 policy)")
     args = ap.parse_args()
     setup_logging()
-    cfg = replace(CONFIG, sector_source=args.sector_source)
+    cfg = replace(CONFIG, sector_source=args.sector_source, feature_set=args.feature_set)
 
     path = args.labels
     if path is None:
@@ -77,9 +79,10 @@ def main() -> None:
     df = build_features(labels, cfg=cfg, preset=args.preset, n_jobs=args.n_jobs,
                         retry_failed=args.retry_failed)
     out = CONFIG.paths.processed
-    df.to_parquet(out / "features.parquet", index=False)
+    df.to_parquet(out / f"{args.feature_set}.parquet", index=False)
     summary = summarize(df)
-    (out / "features_summary.json").write_text(json.dumps(summary, indent=1, default=str))
+    (out / f"{args.feature_set}_summary.json").write_text(json.dumps(summary, indent=1,
+                                                                     default=str))
     print(json.dumps(summary, indent=1, default=str))
 
 

@@ -67,17 +67,29 @@ def fit_trapezoid(pt: np.ndarray, flux: np.ndarray, duration: float, depth0: flo
     return out
 
 
+LOCAL_BASELINE_WIDTHS = 4.0    # secondary baseline: out to 4 dip widths from the trial phase
+
+
 def secondary_search(t: np.ndarray, flux: np.ndarray, period: float, t0: float,
-                     duration: float, beta: float = 1.0) -> dict[str, float]:
-    """Depth and significance of a second dip at phase 0.5 and at the best phase 0.3-0.7."""
+                     duration: float, beta: float = 1.0,
+                     primary_halfwidth: float | None = None) -> dict[str, float]:
+    """Depth and significance of a second dip at phase 0.5 and at the best phase 0.3-0.7.
+
+    The baseline is local: points within a few dip widths either side of the
+    trial phase, never within ``primary_halfwidth`` of the main eclipse. A
+    baseline taken over the whole orbit is pulled around by the main eclipse's
+    wings and by smooth brightness changes over the orbit (light reflected by a
+    companion makes phase 0.5 the brightest point), which can make a missing
+    secondary look strongly "negative".
+    """
     ph = phase(t, period, t0)
     dphase = duration / period
-    primary = np.abs(phase_time(t, period, t0)) < duration
+    primary = np.abs(phase_time(t, period, t0)) < (primary_halfwidth or duration)
 
     def at(p0: float) -> tuple[float, float]:
         d_ph = np.abs((ph - p0 + 0.5) % 1 - 0.5)
         inside = d_ph < dphase / 2
-        out_m = ~primary & (d_ph > dphase)
+        out_m = ~primary & (d_ph > dphase) & (d_ph < LOCAL_BASELINE_WIDTHS * dphase)
         depth, err, _ = box_depth(flux, inside, out_m, beta)
         return depth, err
 
@@ -193,9 +205,13 @@ def transit_features(lc_flat: lk.LightCurve, signal: Signal, star=None,
     else:
         feats["odd_even_depth_sigma_2p"] = NAN
 
-    feats.update(secondary_search(t, f, P, t0, dur, beta))
-
     trap = fit_trapezoid(pt, f, dur, signal.depth, cadence)
+    # The secondary's baseline must not include the main eclipse's wings. The
+    # search duration is coarse (and capped), so use the fitted full width when
+    # it is larger, with the whole width as margin on each side.
+    primary_halfwidth = max(dur, trap["t14"]) if trap["ok"] else dur
+    feats.update(secondary_search(t, f, P, t0, dur, beta, primary_halfwidth))
+
     feats["ingress_to_total_ratio"] = trap["frac"]
     feats["t14_hr"] = trap["t14"] * 24 if trap["ok"] else NAN
     feats["trapezoid_chi2_vs_box_chi2"] = safe_ratio(trap["chi2_trap"], trap["chi2_box"])
