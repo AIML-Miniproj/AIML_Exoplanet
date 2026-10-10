@@ -23,25 +23,30 @@
 
 | Model | Overall score (macro-F1) | Accuracy | Planet F1 | EB F1 | Variable F1 | Noise F1 |
 |---|---|---|---|---|---|---|
-| **XGBoost (used by the app, calibrated)** | 0.67 +/- 0.14 | 0.69 +/- 0.11 | 0.84 +/- 0.11 | 0.75 +/- 0.15 | 0.60 +/- 0.12 | 0.51 +/- 0.38 |
-| Logistic regression (baseline) | 0.65 +/- 0.09 | 0.66 +/- 0.08 | 0.78 +/- 0.13 | 0.68 +/- 0.11 | 0.57 +/- 0.11 | 0.58 +/- 0.23 |
-| Random forest (baseline) | 0.67 +/- 0.10 | 0.68 +/- 0.10 | 0.78 +/- 0.14 | 0.71 +/- 0.16 | 0.60 +/- 0.13 | 0.59 +/- 0.23 |
+| **XGBoost (used by the app, calibrated)** | 0.76 +/- 0.10 | 0.77 +/- 0.09 | 0.77 +/- 0.11 | 0.82 +/- 0.11 | 0.80 +/- 0.13 | 0.66 +/- 0.24 |
+| Logistic regression (baseline) | 0.63 +/- 0.09 | 0.65 +/- 0.07 | 0.81 +/- 0.12 | 0.64 +/- 0.13 | 0.49 +/- 0.23 | 0.58 +/- 0.19 |
+| Random forest (baseline) | 0.71 +/- 0.12 | 0.71 +/- 0.11 | 0.74 +/- 0.17 | 0.72 +/- 0.18 | 0.72 +/- 0.13 | 0.65 +/- 0.16 |
 
-All three models perform about the same; XGBoost is kept because it is best on
-planets and eclipsing binaries, the two classes the app is mainly about.
+**Which model?** XGBoost scores highest overall in this run, mainly because it
+separates variable stars better. On planets alone, logistic regression did as
+well or slightly better (F1 0.81 vs 0.77), and in an earlier training run on an
+almost identical star list (before the last pipeline fixes) all three models
+were equivalent. With 100 stars these gaps are within what a different set of
+stars could change. XGBoost is used by the app because it allows exact
+per-star explanations ("why do we think so?").
 
 **In plain words** (every star scored once by a model that had not seen it):
 
 | Truly a... | called Planet | called EB | called Variable | called Noise |
 |---|---|---|---|---|
-| Planet (25) | **22** | 0 | 0 | 3 |
-| Eclipsing binary (25) | 1 | **18** | 5 | 1 |
-| Variable star (25) | 0 | 4 | **15** | 6 |
-| Noise (25) | 5 | 1 | 5 | **14** |
+| Planet (25) | **19** | 0 | 0 | 6 |
+| Eclipsing binary (25) | 1 | **19** | 4 | 1 |
+| Variable star (25) | 0 | 1 | **20** | 4 |
+| Noise (25) | 4 | 1 | 1 | **19** |
 
-- Out of 25 real planets, it correctly flags **22** and never mistakes one for an eclipsing binary.
-- When the planet threshold is set so that only about **1 in 20 eclipsing binaries** slips through as "planet", it still keeps about **92%** of real planets (+/- 11%).
-- Variable stars and noise are the weakest classes: they are often confused with each other, because a quiet variable star and a noisy flat star can look alike over two sectors.
+- Out of 25 real planets, it flags **19** and never mistakes one for an eclipsing binary; the other 6 are called "noise" (mostly shallow transits).
+- When the planet threshold is set so that only about **1 in 20 eclipsing binaries** slips through as "planet", it keeps about **96%** of real planets (+/- 9%) in this ranking test.
+- Noise remains the weakest class; planets with shallow dips and noise are the most common mix-up.
 - Probabilities are calibrated (a sigmoid curve per class, itself checked with the same 5 groups), so "70% planet" means roughly 7 in 10 such cases are planets, within the limits of 100 stars.
 
 Plots: `outputs/triage_confusion.png`, `outputs/triage_reliability.png`,
@@ -53,7 +58,7 @@ Plots: `outputs/triage_confusion.png`, `outputs/triage_reliability.png`,
 |---|---|---|
 | Planet | NASA Exoplanet Archive TESS Objects of Interest (TOI) table | confirmed or known planets (CP, KP), period 0.5-15 days |
 | Eclipsing binary | TESS eclipsing binary catalog | all entries with period 0.5-15 days |
-| Variable star | Gaia DR3 variability classification | short-timescale classes (rotation/spots, delta Scuti/gamma Doradus, RR Lyrae, Cepheid, other); long-period/irregular variables excluded; not in the TOI list or the EB catalog |
+| Variable star | Gaia DR3 variability classification | short-timescale classes: 8 rotating/spotted, 7 delta Scuti/gamma Doradus, 4 RR Lyrae, 4 Cepheids, 2 other; long-period/irregular variables excluded; not in the TOI list or the EB catalog |
 | Noise | TOI false alarms (FA) + random 2-minute targets in none of the lists above | |
 
 Unconfirmed TOI candidates (PC/APC) are never used for training. Stars whose
@@ -66,7 +71,7 @@ The period the pipeline finds on its own, compared with the catalog value:
 | Class | Stars | Period recovered | Notes |
 |---|---|---|---|
 | Planet | 25 | **25 / 25** at the catalog period | |
-| Eclipsing binary | 25 | **25 / 25** | 15 at the true period, 10 at half of it (two similar eclipses look like one dip repeating twice as often) |
+| Eclipsing binary | 25 | **25 / 25** | 15 at the true period, 10 at half of it (two similar eclipses look like one dip repeating twice as often); see the orbital-period check below |
 | Variable star | 25 | **25 / 25** show a clear repeating pattern (false-alarm chance below 1%) | only 1 has a catalog period to compare; it does not match (see limitations) |
 | Noise | 25 | no catalog period | 2 / 25 still pass the dip-detection threshold |
 
@@ -85,20 +90,27 @@ The period the pipeline finds on its own, compared with the catalog value:
   spotted star's light curve changes between rotations. Over two sectors the
   measured period can come out at a multiple of the true rotation period. The one
   training rotator with a catalog period (3.41 days) was measured at 6.38 days.
-- **Eclipsing-binary true period.** The rule that decides between the detected
-  period and twice it is right for 15 of the 25 training binaries. It fails
-  mostly when no second eclipse is visible: it then assumes two equal eclipses
-  (doubles the period), but most such binaries in the sample were already found
-  at their true period. Treat a binary's period as uncertain by a factor of 2
-  when the report flags it as ambiguous.
+- **Eclipsing-binary orbital period.** It is decided by a simple rule
+  (alternating dips differ -> double; a second eclipse is visible -> keep;
+  neither -> keep, flagged "ambiguous"). On 25 binaries never used for training
+  or design it is right for **23 of 25**. Most of those were already found at
+  their true period; of the 4 found at half the period, 3 were corrected. Treat
+  a binary flagged "ambiguous" as possibly twice as long.
 - **Trained on 2-minute data from 2 sectors, Tmag 8-12.** Fainter stars, other
   cadences, or very long periods (over 15 days) are outside what it has seen.
   Features that grow with the amount of data are not used by the model, so runs
   with more sectors should give consistent answers (checked below).
 - **Stars with strong, fast brightness changes can hide a planet.** If a star's
   own variability repeats on about the same timescale as the cleaning window
-  (about a day), part of it survives the cleaning and the dip search locks onto
-  it instead of a shallow transit (see TOI 862.01 below).
+  (about a day), part of it survives the cleaning. The dip search therefore also
+  tries a copy with up to 3 strong, fast sine waves removed (prewhitening), and
+  uses it only when it gives a clearly stronger detection, so a binary whose
+  light curve is itself almost a sine wave is not erased. This helps with enough
+  data, but not always: TOI 862.01 (below) is found with 10 sectors, not with 2.
+- **Weak second signals.** With the standard settings the search looks for a
+  second signal after removing the first. On HD 209458 it reports a weak one
+  (14.7 days, about 260 ppm, just above the detection threshold) that is
+  probably not real. Treat second signals near the threshold with caution.
 
 ## Checks on real stars
 
@@ -106,30 +118,34 @@ The period the pipeline finds on its own, compared with the catalog value:
 
 | Star | Sectors used | Verdict | Period found |
 |---|---|---|---|
-| HD 209458 (planet) | 1 | Planet (Medium, 75%) | 3.5245 d |
-| HD 209458 (planet) | 2 (all TESS has) | Planet (High, 97%) | 3.5248 d |
-| TOI 862.01 (candidate) | 2 | Variable (Medium, 78%) | 1.109 d |
-| TOI 862.01 (candidate) | 10 | Noise (Medium, 61%) | 1.109 d |
+| HD 209458 (planet) | 1 | Planet (Medium, 74%) | 3.5245 d |
+| HD 209458 (planet) | 2 (all TESS has) | Planet (High, 98%) | 3.5248 d |
+| TOI 862.01 (candidate) | 2 | Variable (High, 87%) | 1.109 d (the star's own variability) |
+| TOI 862.01 (candidate) | 10 | Variable (Low, 39%; planet 23%) | 3.3102 d (the catalog transit) |
 
-HD 209458 keeps its verdict; more data raises the confidence, as it should.
-TOI 862.01 does **not**: in both runs the search missed the catalog transit
-(3.31 days, 0.5% deep) and found the star's own variability instead (a
-repeating pattern near 1.1-1.2 days, too weak to count as a detection), and
-the verdict on that non-transit signal changed with the amount of data.
+HD 209458 keeps its verdict and becomes more confident with more data.
+TOI 862.01 keeps the label "variable", but the evidence underneath changes:
+with 2 sectors the transit is not found; with 10 it is (after the star's fast
+variability is removed for the search), yet the variability still dominates
+the verdict. It is shown in the app as a tricky case.
 
-**The 4 demo stars** (the app's standard settings, up to 10 sectors):
+**Demo stars** (the app's standard settings, up to 10 sectors):
 
 | Star | What it is | Verdict | Period found | Catalog period |
 |---|---|---|---|---|
-| HD 209458 b | Confirmed planet | **Planet** (High, 97%) | 3.5248 d | 3.5247 d |
-| TOI 1385.01 | Candidate later shown to be an eclipsing binary | **Eclipsing binary** (High, 80%) | 4.523 d (true orbit 9.046 d after the binary check) | 9.0457 d |
-| HIP 36213 | RR Lyrae pulsating star | **Eclipsing binary** (Medium, 51%), Variable second (32%): **wrong** | 0.6284 d | 0.6284 d |
-| TOI 862.01 | Unconfirmed candidate | **Noise** (Medium, 61%) | 1.109 d | 3.310 d |
+| HD 209458 b | Confirmed planet | **Planet** (High, 98%) | 3.5248 d | 3.5247 d |
+| TOI 1385.01 | Candidate later shown to be an eclipsing binary | **Eclipsing binary** (High, 87%) | 4.523 d (orbit 9.046 d after the binary check) | 9.0457 d |
+| HIP 36213 | RR Lyrae pulsating star (not in training) | **Variable** (Medium, 70%) | 0.6284 d | 0.6284 d |
+| TOI 476.01 | Unconfirmed candidate | **Planet** (Low, 44%) | 3.0630 d | 3.0630 d |
+| *Tricky case:* TOI 862.01 | Unconfirmed candidate on a fast-varying star | Variable (Low, 39%) | 3.3102 d | 3.3102 d |
 
-HIP 36213 is a real mistake: the training set holds only 3 large-amplitude
-pulsating stars, and a pulsation whose dimming repeats exactly with the
-detected period looks binary-like to the model. It is kept in the demo and
-shown as a tricky case.
+**Eclipsing-binary orbital period** (binary rule vs catalog, match within 1%):
+
+| Set | Correct | Found at true period / at half |
+|---|---|---|
+| 25 binaries never used for training or design | **23 / 25** | 20 / 4 (1 at another ratio) |
+| 25 training binaries (*seen while designing the rule*) | 22 / 25 | 15 / 10 |
+
 <!-- METRICS_END -->
 
 ## What the model does

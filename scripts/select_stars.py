@@ -34,9 +34,12 @@ import pandas as pd  # noqa: E402
 from config import CONFIG  # noqa: E402
 
 HD209458_TIC = 420814525
-# The 4 demo stars: HD 209458 b, TOI 1385.01 (EB, TOI false positive),
-# HIP 36213 (RR Lyrae), TOI 862.01 (unconfirmed candidate)
-DEMO_SET = (420814525, 329864959, 441584047, 309254930)
+# Demo stars by slot: HD 209458 b, TOI 1385.01 (EB, TOI false positive),
+# HIP 36213 (RR Lyrae), TOI 476.01 (unconfirmed candidate), and the "tricky
+# cases" group: TOI 862.01, whose transit hides under the star's own fast
+# variability (shown honestly, not tuned away).
+DEMO_SET = {"planet": 420814525, "eb_toi_fp": 329864959, "variable": 441584047,
+            "toi_pc": 156987351, "tricky": 309254930}
 N_RR, N_CEP = 4, 4         # large-amplitude pulsators among the 25 training variables
 TRAIN_SECTORS = 2          # the training preset uses the 2 SPOC sectors closest in time
 CLASSES = ("PLANET", "EB", "VARIABLE", "NOISE")
@@ -341,7 +344,7 @@ def swap_in_pulsators(train: pd.DataFrame, exclude: set[int], n_rr: int = 2,
 def check_dispositions(demo: pd.DataFrame) -> None:
     """Re-read the cached TOI table: demo TOIs must still have their expected status."""
     toi = pd.read_parquet(CONFIG.paths.labels / "raw" / "toi.parquet")
-    for slot, expected in (("eb_toi_fp", "FP"), ("toi_pc", "PC")):
+    for slot, expected in (("eb_toi_fp", "FP"), ("toi_pc", "PC"), ("tricky", "PC")):
         for tic in demo.loc[demo["slot"] == slot, "tic_id"]:
             disp = sorted(set(toi.loc[toi["tid"] == tic, "tfopwg_disp"].dropna()))
             status = "OK" if disp == [expected] else "CHANGED"
@@ -370,7 +373,8 @@ def main() -> None:
     train, added, dropped = swap_in_pulsators(train, exclude, n_rr=N_RR, n_cep=N_CEP)
     train, swaps, n_noise_checked = enforce_quality(train, lab, exclude, args.seed)
     assert (train.groupby("label").size() == args.per_class).all(), train.groupby("label").size()
-    final_demo = demo[demo["tic_id"].isin(DEMO_SET)].drop_duplicates("slot")
+    final_demo = pd.concat([demo[demo["tic_id"] == tic].head(1).assign(slot=slot)
+                            for slot, tic in DEMO_SET.items()], ignore_index=True)
     fresh = fresh_eb_set(train, exclude, sec, args.fresh_ebs, args.seed)
 
     out = CONFIG.paths.labels
