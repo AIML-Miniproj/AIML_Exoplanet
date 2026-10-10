@@ -3,7 +3,8 @@
     python scripts/select_stars.py [--per-class 25]
 
 No light curves are downloaded and no catalogs are re-fetched: everything
-comes from data/labels/. Writes data/labels/training_set.parquet,
+comes from data/labels/, apart from one batched TIC lookup to screen the chosen
+stars' catalog entries (cached in data/labels/tic_screen.json). Writes data/labels/training_set.parquet,
 data/labels/demo_candidates.csv and data/labels/demo_set.csv, and prints them.
 
 Training filters (all classes): Tmag 8-12 and at least 2 SPOC 2-minute sectors.
@@ -11,8 +12,10 @@ PLANET and EB also need a catalog period of 0.5-15 days. VARIABLE skips the
 long-period/irregular class, whose changes are far slower than a 2-sector
 window can show, and swaps 3 rotators for large-amplitude pulsators (2 RR Lyrae,
 1 Cepheid) from the cached Gaia list. Random NOISE stars in the cached Gaia
-variable list are replaced. Stars whose features were already built are kept
-first. Demo candidates are never used for training.
+variable list are replaced. Every chosen star's TIC entry is checked (one
+batched query, cached); entries flagged SPLIT/DUPLICATE/ARTIFACT are replaced by
+the next eligible star of the same class. Stars whose features were already
+built are kept first. Demo candidates are never used for training.
 """
 
 from __future__ import annotations
@@ -138,29 +141,88 @@ def demo_candidates(lab: pd.DataFrame, sec: pd.DataFrame, names: dict[int, str])
     return out.join(sec[["train_sectors", "gap_sectors"]], on="tic_id")
 
 
+def eligible_pool(lab: pd.DataFrame, cls: str, exclude: set[int], seed: int) -> pd.DataFrame:
+    """All stars of ``cls`` passing the training filters, in selection order."""
+    built = _built_tics()
+    g = lab[(lab["label"] == cls) & lab["tmag"].between(8, 12) & (lab["n_spoc"] >= 2)
+            & ~lab["tic_id"].isin(exclude)]
+    if cls in ("PLANET", "EB"):
+        g = g[g["catalog_period"].between(0.5, 15)]
+    if cls == "VARIABLE":
+        g = g[g["var_class"] != SLOW_VARIABLE_CLASS]
+        g = g.assign(_p=g["catalog_period"].between(0.05, 15))
+    else:
+        g = g.assign(_p=False)
+    g = g.assign(_built=g["tic_id"].isin(built),
+                 _r=np.random.default_rng(seed).random(len(g)))
+    g = g.sort_values(["_built", "_p", "_r"], ascending=[False, False, True])
+    return g.drop(columns=["_built", "_p", "_r"]).assign(
+        reused_build=lambda d: d["tic_id"].isin(built))
+
+
 def training_set(lab: pd.DataFrame, per_class: int, exclude: set[int],
                  seed: int) -> pd.DataFrame:
-    built = _built_tics()
-    ok = lab["tmag"].between(8, 12) & (lab["n_spoc"] >= 2) & ~lab["tic_id"].isin(exclude)
-    period_ok = lab["catalog_period"].between(0.5, 15)
     picks = []
     for cls in CLASSES:
-        g = lab[(lab["label"] == cls) & ok]
-        if cls in ("PLANET", "EB"):
-            g = g[period_ok[g.index]]
-        if cls == "VARIABLE":
-            g = g[g["var_class"] != SLOW_VARIABLE_CLASS]
-            g = g.assign(_p=g["catalog_period"].between(0.05, 15))
-        else:
-            g = g.assign(_p=False)
-        g = g.assign(_built=g["tic_id"].isin(built),
-                     _r=np.random.default_rng(seed).random(len(g)))
-        g = g.sort_values(["_built", "_p", "_r"], ascending=[False, False, True])
+        g = eligible_pool(lab, cls, exclude, seed)
         if len(g) < per_class:
             print(f"WARNING: only {len(g)} {cls} stars pass the filters")
-        picks.append(g.head(per_class).drop(columns=["_built", "_p", "_r"])
-                     .assign(reused_build=lambda d: d["tic_id"].isin(built)))
+        picks.append(g.head(per_class))
     return pd.concat(picks, ignore_index=True)
+
+
+def screen_tic_entries(tics, batch: int = 100) -> dict[int, str]:
+    """TIC id -> problem with its catalog entry ("" if fine).
+
+    Entries flagged SPLIT, DUPLICATE or ARTIFACT (or missing) are rejected by the
+    resolver, so a training run on them always fails. One batched query per 100
+    stars; answers are cached in data/labels/tic_screen.json.
+    """
+    from src.ingest.resolver import _BAD_DISPOSITIONS, _query_tic_by_id
+
+    path = CONFIG.paths.labels / "tic_screen.json"
+    cache = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    todo = [int(t) for t in tics if str(int(t)) not in cache]
+    for i in range(0, len(todo), batch):
+        chunk = todo[i:i + batch]
+        rows = {}
+        for r in _query_tic_by_id(chunk):
+            rows.setdefault(int(r["ID"]), []).append(str(r.get("disposition") or ""))
+        for t in chunk:
+            disp = rows.get(t)
+            bad = sorted(set(disp) & _BAD_DISPOSITIONS) if disp else []
+            cache[str(t)] = ("no TIC entry" if disp is None else
+                             f"TIC disposition {bad[0]}" if len(bad) == len(set(disp)) else "")
+        path.write_text(json.dumps(cache, indent=0), encoding="utf-8")
+    return {int(t): cache[str(int(t))] for t in tics}
+
+
+def replace_flagged(train: pd.DataFrame, lab: pd.DataFrame, exclude: set[int],
+                    seed: int) -> tuple[pd.DataFrame, list[tuple[pd.Series, pd.Series, str]]]:
+    """Swap stars with a bad TIC entry for the next eligible star of the same class."""
+    problems = screen_tic_entries(train["tic_id"])
+    swaps = []
+    for idx in [i for i, t in train["tic_id"].items() if problems[int(t)]]:
+        old = train.loc[idx]
+        used = set(train["tic_id"]) | exclude
+        pool = eligible_pool(lab, old["label"], used, seed)
+        if old["label"] == "NOISE" and old["source"] == "random_2min":
+            pool = pool[pool["source"] == "random_2min"]
+        new = None
+        for k in range(0, len(pool), 10):
+            cand = pool.iloc[k:k + 10]
+            ok = screen_tic_entries(cand["tic_id"])
+            good = cand[[not ok[int(t)] for t in cand["tic_id"]]]
+            if len(good):
+                new = good.iloc[0]
+                break
+        if new is None:
+            print(f"WARNING: no clean replacement for {old['label']} TIC {old['tic_id']}")
+            continue
+        train.loc[idx, new.index.intersection(train.columns)] = new[
+            new.index.intersection(train.columns)]
+        swaps.append((old, new, problems[int(old["tic_id"])]))
+    return train, swaps
 
 
 def swap_in_pulsators(train: pd.DataFrame, exclude: set[int], n_rr: int = 2,
@@ -271,6 +333,8 @@ def main() -> None:
     train = training_set(lab, args.per_class, exclude, args.seed)
     train, added, dropped = swap_in_pulsators(train, exclude)
     train, bad_noise = drop_variable_noise(train, lab, exclude, args.seed)
+    train, swaps = replace_flagged(train, lab, exclude, args.seed)
+    assert (train.groupby("label").size() == args.per_class).all(), train.groupby("label").size()
     final_demo = demo[demo["tic_id"].isin(DEMO_SET)].drop_duplicates("slot")
 
     out = CONFIG.paths.labels
@@ -282,6 +346,11 @@ def main() -> None:
           .to_string(index=False))
     print("Rotators dropped:\n" + dropped[["tic_id", "name", "tmag", "notes"]]
           .to_string(index=False))
+    print(f"TIC screening: {len(swaps)} star(s) replaced")
+    for old_row, new_row, why in swaps:
+        print(f"  {old_row['label']}: TIC {old_row['tic_id']} ({why}) -> TIC {new_row['tic_id']} "
+              f"Tmag {new_row['tmag']:.2f}, {int(new_row['n_spoc'])} sectors, "
+              f"{new_row['source']}, uses sectors {new_row['train_sectors']}")
     if not bad_noise.empty:
         print("Noise stars dropped:\n" + bad_noise[["tic_id", "tmag"]].to_string(index=False))
 

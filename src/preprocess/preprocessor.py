@@ -201,11 +201,21 @@ def transit_mask(time: np.ndarray, period: float, t0: float, duration: float,
 
 def redetrend_masked(pre: Preprocessed, ephemerides: list[tuple[float, float, float]],
                      cfg: Config = CONFIG, factor: float = 1.5) -> Preprocessed:
-    """Second detrending pass with the detected dips left out of the trend fit."""
+    """Second detrending pass with the detected dips left out of the trend fit.
+
+    Safety net: if the dips would hide more than ``cfg.max_masked_fraction`` of
+    the points, the trend cannot be fitted on what is left, so the first pass is
+    kept unchanged.
+    """
     t = pre.lc_norm.time.value
     mask = np.zeros(t.size, bool)
     for period, t0, duration in ephemerides:
         mask |= transit_mask(t, period, t0, duration, factor)
+    if mask.mean() > cfg.max_masked_fraction:
+        log.warning("Masked re-detrend skipped: the dips would hide %.0f%% of the points",
+                    100 * mask.mean())
+        return replace(pre, stats=dict(pre.stats, redetrended=False,
+                                       redetrend_skipped_masked_frac=float(mask.mean())))
     lc_flat, trend = _flatten_all(pre.lc_norm, pre.window_d, cfg, mask)
     stats = dict(pre.stats, redetrended=True, n_masked=int(mask.sum()))
     return replace(pre, lc_flat=lc_flat, trend=trend, stats=stats)

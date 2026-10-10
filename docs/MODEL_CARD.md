@@ -37,6 +37,7 @@ and ratios.
 |---|---|
 | `period_d` | Time between dips, in days |
 | `duration_hr` | How long each dip lasts (from the search grid), in hours |
+| `duty_cycle` | Dip duration divided by the period: the share of each orbit spent in the dip. The search never tries more than 0.2 (a longer "dip" is not a dip) |
 | `depth_ppm` | How much light is lost during the dip, in parts per million |
 | `depth_snr` | Depth divided by its uncertainty: how clearly the dip stands out (*display only*) |
 | `depth_snr_per_transit` | The same, per dip: `depth_snr` divided by the square root of the number of dips |

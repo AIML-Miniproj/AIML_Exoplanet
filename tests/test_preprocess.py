@@ -116,3 +116,12 @@ def test_transit_mask_and_binning(planet_factory):
     assert len(binned) < len(pre.lc_flat) / 4
     assert np.all(np.isfinite(binned.flux.value))
     assert bin_lightcurve(binned, 10) is binned
+
+
+def test_masked_redetrend_is_skipped_when_dips_would_hide_most_points(variable_factory):
+    pre = preprocess(variable_factory(kind="sinusoid", period=0.5, n_sectors=1))
+    # a "dip" lasting 70% of the period: the 1.5x mask would cover everything
+    out = redetrend_masked(pre, [(0.5, pre.lc_norm.time.value[0], 0.35)])
+    assert out.lc_flat is pre.lc_flat
+    assert out.stats["redetrended"] is False
+    assert out.stats["redetrend_skipped_masked_frac"] > 0.5

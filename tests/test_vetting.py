@@ -169,3 +169,16 @@ def test_fold_doubles_when_alternate_minima_differ():
     out = choose_fold_period(t, f, p_ls)
     assert out["var_period_d"] == pytest.approx(p_true, rel=0.01)
     assert out["var_period_halves_diff"] > 0.05
+
+
+def test_fold_never_doubles_with_too_few_cycles():
+    """A spotted star seen for only ~4 cycles of 2P: halves differ because the spots
+    change, not because the period is doubled."""
+    from src.vetting.variability_features import choose_fold_period
+
+    t, rng = _cadence(days=54.0)
+    p = 6.4
+    amp = 0.01 * (1 + 0.6 * np.sin(2 * np.pi * t / 30))       # spots growing and fading
+    f = amp * np.sin(2 * np.pi * t / p) + rng.normal(0, 5e-4, t.size)
+    out = choose_fold_period(t, f, p)
+    assert out["var_period_d"] == pytest.approx(p)

@@ -170,6 +170,7 @@ def transit_features(lc_flat: lk.LightCurve, signal: Signal, star=None,
     feats: dict[str, float] = {
         "period_d": P,
         "duration_hr": dur * 24,
+        "duty_cycle": dur / P if P > 0 else NAN,     # share of the orbit spent in the dip
         "depth_ppm": signal.depth * 1e6,
         "depth_snr": signal.depth_snr,
         "sde": signal.sde,

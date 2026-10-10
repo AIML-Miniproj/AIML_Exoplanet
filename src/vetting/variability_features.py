@@ -42,7 +42,8 @@ def lomb_scargle(t: np.ndarray, f: np.ndarray, pmin: float = LS_PMIN_D,
 
 
 def choose_fold_period(t: np.ndarray, f: np.ndarray, period: float, n_bins: int = 25,
-                       min_chi2: float = 3.0, min_rel_diff: float = 0.05) -> dict[str, float]:
+                       min_chi2: float = 3.0, min_rel_diff: float = 0.05,
+                       min_cycles: int = 8) -> dict[str, float]:
     """Decide whether the periodogram period P or twice it (2P) is the true period.
 
     Folding at 2P puts two consecutive cycles side by side. If the star really
@@ -51,6 +52,10 @@ def choose_fold_period(t: np.ndarray, f: np.ndarray, period: float, n_bins: int 
     differ. 2P is chosen only when the halves differ both clearly (beyond the
     noise) and noticeably (by more than ``min_rel_diff`` of the full amplitude),
     so slow amplitude drifts in a large-amplitude star don't flip the answer.
+
+    It also needs at least ``min_cycles`` cycles of 2P with data. With only a few
+    cycles, changes that are not periodic at all (starspots appearing and fading
+    over a few weeks) can make the two halves differ by chance.
     """
     out = {"var_period_d": NAN, "var_period_halves_diff": NAN, "var_period_halves_chi2": NAN}
     if not np.isfinite(period) or period <= 0 or t.size < 4 * n_bins:
@@ -68,11 +73,13 @@ def choose_fold_period(t: np.ndarray, f: np.ndarray, period: float, n_bins: int 
     ok = np.all(np.isfinite(mean), axis=0) & np.all(err > 0, axis=0)
     if ok.sum() < n_bins // 2:
         return out
+    n_cycles = np.unique(np.floor((t - t.min()) / (2 * period))).size
     diff = mean[0, ok] - mean[1, ok]
     chi2 = float(np.mean(diff**2 / (err[0, ok] ** 2 + err[1, ok] ** 2)))
     amp = float(np.ptp(mean[:, ok]))
     rel = float(np.sqrt(np.mean(diff**2)) / amp) if amp > 0 else NAN
-    doubled = chi2 > min_chi2 and np.isfinite(rel) and rel > min_rel_diff
+    doubled = (chi2 > min_chi2 and np.isfinite(rel) and rel > min_rel_diff
+               and n_cycles >= min_cycles)
     out.update(var_period_d=float(2 * period if doubled else period),
                var_period_halves_diff=rel, var_period_halves_chi2=chi2)
     return out

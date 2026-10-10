@@ -132,6 +132,42 @@ def period_grid(baseline: float, durations: np.ndarray, pmin: float, pmax: float
     return np.sort(1 / freqs), n_full
 
 
+@dataclass
+class PowerResult:
+    """The parts of astropy's BLS result the pipeline uses, one entry per period."""
+
+    period: np.ndarray
+    power: np.ndarray
+    transit_time: np.ndarray
+    duration: np.ndarray
+    depth: np.ndarray
+
+
+def limited_power(model: BoxLeastSquares, periods: np.ndarray, durations: np.ndarray,
+                  max_duty: float) -> PowerResult:
+    """BLS power where each trial period only tries durations <= ``max_duty`` x period.
+
+    A "dip" lasting most of the period is not a dip: on a pulsating star such a
+    fit can cover the whole cycle. astropy applies one list of durations to all
+    periods, so the period grid is split into bands that share the same allowed
+    durations. Periods with no allowed duration get NaN power.
+    """
+    periods = np.asarray(periods, float)
+    durations = np.sort(np.asarray(durations, float))
+    n_allowed = np.searchsorted(durations, max_duty * periods, side="right")
+    out = PowerResult(periods, *(np.full(periods.size, np.nan) for _ in range(4)))
+    for n in np.unique(n_allowed):
+        if n == 0:
+            continue
+        m = n_allowed == n
+        r = model.power(periods[m], durations[:n], objective="likelihood")
+        out.power[m] = r.power
+        out.transit_time[m] = r.transit_time
+        out.duration[m] = r.duration
+        out.depth[m] = r.depth
+    return out
+
+
 def _is_alias(p: float, accepted: list[float], tol: float = 0.01) -> bool:
     return any(abs(p / (q * r) - 1) < tol for q in accepted for r in ALIAS_RATIOS)
 
@@ -155,14 +191,14 @@ def distinct_peaks(periods: np.ndarray, power: np.ndarray, n: int,
 
 
 def _refine(model: BoxLeastSquares, durations: np.ndarray, period: float,
-            coarse_df: float, fine_df: float, pmin: float, pmax: float):
+            coarse_df: float, fine_df: float, pmin: float, pmax: float,
+            max_duty: float) -> PowerResult:
     """Re-search a narrow frequency window around ``period`` at full resolution."""
     f0 = 1 / period
     half = 3 * coarse_df
     n = int(min(max(2 * half / fine_df, 50), 8000))
     freqs = np.linspace(max(f0 - half, 1 / pmax), min(f0 + half, 1 / pmin), n)
-    res = model.power(np.sort(1 / freqs), durations, objective="likelihood")
-    return res
+    return limited_power(model, np.sort(1 / freqs), durations, max_duty)
 
 
 def _stats(model: BoxLeastSquares, period: float, duration: float, t0: float) -> dict[str, Any]:
@@ -194,7 +230,7 @@ def search(lc: lk.LightCurve, cfg: Config = CONFIG, period_min: float | None = N
 
     model = BoxLeastSquares(t, f, dy=e)
     periods, n_full = period_grid(baseline, durations, pmin, pmax, cfg)
-    res = model.power(periods, durations, objective="likelihood")
+    res = limited_power(model, periods, durations, cfg.max_duty_cycle)
     power = np.asarray(res.power, float)
     finite = np.isfinite(power)
     # SDE is measured on sqrt(power) (the "signal residue"). The likelihood power
@@ -215,7 +251,8 @@ def search(lc: lk.LightCurve, cfg: Config = CONFIG, period_min: float | None = N
         p, pw, t0, dur, dep = (periods[i], power[i], res.transit_time[i],
                                res.duration[i], res.depth[i])
         if coarse and rank < cfg.n_refine_peaks:
-            r2 = _refine(model, durations, p, coarse_df, fine_df, pmin, pmax)
+            r2 = _refine(model, durations, p, coarse_df, fine_df, pmin, pmax,
+                         cfg.max_duty_cycle)
             j = int(np.nanargmax(r2.power))
             p, pw, t0, dur, dep = (r2.period[j], r2.power[j], r2.transit_time[j],
                                    r2.duration[j], r2.depth[j])
@@ -248,7 +285,7 @@ def evaluate(lc: lk.LightCurve, signal: Signal, cfg: Config = CONFIG,
     durations = cfg.search_durations()
     p = signal.period
     periods = np.linspace(p * (1 - window_frac), p * (1 + window_frac), 400)
-    res = model.power(periods, durations, objective="likelihood")
+    res = limited_power(model, periods, durations, cfg.max_duty_cycle)
     j = int(np.nanargmax(res.power))
     period, t0, dur = float(res.period[j]), float(res.transit_time[j]), float(res.duration[j])
     stats = _stats(model, period, dur, t0)

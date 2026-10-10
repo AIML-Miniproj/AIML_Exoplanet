@@ -126,3 +126,20 @@ def test_tls_matches_bls(planet_factory):
 
     lc = _flat(planet_factory(period=3.3, n_sectors=1))
     assert search_tls(lc).period == pytest.approx(3.3, rel=0.01)
+
+
+def test_durations_are_limited_to_a_fifth_of_the_period():
+    from astropy.timeseries import BoxLeastSquares
+
+    from src.detect.bls import limited_power
+
+    rng = np.random.default_rng(0)
+    t = np.sort(rng.uniform(0, 27, 4000))
+    f = 1 + 0.01 * np.sin(2 * np.pi * t / 0.526) + rng.normal(0, 1e-3, t.size)
+    periods = np.linspace(0.5, 10, 3000)
+    res = limited_power(BoxLeastSquares(t, f), periods, CONFIG.search_durations(), 0.2)
+    ok = np.isfinite(res.power)
+    assert ok.all()                               # 0.02 d is allowed even at P = 0.5 d
+    # astropy reports durations rounded to its internal time bins (~1%)
+    assert np.all(res.duration[ok] <= 0.2 * periods[ok] * 1.02)
+    assert res.duration[periods > 2].max() > 0.2  # long periods still try long dips

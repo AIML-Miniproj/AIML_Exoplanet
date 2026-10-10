@@ -19,3 +19,15 @@ def test_pipeline_recovers_synthetic_planet(planet_factory):
     assert report.triage["status"] in ("ok", "no_model")
     assert {"lc_norm", "lc_flat", "periodogram", "fold"} <= set(report.plot_data)
     assert report.to_json()   # serialisable
+
+
+@pytest.mark.parametrize("kind,period", [("multiperiodic", 0.13), ("sinusoid", 0.526)])
+def test_short_period_pulsator_does_not_break_the_pipeline(variable_factory, kind, period):
+    """Regression: on a fast pulsator BLS used to fit a "dip" lasting most of the
+    cycle, the masked re-detrend then hid every point and the run crashed."""
+    coll = variable_factory(kind=kind, period=period, amp=0.02, n_sectors=2)
+    report = analyze_target("synthetic pulsator", collection=coll)
+    sig = report.signals[0]
+    assert sig["duration"] <= 0.2 * sig["period"] * 1.02     # astropy rounds durations ~1%
+    assert report.features["duty_cycle"] <= 0.2 * 1.02
+    assert report.preprocessing["n_cadences"] > 1000

@@ -90,12 +90,14 @@ class Config:
     detrend_window_d: float = 0.75
     break_tolerance_d: float = 0.5
     search_bin_minutes: float | None = 10.0
+    max_masked_fraction: float = 0.5        # skip the masked re-detrend if dips cover more
 
     # ── Detection ────────────────────────────────────────────
     period_min_d: float = 0.5
     period_max_d: float = 30.0
     durations_d: tuple[float, ...] = tuple(np.geomspace(0.02, 0.5, 12).round(5))
     frequency_factor: float = 1.0
+    max_duty_cycle: float = 0.2             # dip duration may be at most this share of the period
     max_grid_size: int = 40_000             # coarser grid + local refinement beyond this
     n_refine_peaks: int = 3                 # strongest coarse peaks re-searched at full resolution
     sde_min: float = 7.0
