@@ -2,12 +2,11 @@
 
     python scripts/build_examples.py [--n-jobs 2] [--confirm-long]
 
-Writes data/examples/examples.json (the grouped dropdown) and
-data/examples/demo/<tic>.json (full reports with the standard preset). Extra
-examples are never training stars: eclipsing binaries come from the separate
-fresh EB set, planets and variables from outside the training list. They were
-chosen for good data (bright, clear signal, several sectors), not for how the
-model does on them; the "Tricky cases" group shows real failures honestly.
+Writes data/examples/examples.json (the app's star list) and
+data/examples/demo/<tic>.json (full reports with the standard preset, plus the
+plot views every tab needs, so the examples open without the network). Examples
+are never training stars. They were chosen for good data, not for how the model
+does on them; the "Tricky cases" show real failures honestly.
 """
 
 from __future__ import annotations
@@ -32,23 +31,26 @@ log = logging.getLogger("build_examples")
 
 GROUPS = ["Confirmed planets", "Eclipsing binaries", "Variable stars",
           "Unconfirmed candidates", "Tricky cases"]
+# (group, TIC, name, type shown in the dropdown, short description)
 EXAMPLES = [
-    ("Confirmed planets", 420814525, "HD 209458 b", "hot Jupiter, 3.5-day orbit"),
-    ("Confirmed planets", 248853232, "TOI 5823.01", "known giant planet, 3.9-day orbit"),
-    ("Confirmed planets", 376637093, "TOI 1516.01", "confirmed giant planet, 2.1-day orbit"),
-    ("Eclipsing binaries", 300871545, "TOI 184.01",
-     "planet candidate that turned out to be two stars"),
-    ("Eclipsing binaries", 14709809, "TIC 14709809", "two stars eclipsing every 9.4 days"),
-    ("Eclipsing binaries", 236327696, "TIC 236327696", "close pair of stars, 14-hour orbit"),
-    ("Variable stars", 441584047, "HIP 36213", "pulsating RR Lyrae star"),
-    ("Variable stars", 76046904, "TIC 76046904", "gently pulsating delta Scuti / gamma Dor star"),
-    ("Variable stars", 42362686, "TIC 42362686", "pulsating giant (Cepheid)"),
-    ("Unconfirmed candidates", 156987351, "TOI 476.01", "planet candidate, 3.1-day orbit"),
-    ("Unconfirmed candidates", 327579226, "TOI 1532.01", "planet candidate, 8.9-day orbit"),
-    ("Tricky cases", 329864959, "TOI 1385.01",
-     "two stars whose eclipses look alike: we find half their true orbit"),
+    ("Confirmed planets", 420814525, "HD 209458 b", "Confirmed planet",
+     "A hot Jupiter: a gas giant a bit larger than Jupiter that circles its star every "
+     "3.5 days. The classic transiting planet."),
+    ("Eclipsing binaries", 300871545, "TOI 184.01", "Eclipsing binary (TOI false positive)",
+     "Flagged by TESS as a possible planet, but it turned out to be two stars eclipsing "
+     "each other."),
+    ("Variable stars", 441584047, "HIP 36213", "Variable star (RR Lyrae)",
+     "An old pulsating star that swells and shrinks every 15 hours, changing its "
+     "brightness a lot. No planet involved."),
+    ("Unconfirmed candidates", 156987351, "TOI 476.01", "Unconfirmed planet candidate",
+     "A TESS planet candidate with a dip every 3.1 days that nobody has confirmed yet."),
+    ("Tricky cases", 329864959, "TOI 1385.01", "Tricky case (binary, period ambiguous)",
+     "Two stars whose eclipses look almost alike, so it is hard to tell their orbit from "
+     "half of it."),
     ("Tricky cases", 309254930, "TOI 862.01",
-     "a possible planet hidden by the star's own flickering"),
+     "Tricky case (transit hidden by star's variability)",
+     "A possible planet whose small dips are buried under the star's own brightness "
+     "changes."),
 ]
 # Rough per-star runtimes measured on this machine (standard preset, single worker).
 EST_CACHED_S, EST_DOWNLOAD_S = 45.0, 90.0
@@ -76,13 +78,13 @@ def main() -> None:
     status_dir = CONFIG.paths.processed / "examples_status"
     status_dir.mkdir(parents=True, exist_ok=True)
     training = set(pd.read_parquet(CONFIG.paths.labels / "training_set.parquet")["tic_id"])
-    clash = [name for _, tic, name, _ in EXAMPLES if tic in training]
+    clash = [name for _, tic, name, _, _ in EXAMPLES if tic in training]
     if clash:
         sys.exit(f"Examples must not be training stars: {clash}")
 
     rows = [{"group": g, "tic_id": tic, "display_name": name, "hint": hint,
              "demo_dir": str(demo_dir), "label": g, "source": "example"}
-            for g, tic, name, hint in EXAMPLES if not args.only or tic in args.only]
+            for g, tic, name, _, hint in EXAMPLES if not args.only or tic in args.only]
     workers = CONFIG.workers(args.n_jobs)
     minutes = estimate_minutes(rows, workers)
     log.info("%d examples, estimated %.0f min with %d workers", len(rows), minutes, workers)
@@ -104,12 +106,17 @@ def main() -> None:
             log.error("TIC %s: %s %s", r["tic_id"], r["status"], r.get("reason", ""))
 
     items = []
-    for g, tic, name, hint in EXAMPLES:
+    keep = {f"{tic}.json" for _, tic, _, _, _ in EXAMPLES}
+    for old in demo_dir.glob("*.json"):
+        if old.name not in keep:          # reports of stars no longer in the list
+            old.unlink()
+    for g, tic, name, kind, hint in EXAMPLES:
         path = demo_dir / f"{tic}.json"
         if not path.exists():
             continue
         rep = json.loads(path.read_text(encoding="utf-8"))
-        items.append({"group": g, "tic_id": tic, "display_name": name, "hint": hint,
+        items.append({"group": g, "tic_id": tic, "display_name": name, "type": kind,
+                      "hint": hint,
                       "n_sectors": len(rep.get("sectors", [])),
                       "verdict": rep.get("routing", {}).get("primary_class"),
                       "demo_file": f"demo/{tic}.json"})

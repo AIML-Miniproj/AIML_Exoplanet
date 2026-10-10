@@ -1,4 +1,4 @@
-"""Plotly figures built from a report's ``plot_data`` (already thinned for display)."""
+"""Plotly figures in the app's dark theme (transparent backgrounds, faint grid, Inter)."""
 
 from __future__ import annotations
 
@@ -7,195 +7,169 @@ from typing import Any
 
 import numpy as np
 import plotly.graph_objects as go
+import plotly.io as pio
 
-from ui.text import CLASS_INFO
+from ui.theme import CLASSES, CYAN, VIOLET, color, label, rgba
 
-DOT = "rgba(128,128,128,0.45)"
-LINE = "#333333"
-SECTOR_FILL = "rgba(128,128,128,0.10)"
-DIP = "#D62728"
+POINTS = "rgba(220,235,255,0.42)"
+GRID = "rgba(230,233,255,0.07)"
+AXIS = "#C9CEF5"
+RED = "#FF5470"
+
+pio.templates["exo_dark"] = go.layout.Template(layout=go.Layout(
+    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(13,16,38,0.35)",
+    font=dict(family="Inter, sans-serif", color=AXIS, size=14),
+    xaxis=dict(gridcolor=GRID, zerolinecolor=GRID, linecolor="rgba(230,233,255,0.2)"),
+    yaxis=dict(gridcolor=GRID, zerolinecolor=GRID, linecolor="rgba(230,233,255,0.2)"),
+    legend=dict(bgcolor="rgba(5,6,15,0.5)", bordercolor="rgba(124,92,255,0.3)", borderwidth=1),
+    hoverlabel=dict(bgcolor="#0D1026", font=dict(family="Inter, sans-serif")),
+    margin=dict(l=60, r=20, t=40, b=50), colorway=[CYAN, VIOLET, "#F59E0B", "#E879F9"],
+))
+TEMPLATE = "exo_dark"
+CONFIG = {"displaylogo": False, "modeBarButtonsToRemove": ["lasso2d", "select2d"]}
 
 
-def _layout(fig: go.Figure, x: str, y: str, height: int = 340) -> go.Figure:
-    fig.update_layout(height=height, margin=dict(l=10, r=10, t=10, b=10), showlegend=False,
-                      xaxis_title=x, yaxis_title=y, template="plotly_white",
-                      paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-    fig.update_xaxes(gridcolor="rgba(128,128,128,0.2)")
-    fig.update_yaxes(gridcolor="rgba(128,128,128,0.2)")
+def _fig(height: int, title: str = "", **layout) -> go.Figure:
+    fig = go.Figure()
+    fig.update_layout(template=TEMPLATE, height=height,
+                      title=dict(text=title, font=dict(size=15)) if title else None, **layout)
     return fig
 
 
-def class_colour(report: dict[str, Any]) -> str:
-    cls = (report.get("routing") or {}).get("primary_class") or "NEEDS_REVIEW"
-    return CLASS_INFO.get(cls, CLASS_INFO["NEEDS_REVIEW"])[1]
+def _glow(fig: go.Figure, x, y, col: str, name: str, width: float = 2.2, **kw) -> None:
+    """A thick translucent line under a thin bright one: a soft neon glow."""
+    fig.add_trace(go.Scatter(x=x, y=y, mode="lines", line=dict(color=rgba(col, 0.25),
+                             width=width * 4), hoverinfo="skip", showlegend=False, **kw))
+    fig.add_trace(go.Scatter(x=x, y=y, mode="lines", line=dict(color=col, width=width),
+                             name=name, **kw))
 
 
-def light_curve(report: dict[str, Any]) -> go.Figure | None:
-    """Full light curve with sectors shaded and labelled and predicted dips marked."""
-    pdata = (report.get("plot_data") or {}).get("lc_norm") or {}
-    t, f = np.asarray(pdata.get("time", []), float), np.asarray(pdata.get("flux", []), float)
-    if t.size == 0:
-        return None
-    sec = np.asarray(pdata.get("sector", [0] * t.size))
-    # TESS sectors are years apart: plot days since each sector began, side by side
-    fig = go.Figure()
-    offset, ticks = 0.0, []
-    sig = (report.get("signals") or [{}])[0]
-    for s in np.unique(sec):
-        m = sec == s
-        ts = t[m]
-        x0 = ts.min()
-        x = ts - x0 + offset
-        fig.add_vrect(x0=x.min(), x1=x.max(), fillcolor=SECTOR_FILL, line_width=0,
-                      annotation_text=f"Sector {int(s)}", annotation_position="top left",
-                      annotation_font_size=10)
-        fig.add_trace(go.Scattergl(x=x, y=f[m], mode="markers",
-                                   marker=dict(size=2, color=DOT), hoverinfo="skip"))
-        p, t0 = sig.get("period"), sig.get("t0")
-        if p and t0 and p > 0:
-            n0, n1 = math.ceil((ts.min() - t0) / p), math.floor((ts.max() - t0) / p)
-            for n in range(n0, n1 + 1):
-                ticks.append(t0 + n * p - x0 + offset)
-        offset = x.max() + 2.0
-    if ticks and len(ticks) < 400:
-        lo = float(np.nanpercentile(f, 0.5))
-        fig.add_trace(go.Scatter(x=ticks, y=[lo] * len(ticks), mode="markers",
-                                 marker=dict(symbol="triangle-up", size=7, color=DIP),
-                                 hovertemplate="predicted dip<extra></extra>"))
-    return _layout(fig, "Days (sectors placed side by side)", "Brightness (1 = normal)")
+def _points(fig: go.Figure, x, y, name: str = "Data", col: str = POINTS, size: float = 2.5,
+            **kw) -> None:
+    fig.add_trace(go.Scattergl(x=x, y=y, mode="markers", name=name,
+                               marker=dict(color=col, size=size), **kw))
 
 
-def fold(report: dict[str, Any]) -> go.Figure | None:
-    """All dips stacked: measurements, binned average, fitted dip shape."""
-    pdata = report.get("plot_data") or {}
-    fz = pdata.get("fold_zoom") or {}
-    trap = pdata.get("trapezoid") or {}
-    x, y = np.asarray(fz.get("hours", []), float), np.asarray(fz.get("flux", []), float)
-    if x.size == 0:
-        return None
-    fig = go.Figure()
-    fig.add_trace(go.Scattergl(x=x, y=y, mode="markers", marker=dict(size=3, color=DOT),
-                               hoverinfo="skip"))
-    edges = np.linspace(x.min(), x.max(), 60)
-    idx = np.digitize(x, edges)
-    xb = [x[idx == i].mean() for i in range(1, len(edges)) if (idx == i).sum() >= 3]
-    yb = [y[idx == i].mean() for i in range(1, len(edges)) if (idx == i).sum() >= 3]
-    fig.add_trace(go.Scatter(x=xb, y=yb, mode="lines", line=dict(color=LINE, width=2),
-                             hovertemplate="%{x:.1f} h: %{y:.5f}<extra>average</extra>"))
-    if trap.get("x") and trap.get("model"):
-        fig.add_trace(go.Scatter(x=np.asarray(trap["x"]) * 24, y=trap["model"], mode="lines",
-                                 line=dict(color=class_colour(report), width=3),
-                                 hovertemplate="fitted dip<extra></extra>"))
-    return _layout(fig, "Hours from the middle of the dip", "Brightness (1 = normal)")
+def sector_spans(lc_norm: dict[str, Any]) -> list[tuple[int, float, float]]:
+    t = np.asarray(lc_norm.get("time") or [], float)
+    s = np.asarray(lc_norm.get("sector") or [], float)
+    if not len(t) or len(s) != len(t):
+        return []
+    return [(int(k), float(t[s == k].min()), float(t[s == k].max()))
+            for k in sorted(set(s[np.isfinite(s)].tolist()))]
 
 
-def planet_size(report: dict[str, Any]) -> go.Figure | None:
-    mod = (report.get("modules") or {}).get("planet") or {}
-    mc = (mod.get("details") or {}).get("monte_carlo", {}).get("rp_rearth")
-    if not mc or not all(v is not None and math.isfinite(v) for v in mc):
-        return None
-    lo, med, hi = mc
-    names = ["Earth", "Neptune", "Jupiter", "This object"]
-    sizes = [1.0, 3.88, 11.2, med]
-    colours = ["#7F7F7F", "#7F7F7F", "#7F7F7F", class_colour(report)]
-    fig = go.Figure(go.Bar(x=names, y=sizes, marker_color=colours,
-                           error_y=dict(type="data", symmetric=False, array=[0, 0, 0, hi - med],
-                                        arrayminus=[0, 0, 0, med - lo]),
-                           text=[f"{v:.1f}" for v in sizes], textposition="outside",
-                           hovertemplate="%{x}: %{y:.2f} Earth radii<extra></extra>"))
-    return _layout(fig, "", "Size (Earth = 1)", height=300)
-
-
-def eb_eclipses(report: dict[str, Any]) -> go.Figure | None:
-    """Primary and secondary eclipse side by side, at the binary's true period."""
-    from plotly.subplots import make_subplots
-
-    mod = (report.get("modules") or {}).get("eb") or {}
-    det = mod.get("details") or {}
-    pdata = (report.get("plot_data") or {}).get("fold") or {}
-    ph, fl = np.asarray(pdata.get("phase", []), float), np.asarray(pdata.get("flux", []), float)
-    sig = (report.get("signals") or [{}])[0]
-    if ph.size == 0 or not det:
-        return None
-    factor = (det.get("true_period") or {}).get("factor", 1)
-    p_det, dur = sig.get("period", 1.0), sig.get("duration", 0.1)
-    # The stored fold is at the detected period; at twice it, alternate dips are
-    # primary and secondary: show the detected dip and the stretch half an orbit later.
-    sec_phase = (det.get("eclipses") or {}).get("secondary_phase")
-    win = min(0.25, 2.5 * dur / p_det)
-    fig = make_subplots(rows=1, cols=2, shared_yaxes=True,
-                        subplot_titles=("Main eclipse", "Half an orbit later"))
-    m1 = np.abs(ph) < win
-    fig.add_trace(go.Scattergl(x=ph[m1] * p_det * 24, y=fl[m1], mode="markers",
-                               marker=dict(size=3, color=class_colour(report))), 1, 1)
-    if factor == 2:
-        m2 = m1                       # folded together: the other eclipse is the same dip
-        title_note = "(at the detected period both eclipses overlap)"
-    else:
-        c = (sec_phase if sec_phase is not None and math.isfinite(sec_phase) else 0.5)
-        c = c - 1 if c > 0.5 else c
-        m2 = np.abs(ph - c) < win
-        title_note = ""
-    x2 = (ph[m2] - (0 if factor == 2 else (c if factor != 2 else 0))) * p_det * 24
-    fig.add_trace(go.Scattergl(x=x2, y=fl[m2], mode="markers",
-                               marker=dict(size=3, color="#7F7F7F")), 1, 2)
-    fig.update_layout(height=320, margin=dict(l=10, r=10, t=30, b=10), showlegend=False,
-                      template="plotly_white", paper_bgcolor="rgba(0,0,0,0)",
-                      plot_bgcolor="rgba(0,0,0,0)")
-    fig.update_xaxes(title_text="Hours from eclipse centre " + title_note)
-    fig.update_yaxes(title_text="Brightness", col=1)
+def light_curve(lc: dict[str, Any], spans: list[tuple[int, float, float]], title: str,
+                col: str = POINTS) -> go.Figure:
+    fig = _fig(330, title, xaxis_title="Time (BTJD, days)", yaxis_title="Normalized flux",
+               showlegend=False)
+    for i, (sec, t0, t1) in enumerate(spans):
+        fig.add_vrect(x0=t0, x1=t1, fillcolor=rgba(VIOLET, 0.10 if i % 2 else 0.05),
+                      line_width=0, layer="below")
+        fig.add_vline(x=t0, line=dict(color="rgba(200,205,255,0.25)", dash="dash", width=1))
+        fig.add_annotation(x=0.5 * (t0 + t1), y=1.0, yref="paper", yanchor="bottom",
+                           text=f"S{sec}", showarrow=False,
+                           font=dict(size=12, color="#B4BAE0", family="JetBrains Mono"))
+    _points(fig, lc.get("time"), lc.get("flux"), col=col, size=2)
     return fig
 
 
-def periodogram_ls(report: dict[str, Any]) -> go.Figure | None:
-    ls = (report.get("plot_data") or {}).get("ls") or {}
-    p, pw = np.asarray(ls.get("period", []), float), np.asarray(ls.get("power", []), float)
-    if p.size == 0:
-        return None
-    feats = report.get("features") or {}
-    main = feats.get("var_period_d") or feats.get("ls_period_1")
-    fig = go.Figure(go.Scattergl(x=p, y=pw, mode="lines", line=dict(color=LINE, width=1)))
-    if main:
-        fig.add_vline(x=main, line=dict(color=class_colour(report), width=3, dash="dot"),
-                      annotation_text=f"main period {main:.3f} d")
+def bls_periodogram(pg: dict[str, Any], best: float, sde: float, col: str) -> go.Figure:
+    fig = _fig(380, "", xaxis_title="Period (days)", yaxis_title="BLS power",
+               showlegend=False)
+    _glow(fig, pg.get("period"), pg.get("power"), col, "BLS power", width=1.4)
     fig.update_xaxes(type="log")
-    return _layout(fig, "Period (days)", "Strength of the rhythm")
+    if math.isfinite(best):
+        fig.add_vline(x=best, line=dict(color=RED, dash="dash", width=2))
+        fig.add_annotation(x=math.log10(best), y=1, yref="paper", yanchor="bottom",
+                           text=f"Best: {best:.5f} d · SDE {sde:.1f}", showarrow=False,
+                           font=dict(color=RED, size=13, family="JetBrains Mono"))
+    return fig
 
 
-def periodogram_bls(report: dict[str, Any]) -> go.Figure | None:
-    pg = (report.get("plot_data") or {}).get("periodogram") or {}
-    p, pw = np.asarray(pg.get("period", []), float), np.asarray(pg.get("power", []), float)
-    if p.size == 0:
-        return None
-    sig = (report.get("signals") or [{}])[0]
-    fig = go.Figure(go.Scattergl(x=p, y=pw, mode="lines", line=dict(color=LINE, width=1)))
-    if sig.get("period"):
-        fig.add_vline(x=sig["period"], line=dict(color=DIP, dash="dot"),
-                      annotation_text=f"best {sig['period']:.4f} d")
+def ls_periodogram(ls: dict[str, Any], main: float) -> go.Figure:
+    col = color("VARIABLE")
+    fig = _fig(320, "", xaxis_title="Period (days)", yaxis_title="Lomb-Scargle power",
+               showlegend=False)
+    _glow(fig, ls.get("period"), ls.get("power"), col, "Lomb-Scargle power", width=1.4)
     fig.update_xaxes(type="log")
-    return _layout(fig, "Trial period (days)", "Dip-search power")
+    if math.isfinite(main):
+        fig.add_vline(x=main, line=dict(color=RED, dash="dash", width=2))
+        fig.add_annotation(x=math.log10(main), y=1, yref="paper", yanchor="bottom",
+                           text=f"Main period: {main:.4f} d", showarrow=False,
+                           font=dict(color=RED, size=13, family="JetBrains Mono"))
+    return fig
 
 
-def per_sector_depths(report: dict[str, Any]) -> go.Figure | None:
-    rows = (report.get("plot_data") or {}).get("per_sector") or []
-    rows = [r for r in rows if r.get("depth") is not None]
-    if not rows:
-        return None
-    fig = go.Figure(go.Bar(x=[f"S{r.get('sector')}" for r in rows],
-                           y=[r["depth"] * 1e6 for r in rows],
-                           error_y=dict(array=[(r.get("depth_err") or 0) * 1e6 for r in rows]),
-                           marker_color=class_colour(report)))
-    return _layout(fig, "Sector", "Dip depth (ppm)", height=280)
+def fold(view: dict[str, Any], col: str, windows: list[tuple[float, float]], title: str,
+         x_range: tuple[float, float] | None = None) -> go.Figure:
+    fig = _fig(380, title, xaxis_title="Phase (orbits)", yaxis_title="Normalized flux",
+               legend=dict(orientation="h", y=-0.22))
+    for centre, half in windows:
+        fig.add_vrect(x0=centre - half, x1=centre + half, fillcolor=rgba(col, 0.13),
+                      line_width=0, layer="below")
+    _points(fig, view.get("phase"), view.get("flux"))
+    _glow(fig, view.get("bin_phase"), view.get("bin_flux"), col, "Binned median")
+    if windows:
+        fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", name="Dip window",
+                                 marker=dict(size=12, symbol="square", color=rgba(col, 0.35))))
+    if x_range:
+        fig.update_xaxes(range=list(x_range))
+    return fig
 
 
-def module_chart(report: dict[str, Any]) -> tuple[str, go.Figure | None]:
-    """The chart for the routed class: planet size, EB eclipses or variable rhythms."""
-    mods = (report.get("routing") or {}).get("modules") or []
-    first = mods[0] if mods else None
-    if first == "planet":
-        return "planet", planet_size(report)
-    if first == "eb":
-        return "eb", eb_eclipses(report)
-    if first == "variable":
-        return "variable", periodogram_ls(report)
-    return "variable", periodogram_ls(report)
+def overlay(a: dict[str, Any], b: dict[str, Any], names: tuple[str, str],
+            cols: tuple[str, str], title: str) -> go.Figure:
+    fig = _fig(320, title, xaxis_title="Hours from eclipse centre",
+               yaxis_title="Normalized flux", legend=dict(orientation="h", y=-0.28))
+    for v, name, col in ((a, names[0], cols[0]), (b, names[1], cols[1])):
+        _points(fig, v.get("hours"), v.get("flux"), name=f"{name} (points)",
+                col=rgba(col, 0.22), size=2, showlegend=False)
+    for v, name, col in ((a, names[0], cols[0]), (b, names[1], cols[1])):
+        _glow(fig, v.get("bin_hours"), v.get("bin_flux"), col, name, width=2)
+    return fig
+
+
+def probabilities(probs: dict[str, float]) -> go.Figure:
+    order = ["NOISE", "VARIABLE", "EB", "PLANET"]
+    vals = [float(probs.get(c, 0) or 0) for c in order]
+    fig = _fig(250, "", showlegend=False, margin=dict(l=130, r=50, t=10, b=40))
+    fig.add_trace(go.Bar(
+        x=vals, y=[f"{CLASSES[c][2]} {label(c)}" for c in order], orientation="h",
+        marker=dict(color=[rgba(color(c), 0.85) for c in order],
+                    line=dict(color=[color(c) for c in order], width=1.5)),
+        text=[f"{100 * v:.0f}%" for v in vals], textposition="outside",
+        textfont=dict(family="JetBrains Mono", color="#E6E9FF")))
+    fig.update_xaxes(range=[0, 1.12], tickformat=".0%", title="Classifier probability")
+    return fig
+
+
+def confusion(cm_norm: list[list[float]], counts: list[list[int]], classes: list[str]
+              ) -> go.Figure:
+    names = [label(c) for c in classes]
+    z = np.asarray(cm_norm, float)
+    text = [[f"{z[i, j]:.0%}<br>({counts[i][j]})" for j in range(len(classes))]
+            for i in range(len(classes))]
+    fig = _fig(420, "", xaxis_title="Predicted class", yaxis_title="True class",
+               margin=dict(l=130, r=20, t=20, b=70))
+    fig.add_trace(go.Heatmap(
+        z=z, x=names, y=names, text=text, texttemplate="%{text}",
+        textfont=dict(family="JetBrains Mono", size=14, color="#F4F6FF"),
+        colorscale=[[0, "#0A0C1E"], [0.35, "#3B2F8F"], [0.7, VIOLET], [1, CYAN]],
+        zmin=0, zmax=1, showscale=False, hovertemplate="True %{y}<br>Predicted %{x}<br>"
+                                                         "%{z:.0%}<extra></extra>"))
+    for i in range(len(classes)):          # emphasise the diagonal (correct answers)
+        fig.add_shape(type="rect", x0=i - 0.5, x1=i + 0.5, y0=i - 0.5, y1=i + 0.5,
+                      line=dict(color=CYAN, width=2.5))
+    fig.update_yaxes(autorange="reversed")
+    return fig
+
+
+def importance(items: list[tuple[str, float]], names: dict[str, str]) -> go.Figure:
+    items = list(items)[::-1]
+    fig = _fig(380, "", showlegend=False, margin=dict(l=260, r=30, t=10, b=50))
+    fig.add_trace(go.Bar(x=[v for _, v in items], y=[names.get(f, f) for f, _ in items],
+                         orientation="h",
+                         marker=dict(color=rgba(VIOLET, 0.75), line=dict(color=CYAN, width=1))))
+    fig.update_xaxes(title="Mean |SHAP| (summed over classes)")
+    return fig

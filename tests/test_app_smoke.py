@@ -1,18 +1,25 @@
-"""The app's pages load, demos render offline, bad input gets a friendly message."""
+"""The single-page app loads, and every example star renders all four tabs offline."""
+
+import html
+import json
 
 import pytest
 
 pytest.importorskip("streamlit")
 from streamlit.testing.v1 import AppTest  # noqa: E402
 
-from ui import state  # noqa: E402
+from config import CONFIG  # noqa: E402
 
-TIMEOUT = 90
+TIMEOUT = 120
+EXAMPLES = json.loads((CONFIG.paths.examples / "examples.json").read_text(encoding="utf-8"))
+TICS = [e["tic_id"] for e in EXAMPLES["examples"]]
+TABS = ["📈 Light Curves", "🔍 BLS Detection", "🌀 Phase-Folded", "🤖 Results"]
 
 
 @pytest.fixture
 def offline(monkeypatch):
-    """Fail loudly if anything tries the network."""
+    """Fail loudly if anything tries the network or the live pipeline."""
+    from src import pipeline
     from src.ingest import fetcher, resolver
 
     def boom(*a, **k):
@@ -21,63 +28,93 @@ def offline(monkeypatch):
     monkeypatch.setattr(resolver, "_query_tic_by_id", boom)
     monkeypatch.setattr(resolver, "_query_tic_by_name", boom)
     monkeypatch.setattr(fetcher, "_search_products", boom)
+    monkeypatch.setattr(pipeline, "analyze_target", boom)
 
 
 def _texts(at) -> str:
-    parts = [m.value for m in at.markdown] + [e.value for e in at.error] + \
-        [s.value for s in at.subheader] + [t.value for t in at.title]
+    parts = ([m.value for m in at.markdown] + [s.value for s in at.subheader]
+             + [c.value for c in at.caption] + [i.value for i in at.info])
     return "\n".join(str(p) for p in parts)
 
 
-def test_entry_point_and_home_load(offline):
+def _analyze(tic: int) -> AppTest:
+    at = AppTest.from_file("app.py", default_timeout=TIMEOUT).run()
+    at.selectbox(key="star").set_value(tic).run()
+    at.button(key="analyze").click().run()
+    return at
+
+
+def test_app_loads_with_the_six_stars_and_a_prompt(offline):
     at = AppTest.from_file("app.py", default_timeout=TIMEOUT).run()
     assert not at.exception
-    home = AppTest.from_file("pages/1_Home.py", default_timeout=TIMEOUT).run()
-    assert not home.exception
-    assert "Planet Hunter" in _texts(home)
+    assert "EXOPLANET DETECTION &amp; FALSE POSITIVE RECYCLER" in _texts(at)
+    assert at.selectbox(key="star").options and len(at.selectbox(key="star").options) == 6
+    assert at.checkbox(key="live").value is False
+    assert any("Pick a star in the sidebar" in i.value for i in at.info)
+    assert not at.tabs
 
 
-def test_examples_are_committed_and_complete():
-    ex = state.load_examples()
-    groups = {e["group"] for e in ex["examples"]}
-    assert {"Confirmed planets", "Eclipsing binaries", "Variable stars",
-            "Unconfirmed candidates", "Tricky cases"} <= groups
-    for e in ex["examples"]:
-        assert state.load_demo(e["tic_id"]) is not None, e["display_name"]
+def test_examples_have_the_plot_views_and_stay_small():
+    demo = CONFIG.paths.examples / "demo"
+    assert len(TICS) == 6
+    assert sum(p.stat().st_size for p in demo.glob("*.json")) < 10e6
+    for tic in TICS:
+        rep = json.loads((demo / f"{tic}.json").read_text(encoding="utf-8"))
+        pdata = rep["plot_data"]
+        for key in ("lc_norm", "lc_flat", "periodogram", "ls", "views"):
+            assert pdata.get(key), (tic, key)
+        assert pdata["views"]["final"]["bin_flux"], tic
+        assert len(pdata["views"]["top_peaks"]) == 3, tic
 
 
-@pytest.mark.parametrize("tic,verdict", [(420814525, "Planet"), (300871545, "Eclipsing binary"),
-                                         (441584047, "Variable star")])
-def test_demo_renders_verdict_offline(offline, tic, verdict):
-    at = AppTest.from_file("pages/2_Analyze_a_Star.py", default_timeout=TIMEOUT).run()
-    at.selectbox(key="example_sel").set_value(tic).run()
+@pytest.mark.parametrize("tic", TICS)
+def test_each_star_renders_all_four_tabs_offline(offline, tic):
+    at = _analyze(tic)
     assert not at.exception
-    text = _texts(at)
-    assert verdict in text
-    demo = state.load_demo(tic)
-    assert demo["plain_summary"] in text
-    assert "Why do we think so?" in text
+    assert [t.label for t in at.tabs] == TABS
+    for tab in at.tabs:
+        assert tab.get("plotly_chart"), f"{tab.label} has no chart"
+    rep = json.loads((CONFIG.paths.examples / "demo" / f"{tic}.json").read_text(encoding="utf-8"))
+    assert html.escape(rep["plain_summary"]) in _texts(at)          # shown in the verdict card
+
+
+def test_results_tab_shows_the_confusion_matrix(offline):
+    if not (CONFIG.paths.outputs / "model_evaluation.json").exists():
+        pytest.skip("run scripts/save_evaluation.py first")
+    at = _analyze(TICS[0])
+    results = at.tabs[3]
+    assert "Confusion matrix" in "\n".join(m.value for m in results.markdown)
+    assert any(c.proto.id and "confusion" in str(c.proto) for c in results.get("plotly_chart")) \
+        or len(results.get("plotly_chart")) >= 3
 
 
 def test_demo_eb_leads_with_the_physics_reason(offline):
-    at = AppTest.from_file("pages/2_Analyze_a_Star.py", default_timeout=TIMEOUT).run()
-    at.selectbox(key="example_sel").set_value(300871545).run()
-    bullets = [m.value for m in at.markdown if str(m.value).startswith("- ")]
-    assert bullets and bullets[0].startswith("- A clear second eclipse was found halfway")
+    at = _analyze(300871545)
+    why = next(m.value for m in at.tabs[3].markdown if str(m.value).startswith("- "))
+    assert why.startswith("- A clear second eclipse was found halfway through the orbit")
 
 
-def test_bad_star_name_shows_friendly_error(monkeypatch):
-    from src.errors import TargetNotFoundError
-    from src.ingest import resolver
+def test_eb_and_variable_extras(offline):
+    eb = _analyze(300871545)
+    assert len(eb.tabs[2].get("plotly_chart")) == 3          # fold + 2 eclipse comparisons
+    var = _analyze(441584047)
+    assert len(var.tabs[1].get("plotly_chart")) == 2         # BLS + Lomb-Scargle
 
-    def not_found(*a, **k):
-        raise TargetNotFoundError("'zzzz-not-a-star': not found")
 
-    monkeypatch.setattr(resolver, "resolve_target", not_found)
-    at = AppTest.from_file("pages/2_Analyze_a_Star.py", default_timeout=TIMEOUT).run()
-    at.text_input[0].set_value("zzzz-not-a-star")
-    next(b for b in at.button if "Find" in str(b.label)).click().run()
+def test_live_failure_shows_a_friendly_error(monkeypatch):
+    from src import pipeline
+    from src.errors import DataDownloadError
+
+    def timeout(*a, **k):
+        raise DataDownloadError("MAST timed out")
+
+    monkeypatch.setattr(pipeline, "analyze_target", timeout)
+    at = AppTest.from_file("app.py", default_timeout=TIMEOUT).run()
+    at.checkbox(key="live").check().run()
+    at.button(key="analyze").click().run()
     assert not at.exception
     errs = " ".join(e.value for e in at.error)
-    assert "We couldn't find that star" in errs
-    assert "Traceback" not in errs                 # technical details stay collapsed
+    assert "did not respond in time" in errs
+    assert "Traceback" not in errs                    # details stay in the collapsed expander
+    assert at.expander and at.expander[0].label == "Technical details"
+    assert not at.tabs

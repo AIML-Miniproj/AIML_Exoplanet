@@ -176,7 +176,8 @@ but far fewer binaries are left as "can't tell which period" (15 -> 3 of 50).
 *Tried and dropped:* comparing alternate eclipses (depth, width and shape of odd
 vs even eclipses) to decide the period. It did not help: 45 -> 44 correct out of
 50 (it acted on any of three tests, so chance differences could trigger it). It
-is still measured and shown in Expert mode, for information only.
+is still measured and saved in the report (JSON, `modules.eb.details`), for
+information only.
 
 **Binary type** is judged from the module's own measurements at the true period
 (fitted eclipse width; smooth light change between eclipses on the light curve

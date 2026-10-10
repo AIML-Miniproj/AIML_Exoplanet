@@ -1,7 +1,11 @@
-# One theme for the whole app. Light/dark follows the viewer's own setting; class
-# colours (in ui/text.py) are picked to read on both and always carry a text label.
+# Dark "deep space" theme. Extra styling (starfield, fonts, glass cards) is one CSS
+# block in ui/theme.py. Class colours live in ui/theme.py and always carry a text label.
 [theme]
-primaryColor = "#0072B2"
+base = "dark"
+primaryColor = "#7C5CFF"
+backgroundColor = "#05060F"
+secondaryBackgroundColor = "#0D1026"
+textColor = "#E6E9FF"
 font = "sans serif"
 
 [client]

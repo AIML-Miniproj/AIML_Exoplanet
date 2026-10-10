@@ -2,7 +2,9 @@
 
 ``build_one`` runs the full pipeline on one star and writes a compact report to
 ``data/examples/demo/<tic>.json``: plot arrays are thinned and rounded so all
-examples together stay small enough to commit. Used by scripts/build_examples.py,
+examples together stay small enough to commit, and the display views the app's
+tabs need (folds at the final period, eclipse zooms) are computed from the full
+light curve and stored with it. Used by scripts/build_examples.py,
 one star per worker process.
 """
 
@@ -52,6 +54,7 @@ def build_one(row: dict[str, Any], preset: str, cfg, out_dir: Path) -> None:
     """Analyse one example star and write its report (and a status file for the runner)."""
     from src.log import setup_logging
     from src.pipeline import analyze_target
+    from ui.views import report_with_views
 
     setup_logging("WARNING")
     tic = int(row["tic_id"])
@@ -59,7 +62,7 @@ def build_one(row: dict[str, Any], preset: str, cfg, out_dir: Path) -> None:
     start = time.perf_counter()
     try:
         rep = analyze_target(f"TIC {tic}", preset=preset, cfg=replace(cfg, recycler_log=False))
-        d = compact(rep.to_dict())
+        d = compact(report_with_views(rep))
         d["example"] = {k: row[k] for k in ("group", "display_name", "hint")}
         d["built_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         demo_dir = Path(row["demo_dir"])
