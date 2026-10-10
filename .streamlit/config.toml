@@ -1,0 +1,12 @@
+# One theme for the whole app. Light/dark follows the viewer's own setting; class
+# colours (in ui/text.py) are picked to read on both and always carry a text label.
+[theme]
+primaryColor = "#0072B2"
+font = "sans serif"
+
+[client]
+toolbarMode = "minimal"
+showErrorDetails = "none"
+
+[browser]
+gatherUsageStats = false

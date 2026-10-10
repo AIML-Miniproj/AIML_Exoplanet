@@ -1,0 +1,128 @@
+{
+ "groups": [
+  "Confirmed planets",
+  "Eclipsing binaries",
+  "Variable stars",
+  "Unconfirmed candidates",
+  "Tricky cases"
+ ],
+ "examples": [
+  {
+   "group": "Confirmed planets",
+   "tic_id": 420814525,
+   "display_name": "HD 209458 b",
+   "hint": "hot Jupiter, 3.5-day orbit",
+   "n_sectors": 2,
+   "verdict": "PLANET",
+   "demo_file": "demo/420814525.json"
+  },
+  {
+   "group": "Confirmed planets",
+   "tic_id": 248853232,
+   "display_name": "TOI 5823.01",
+   "hint": "known giant planet, 3.9-day orbit",
+   "n_sectors": 3,
+   "verdict": "PLANET",
+   "demo_file": "demo/248853232.json"
+  },
+  {
+   "group": "Confirmed planets",
+   "tic_id": 376637093,
+   "display_name": "TOI 1516.01",
+   "hint": "confirmed giant planet, 2.1-day orbit",
+   "n_sectors": 6,
+   "verdict": "PLANET",
+   "demo_file": "demo/376637093.json"
+  },
+  {
+   "group": "Eclipsing binaries",
+   "tic_id": 300871545,
+   "display_name": "TOI 184.01",
+   "hint": "planet candidate that turned out to be two stars",
+   "n_sectors": 10,
+   "verdict": "EB",
+   "demo_file": "demo/300871545.json"
+  },
+  {
+   "group": "Eclipsing binaries",
+   "tic_id": 14709809,
+   "display_name": "TIC 14709809",
+   "hint": "two stars eclipsing every 9.4 days",
+   "n_sectors": 7,
+   "verdict": "EB",
+   "demo_file": "demo/14709809.json"
+  },
+  {
+   "group": "Eclipsing binaries",
+   "tic_id": 236327696,
+   "display_name": "TIC 236327696",
+   "hint": "close pair of stars, 14-hour orbit",
+   "n_sectors": 3,
+   "verdict": "EB",
+   "demo_file": "demo/236327696.json"
+  },
+  {
+   "group": "Variable stars",
+   "tic_id": 441584047,
+   "display_name": "HIP 36213",
+   "hint": "pulsating RR Lyrae star",
+   "n_sectors": 8,
+   "verdict": "VARIABLE",
+   "demo_file": "demo/441584047.json"
+  },
+  {
+   "group": "Variable stars",
+   "tic_id": 76046904,
+   "display_name": "TIC 76046904",
+   "hint": "gently pulsating delta Scuti / gamma Dor star",
+   "n_sectors": 5,
+   "verdict": "NEEDS_REVIEW",
+   "demo_file": "demo/76046904.json"
+  },
+  {
+   "group": "Variable stars",
+   "tic_id": 42362686,
+   "display_name": "TIC 42362686",
+   "hint": "pulsating giant (Cepheid)",
+   "n_sectors": 5,
+   "verdict": "VARIABLE",
+   "demo_file": "demo/42362686.json"
+  },
+  {
+   "group": "Unconfirmed candidates",
+   "tic_id": 156987351,
+   "display_name": "TOI 476.01",
+   "hint": "planet candidate, 3.1-day orbit",
+   "n_sectors": 8,
+   "verdict": "NEEDS_REVIEW",
+   "demo_file": "demo/156987351.json"
+  },
+  {
+   "group": "Unconfirmed candidates",
+   "tic_id": 327579226,
+   "display_name": "TOI 1532.01",
+   "hint": "planet candidate, 8.9-day orbit",
+   "n_sectors": 6,
+   "verdict": "PLANET",
+   "demo_file": "demo/327579226.json"
+  },
+  {
+   "group": "Tricky cases",
+   "tic_id": 329864959,
+   "display_name": "TOI 1385.01",
+   "hint": "two stars whose eclipses look alike: we find half their true orbit",
+   "n_sectors": 8,
+   "verdict": "EB",
+   "demo_file": "demo/329864959.json"
+  },
+  {
+   "group": "Tricky cases",
+   "tic_id": 309254930,
+   "display_name": "TOI 862.01",
+   "hint": "a possible planet hidden by the star's own flickering",
+   "n_sectors": 10,
+   "verdict": "NEEDS_REVIEW",
+   "demo_file": "demo/309254930.json"
+  }
+ ]
+}

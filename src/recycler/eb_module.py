@@ -12,10 +12,13 @@ Which period is right is decided from the light curve alone:
    secondary too faint to see). The detected period is kept and flagged as
    ambiguous: the true period may be twice as long.
 
-When the period is ambiguous, the module looks again at alternate eclipses
-(folding at twice the period) using every point and every sector of the run:
-depth, width and shape of the odd and even eclipses, with per-eclipse errors.
-A clear difference means the true period is twice the detected one.
+When the light curve is available, step 2 uses the module's own measurement of
+the second eclipse (every point of every sector of the run, local baseline)
+instead of the pipeline's feature.
+
+A comparison of alternate eclipses (depth, width and shape of odd vs even
+eclipses at twice the period) is measured for information only. It was tried as
+part of the decision and did not help (45 -> 44 correct out of 50 binaries).
 
 Binary type (detached / semi-detached / contact) is rule-based from the
 light-curve shape; no model is trained on the small set of binaries.
@@ -305,19 +308,26 @@ def catalog_entry(tic_id: int | None, cfg: Config = CONFIG) -> dict[str, Any] | 
 
 def true_period_with_data(signal: dict[str, Any], features: dict[str, Any],
                           t: np.ndarray | None, f: np.ndarray | None
-                          ) -> tuple[TruePeriod, dict[str, float]]:
-    """``true_period``; if that is ambiguous, look again at alternate eclipses with
-    all the data (``odd_even_at_double``)."""
-    tp = true_period(float(signal["period"]), features)
-    check: dict[str, float] = {}
-    if tp.ambiguous and t is not None and f is not None:
-        check = odd_even_at_double(np.asarray(t, float), np.asarray(f, float),
-                                   float(signal["period"]), float(signal["t0"]),
-                                   float(signal["duration"]))
-        sig = [check.get(k, math.nan) for k in ("sigma_depth", "sigma_width", "sigma_shape")]
-        if any(math.isfinite(x) and x >= SIGMA_MIN for x in sig):
-            tp = TruePeriod(2 * float(signal["period"]), 2, "alternate_eclipses_differ", False)
-    return tp, check
+                          ) -> tuple[TruePeriod, dict[str, Any]]:
+    """The period rule, using the module's own second-eclipse measurement when the
+    light curve is available (the pipeline's feature otherwise).
+
+    Returns the decision and an info dict: which second-eclipse measurement was
+    used, and the alternate-eclipse comparison (information only).
+    """
+    period = float(signal["period"])
+    info: dict[str, Any] = {"secondary_source": "features",
+                            "secondary_snr": features.get("secondary_snr")}
+    feats = dict(features)
+    if t is not None and f is not None:
+        t, f = np.asarray(t, float), np.asarray(f, float)
+        own = measure_eclipses(t, f, period, float(signal["t0"]), float(signal["duration"]))
+        feats["secondary_snr"] = own["secondary_snr"]
+        info.update(secondary_source="module", secondary_snr=own["secondary_snr"],
+                    secondary_phase=own["secondary_phase"],
+                    alternate_eclipses=odd_even_at_double(t, f, period, float(signal["t0"]),
+                                                          float(signal["duration"])))
+    return true_period(period, feats), info
 
 
 def characterize(signal: dict[str, Any], features: dict[str, Any], t: np.ndarray | None = None,

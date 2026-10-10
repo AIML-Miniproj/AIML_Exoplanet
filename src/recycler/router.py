@@ -97,9 +97,8 @@ def route(probabilities: dict[str, float] | None, features: dict[str, Any],
             reasons.append("There is a faint second dip halfway between the main dips, but the "
                            "light reflected by the companion explains it.")
         else:
-            reasons.append(f"A clear second dip appears halfway between the main dips "
-                           f"(signal-to-noise {sec_snr:.0f}), the mark of two stars eclipsing "
-                           f"each other.")
+            reasons.insert(0, "A clear second eclipse was found halfway through the orbit, "
+                              "which planets don't produce.")
             excluded.update({"PLANET", "NOISE"})
             forced_eb = True
             ranked = ["EB"] + [c for c in ranked if c != "EB"]

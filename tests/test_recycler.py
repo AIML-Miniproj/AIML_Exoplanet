@@ -49,7 +49,7 @@ def test_clear_second_eclipse_forces_eb():
     feats = {"secondary_snr": 12, "secondary_depth_ppm": 3000, "refl_amp_ppm": 100}
     d = route(probs(PLANET=0.6, EB=0.3, NOISE=0.1), feats)
     assert d.primary_class == "EB" and d.modules == ["eb"]
-    assert any("second dip" in r for r in d.reasons)
+    assert d.reasons[0].startswith("A clear second eclipse was found halfway through the orbit")
 
 
 def test_second_dip_explained_by_reflection_keeps_planet():
@@ -236,10 +236,28 @@ def test_alternate_eclipse_check_finds_different_widths():
     t, f = _alternating_eclipses(width_b=0.16)                   # same depth, wider
     chk = eb_module.odd_even_at_double(t, f, 1.5, 0.3, 0.12)
     assert chk["sigma_width"] >= 3 and chk["n_odd"] >= 15 and chk["n_even"] >= 15
+    # measured for information only: the period decision does not use it
     sig = {"period": 1.5, "t0": 0.3, "duration": 0.12}
-    tp, _ = eb_module.true_period_with_data(sig, {"odd_even_depth_sigma": 0.5,
-                                                  "secondary_snr": 0.5}, t, f)
-    assert tp.period_d == pytest.approx(3.0) and tp.rule == "alternate_eclipses_differ"
+    tp, info = eb_module.true_period_with_data(sig, {"odd_even_depth_sigma": 0.5,
+                                                     "secondary_snr": 0.5}, t, f)
+    assert info["alternate_eclipses"]["sigma_width"] >= 3
+    assert tp.period_d == pytest.approx(1.5) and tp.ambiguous
+
+
+def test_period_rule_uses_the_modules_own_secondary(eb_factory):
+    """Feature says no second eclipse, but the module's own measurement on all the
+    data sees one: the detected period is the true one (not ambiguous)."""
+    from tests.conftest import T_START
+
+    t0 = T_START + 0.7
+    lc = eb_factory(period=3.0, depth1=0.10, depth2=0.01, phase2=0.5, duration=0.15,
+                    n_sectors=2, t0=t0).stitch()
+    sig = {"period": 3.0, "t0": t0, "duration": 0.15}
+    feats = {"odd_even_depth_sigma": 0.5, "secondary_snr": 0.5}
+    assert eb_module.true_period(3.0, feats).ambiguous
+    tp, info = eb_module.true_period_with_data(sig, feats, lc.time.value, lc.flux.value)
+    assert info["secondary_source"] == "module" and info["secondary_snr"] >= 3
+    assert tp.rule == "secondary_seen" and tp.period_d == pytest.approx(3.0)
 
 
 def test_alternate_eclipse_check_quiet_for_identical_eclipses():
