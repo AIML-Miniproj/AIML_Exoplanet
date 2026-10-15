@@ -9,21 +9,21 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.io as pio
 
-from ui.theme import CLASSES, CYAN, VIOLET, color, label, rgba
+from ui.theme import ACCENT, CYAN, color, label, rgba
 
-POINTS = "rgba(220,235,255,0.42)"
-GRID = "rgba(230,233,255,0.07)"
-AXIS = "#C9CEF5"
+POINTS = "rgba(226,232,240,0.42)"
+GRID = "rgba(255,255,255,0.06)"
+AXIS = "#94A3B8"
 RED = "#FF5470"
 
 pio.templates["exo_dark"] = go.layout.Template(layout=go.Layout(
-    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(13,16,38,0.35)",
+    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#04060C",
     font=dict(family="Inter, sans-serif", color=AXIS, size=14),
-    xaxis=dict(gridcolor=GRID, zerolinecolor=GRID, linecolor="rgba(230,233,255,0.2)"),
-    yaxis=dict(gridcolor=GRID, zerolinecolor=GRID, linecolor="rgba(230,233,255,0.2)"),
-    legend=dict(bgcolor="rgba(5,6,15,0.5)", bordercolor="rgba(124,92,255,0.3)", borderwidth=1),
-    hoverlabel=dict(bgcolor="#0D1026", font=dict(family="Inter, sans-serif")),
-    margin=dict(l=60, r=20, t=40, b=50), colorway=[CYAN, VIOLET, "#F59E0B", "#E879F9"],
+    xaxis=dict(gridcolor=GRID, zerolinecolor=GRID, linecolor="rgba(255,255,255,0.12)"),
+    yaxis=dict(gridcolor=GRID, zerolinecolor=GRID, linecolor="rgba(255,255,255,0.12)"),
+    legend=dict(bgcolor="rgba(7,10,17,0.85)", bordercolor="#202A38", borderwidth=1),
+    hoverlabel=dict(bgcolor="#0D1424", font=dict(family="Inter, sans-serif")),
+    margin=dict(l=60, r=20, t=40, b=50), colorway=[CYAN, ACCENT, "#F59E0B", "#EC4899"],
 ))
 TEMPLATE = "exo_dark"
 CONFIG = {"displaylogo": False, "modeBarButtonsToRemove": ["lasso2d", "select2d"]}
@@ -64,12 +64,12 @@ def light_curve(lc: dict[str, Any], spans: list[tuple[int, float, float]], title
     fig = _fig(330, title, xaxis_title="Time (BTJD, days)", yaxis_title="Normalized flux",
                showlegend=False)
     for i, (sec, t0, t1) in enumerate(spans):
-        fig.add_vrect(x0=t0, x1=t1, fillcolor=rgba(VIOLET, 0.10 if i % 2 else 0.05),
+        fig.add_vrect(x0=t0, x1=t1, fillcolor=rgba(ACCENT, 0.10 if i % 2 else 0.05),
                       line_width=0, layer="below")
         fig.add_vline(x=t0, line=dict(color="rgba(200,205,255,0.25)", dash="dash", width=1))
         fig.add_annotation(x=0.5 * (t0 + t1), y=1.0, yref="paper", yanchor="bottom",
                            text=f"S{sec}", showarrow=False,
-                           font=dict(size=12, color="#B4BAE0", family="JetBrains Mono"))
+                           font=dict(size=12, color="#94A3B8", family="JetBrains Mono"))
     _points(fig, lc.get("time"), lc.get("flux"), col=col, size=2)
     return fig
 
@@ -134,14 +134,17 @@ def overlay(a: dict[str, Any], b: dict[str, Any], names: tuple[str, str],
 def probabilities(probs: dict[str, float]) -> go.Figure:
     order = ["NOISE", "VARIABLE", "EB", "PLANET"]
     vals = [float(probs.get(c, 0) or 0) for c in order]
-    fig = _fig(250, "", showlegend=False, margin=dict(l=130, r=50, t=10, b=40))
+    fig = _fig(260, "", showlegend=False, bargap=0.42, margin=dict(l=150, r=60, t=10, b=44))
     fig.add_trace(go.Bar(
-        x=vals, y=[f"{CLASSES[c][2]} {label(c)}" for c in order], orientation="h",
+        x=vals, y=[label(c) for c in order], orientation="h",
         marker=dict(color=[rgba(color(c), 0.85) for c in order],
-                    line=dict(color=[color(c) for c in order], width=1.5)),
-        text=[f"{100 * v:.0f}%" for v in vals], textposition="outside",
-        textfont=dict(family="JetBrains Mono", color="#E6E9FF")))
-    fig.update_xaxes(range=[0, 1.12], tickformat=".0%", title="Classifier probability")
+                    line=dict(color=[color(c) for c in order], width=1.5),
+                    cornerradius=6),
+        text=[f"  {100 * v:.0f}%" for v in vals], textposition="outside", cliponaxis=False,
+        textfont=dict(family="JetBrains Mono", color="#DDE2F5")))
+    fig.update_xaxes(range=[0, 1.15], tickformat=".0%", title="Classifier probability")
+    # Room between the class names and the bars
+    fig.update_yaxes(ticksuffix="    ", ticklabelstandoff=10, automargin=True)
     return fig
 
 
@@ -156,7 +159,7 @@ def confusion(cm_norm: list[list[float]], counts: list[list[int]], classes: list
     fig.add_trace(go.Heatmap(
         z=z, x=names, y=names, text=text, texttemplate="%{text}",
         textfont=dict(family="JetBrains Mono", size=14, color="#F4F6FF"),
-        colorscale=[[0, "#0A0C1E"], [0.35, "#3B2F8F"], [0.7, VIOLET], [1, CYAN]],
+        colorscale=[[0, "#04060C"], [0.35, "#14305A"], [0.7, ACCENT], [1, CYAN]],
         zmin=0, zmax=1, showscale=False, hovertemplate="True %{y}<br>Predicted %{x}<br>"
                                                          "%{z:.0%}<extra></extra>"))
     for i in range(len(classes)):          # emphasise the diagonal (correct answers)
@@ -171,6 +174,6 @@ def importance(items: list[tuple[str, float]], names: dict[str, str]) -> go.Figu
     fig = _fig(380, "", showlegend=False, margin=dict(l=260, r=30, t=10, b=50))
     fig.add_trace(go.Bar(x=[v for _, v in items], y=[names.get(f, f) for f, _ in items],
                          orientation="h",
-                         marker=dict(color=rgba(VIOLET, 0.75), line=dict(color=CYAN, width=1))))
+                         marker=dict(color=rgba(ACCENT, 0.75), line=dict(color=CYAN, width=1))))
     fig.update_xaxes(title="Mean |SHAP| (summed over classes)")
     return fig

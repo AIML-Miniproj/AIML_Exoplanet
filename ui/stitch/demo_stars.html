@@ -1,0 +1,701 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><svg class="inline-defs-container" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Montserrat:wght@200;300;400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary-container": "#2563eb",
+          "inverse-surface": "#dbe1ff",
+          "surface-container": "#151f39",
+          "on-surface-variant": "#c3c6d7",
+          "error-container": "#93000a",
+          "surface-dim": "#08122c",
+          "surface-container-lowest": "#030d27",
+          "secondary-fixed-dim": "#2fd9f4",
+          "on-primary": "#002a78",
+          "on-secondary": "#00363e",
+          "on-surface": "#dbe1ff",
+          "on-error": "#690005",
+          "on-error-container": "#ffdad6",
+          "tertiary-fixed-dim": "#ffb95f",
+          "tertiary-fixed": "#ffddb8",
+          "on-tertiary-container": "#ffeedd",
+          "outline": "#8d90a0",
+          "surface-container-low": "#111a35",
+          "error": "#ffb4ab",
+          "secondary-container": "#00cbe6",
+          "on-primary-fixed-variant": "#003ea8",
+          "background": "#08122c",
+          "surface-variant": "#2b344f",
+          "on-tertiary-fixed-variant": "#653e00",
+          "surface": "#08122c",
+          "surface-container-high": "#202944",
+          "on-primary-container": "#eeefff",
+          "inverse-on-surface": "#262f4b",
+          "outline-variant": "#434655",
+          "on-secondary-fixed": "#001f25",
+          "on-tertiary-fixed": "#2a1700",
+          "on-secondary-fixed-variant": "#004e5a",
+          "tertiary-container": "#996100",
+          "secondary-fixed": "#a2eeff",
+          "surface-container-highest": "#2b344f",
+          "primary-fixed-dim": "#b4c5ff",
+          "on-secondary-container": "#00515d",
+          "secondary": "#5de6ff",
+          "surface-bright": "#2f3854",
+          "on-background": "#dbe1ff",
+          "surface-tint": "#b4c5ff",
+          "primary-fixed": "#dbe1ff",
+          "primary": "#b4c5ff",
+          "tertiary": "#ffb95f",
+          "on-primary-fixed": "#00174b",
+          "on-tertiary": "#472a00",
+          "inverse-primary": "#0053db"
+        },
+        "borderRadius": {
+          "DEFAULT": "1rem",
+          "lg": "2rem",
+          "xl": "3rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "margin-desktop": "3.5rem",
+          "margin": "1.5rem",
+          "space-md": "1rem",
+          "gutter": "1.5rem",
+          "space-xl": "2.5rem",
+          "space-lg": "1.5rem",
+          "space-2xl": "4rem",
+          "space-xs": "0.25rem",
+          "gutter-desktop": "2rem",
+          "space-sm": "0.5rem"
+        },
+        "fontFamily": {
+          "telemetry-num": [
+            "Inter"
+          ],
+          "display-hero-mobile": [
+            "Montserrat"
+          ],
+          "headline-sm": [
+            "Montserrat"
+          ],
+          "body-md": [
+            "Inter"
+          ],
+          "label-caps": [
+            "Montserrat"
+          ],
+          "headline-lg-mobile": [
+            "Montserrat"
+          ],
+          "display-hero": [
+            "Montserrat"
+          ],
+          "body-lg": [
+            "Inter"
+          ],
+          "headline-lg": [
+            "Montserrat"
+          ],
+          "headline-md": [
+            "Montserrat"
+          ],
+          "body-sm": [
+            "Inter"
+          ]
+        },
+        "fontSize": {
+          "telemetry-num": [
+            "0.875rem",
+            {
+              "lineHeight": "1.4",
+              "letterSpacing": "0.04em",
+              "fontWeight": "500"
+            }
+          ],
+          "display-hero-mobile": [
+            "2.25rem",
+            {
+              "lineHeight": "1.2",
+              "letterSpacing": "0.18em",
+              "fontWeight": "300"
+            }
+          ],
+          "headline-sm": [
+            "1.125rem",
+            {
+              "lineHeight": "1.4",
+              "letterSpacing": "0.08em",
+              "fontWeight": "500"
+            }
+          ],
+          "body-md": [
+            "0.9375rem",
+            {
+              "lineHeight": "1.6",
+              "letterSpacing": "0.01em",
+              "fontWeight": "400"
+            }
+          ],
+          "label-caps": [
+            "0.6875rem",
+            {
+              "lineHeight": "1",
+              "letterSpacing": "0.18em",
+              "fontWeight": "500"
+            }
+          ],
+          "headline-lg-mobile": [
+            "1.75rem",
+            {
+              "lineHeight": "1.25",
+              "letterSpacing": "0.14em",
+              "fontWeight": "300"
+            }
+          ],
+          "display-hero": [
+            "4.5rem",
+            {
+              "lineHeight": "1.1",
+              "letterSpacing": "0.28em",
+              "fontWeight": "200"
+            }
+          ],
+          "body-lg": [
+            "1.125rem",
+            {
+              "lineHeight": "1.7",
+              "letterSpacing": "0.01em",
+              "fontWeight": "300"
+            }
+          ],
+          "headline-lg": [
+            "2.5rem",
+            {
+              "lineHeight": "1.2",
+              "letterSpacing": "0.2em",
+              "fontWeight": "300"
+            }
+          ],
+          "headline-md": [
+            "1.5rem",
+            {
+              "lineHeight": "1.3",
+              "letterSpacing": "0.12em",
+              "fontWeight": "400"
+            }
+          ],
+          "body-sm": [
+            "0.8125rem",
+            {
+              "lineHeight": "1.5",
+              "letterSpacing": "0.02em",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      },
+    },
+  }</script></head><body class="bg-surface-container-lowest text-on-surface font-body-md text-body-md min-h-screen py-8 px-4 flex justify-center selection:bg-primary-container selection:text-on-primary-container" style="background-color: rgb(3, 4, 7);"><div class="w-full max-w-[1440px] rounded-[28px] bg-surface relative flex flex-col min-h-[calc(100vh-4rem)] shadow-[0_0_50px_rgba(37,99,235,0.15),0_0_0_1px_rgba(255,255,255,0.06)] overflow-hidden" style="background-color: rgb(6, 9, 17); border: 1px solid rgb(22, 27, 41); box-shadow: rgba(0, 0, 0, 0.8) 0px 0px 60px;"><header class="fixed top-12 left-1/2 -translate-x-1/2 w-full max-w-[1400px] z-50 px-gutter-desktop pointer-events-none"><div class="h-20 flex items-center justify-between px-space-lg rounded-full bg-surface-container-low/70 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.12)] pointer-events-auto"><nav class="flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-headline-sm"><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="home" href="#">Home</a><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="learn" href="#">Learn</a><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="analyzer" href="#">Analyzer</a><a aria-current="page" class="px-space-md py-space-sm rounded-full uppercase transition-all duration-300 bg-primary-container text-on-primary-container font-headline-sm" data-path="demo-stars" href="#">Demo Stars</a><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="how-it-works" href="#">How It Works</a></nav><div class="flex items-center gap-2 select-none"><span class="font-headline-sm text-headline-sm font-light text-on-surface tracking-[0.2em] uppercase">Exoplanet</span><span class="font-headline-sm text-headline-sm font-light text-secondary tracking-[0.2em] uppercase">Atlas</span></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-md py-space-sm rounded-full bg-surface-container/60 hover:bg-surface-container-high transition-colors cursor-pointer text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">menu</span><span class="font-label-caps text-label-caps uppercase">Menu</span></div><div class="h-4 w-[1px] bg-surface-variant"></div><a class="flex items-center gap-space-sm pl-space-md pr-space-xs py-space-xs rounded-full bg-primary-container hover:bg-primary-container text-on-primary-container shadow-[0_0_20px_rgba(37,99,235,0.6)] transition-all" data-path="analyzer" href="#"><span class="font-label-caps text-label-caps uppercase font-medium">Analyze a star</span><div class="w-7 h-7 rounded-full bg-surface-container-lowest/30 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">north_east</span></div></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 flex-1 px-margin-desktop"><div class="flex flex-col w-full relative">
+<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[360px] bg-primary-container/10 rounded-full blur-[130px] pointer-events-none -z-10" style="filter: blur(120px);" data-stitch-orig-opacity="0.18"></div>
+<div class="absolute top-96 -right-32 w-[520px] h-[520px] bg-secondary/5 rounded-full blur-[140px] pointer-events-none -z-10"></div>
+<div class="absolute bottom-40 -left-40 w-[600px] h-[600px] bg-primary-container/10 rounded-full blur-[160px] pointer-events-none -z-10"></div>
+<!-- Hero Intro Section -->
+<section class="flex flex-col items-center text-center pt-8 pb-12 relative">
+<div class="inline-flex items-center gap-space-sm px-space-md py-space-xs rounded-full bg-surface-container-high/60 backdrop-blur-xl mb-6 shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_10px_rgba(93,230,255,0.9)] animate-pulse"></span>
+<span class="font-label-caps text-label-caps tracking-[0.24em] uppercase text-on-surface-variant">Six demo stars</span>
+<span class="text-outline-variant font-telemetry-num text-telemetry-num">•</span>
+<span class="font-telemetry-num text-telemetry-num text-secondary">None used for training</span>
+</div>
+<h1 class="font-display-hero text-display-hero text-on-surface tracking-[0.24em] uppercase font-extralight select-none drop-shadow-md">
+      Demo Benchmark Stars
+    </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl mt-4 font-light leading-relaxed">
+      Six real TESS stars the model never trained on: a confirmed planet, two eclipsing binaries, a pulsating variable star and two hard cases that are kept for review. Each opens instantly in the Analyzer.
+    </p>
+<!-- Filters Strip -->
+<div class="flex flex-wrap items-center justify-center gap-2 mt-10 p-1.5 rounded-full bg-surface-container-low/70 backdrop-blur-2xl shadow-xl" id="filter-container">
+<button class="filter-btn active-filter px- space-lg px-6 py-2 rounded-full font-label-caps text-label-caps uppercase tracking-[0.16em] transition-all duration-300 bg-primary-container text-on-primary-container shadow-[0_0_24px_rgba(37,99,235,0.45)]" data-filter="all">
+        All Targets (6)
+      </button>
+<button class="filter-btn px-6 py-2 rounded-full font-label-caps text-label-caps uppercase tracking-[0.16em] transition-all duration-300 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 flex items-center gap-2" data-filter="confirmed">
+<span class="w-1.5 h-1.5 rounded-full bg-[#22d3ee] shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
+        Confirmed Planets (2)
+      </button>
+<button class="filter-btn px-6 py-2 rounded-full font-label-caps text-label-caps uppercase tracking-[0.16em] transition-all duration-300 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 flex items-center gap-2" data-filter="binary">
+<span class="w-1.5 h-1.5 rounded-full bg-[#f59e0b] shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
+        Eclipsing Binaries (2)
+      </button>
+<button class="filter-btn px-6 py-2 rounded-full font-label-caps text-label-caps uppercase tracking-[0.16em] transition-all duration-300 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 flex items-center gap-2" data-filter="variable">
+<span class="w-1.5 h-1.5 rounded-full bg-[#ec4899] shadow-[0_0_8px_rgba(236,72,153,0.8)]"></span>
+        Variable Stars (1)
+      </button>
+<button class="filter-btn px-6 py-2 rounded-full font-label-caps text-label-caps uppercase tracking-[0.16em] transition-all duration-300 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 flex items-center gap-2" data-filter="review">
+<span class="w-1.5 h-1.5 rounded-full bg-[#a78bfa] shadow-[0_0_8px_rgba(167,139,250,0.8)]"></span>
+        Needs Review (1)
+      </button>
+</div>
+</section>
+<!-- Benchmark Cards Grid (3 Columns Desktop) -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2 pb-16"><!-- Card 1: HD 209458 -->
+<article class="star-card group flex flex-col justify-between rounded-lg p-space-lg transition-all duration-300 relative overflow-hidden" data-category="confirmed" style="background-color: rgb(13, 19, 32); border: 1px solid rgb(32, 42, 56); box-shadow: rgba(0, 0, 0, 0.3) 0px 4px 20px;">
+  <div class="flex flex-col">
+    <!-- Card Top Bar: Identifier & Badge -->
+    <div class="flex items-start justify-between gap-2 mb-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="font-headline-md text-headline-md text-on-surface tracking-wider font-normal">HD 209458</h2>
+          <span class="font-label-caps text-label-caps text-secondary font-medium tracking-widest">(OSIRIS)</span>
+        </div>
+        <div class="font-telemetry-num text-telemetry-num text-on-surface-variant/80 tracking-widest mt-0.5">TIC 349488688</div>
+      </div>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[#54d8e8] shadow-sm" style="background: rgba(84,216,232,0.08); border: 1px solid rgba(84,216,232,0.25);">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#54d8e8]" style="box-shadow: 0 0 6px rgba(84,216,232,0.8);"></span>
+        <span class="font-label-caps text-label-caps uppercase tracking-wider">Confirmed Planet</span>
+      </span>
+    </div>
+    <div class="w-full h-32 rounded-DEFAULT mb-4 overflow-hidden relative group/img border border-[#202a38]"><img src="app/static/stitch/stitch_1.jpg" alt="HD 209458 b Gas Giant Atmosphere" class="w-full h-full object-cover object-center opacity-85 transition-all duration-500 group-hover/img:scale-105 group-hover/img:opacity-100"><div class="absolute inset-0 bg-gradient-to-t from-[#080d17] via-transparent to-transparent"></div><span class="absolute bottom-2 left-2.5 font-label-caps text-[10px] tracking-widest uppercase text-secondary/90 bg-[#080d17]/80 px-2 py-0.5 rounded-full border border-secondary/20">JWST NIRSpec Benchmark</span></div><p class="font-body-sm text-body-sm text-on-surface-variant font-light min-h-[48px] mb-5">
+      Historic transiting hot Jupiter with evaporating hydrogen atmosphere. Archetypal benchmark for canonical atmospheric spectroscopy.
+    </p>
+    <!-- Visual Sparkline: Glowing U-shaped light curve -->
+    <div class="w-full h-28 rounded-DEFAULT p-3 flex flex-col justify-between relative overflow-hidden mb-6" style="background-color: #080d17; border: 1px solid #161f30;">
+      <div class="flex items-center justify-between text-on-surface-variant/70 font-label-caps text-label-caps tracking-widest uppercase">
+        <span class="">Flux Phase Fold</span>
+        <span class="text-[#54d8e8] font-telemetry-num text-telemetry-num">SNR: 48.2</span>
+      </div>
+      <svg class="w-full h-14 overflow-visible" fill="none" viewBox="0 0 320 60">
+        <defs>
+          <linearGradient id="grad-hd209" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#54d8e8" stop-opacity="0.2"></stop>
+            <stop offset="100%" stop-color="#54d8e8" stop-opacity="0.0"></stop>
+          </linearGradient>
+        </defs>
+        <path style="filter: drop-shadow(0 0 5px rgba(84,216,232,0.5));" d="M 0,16 L 90,16 Q 120,16 130,48 L 190,48 Q 200,16 230,16 L 320,16" stroke="#54d8e8" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path>
+        <path d="M 0,16 L 90,16 Q 120,16 130,48 L 190,48 Q 200,16 230,16 L 320,16 L 320,60 L 0,60 Z" fill="url(#grad-hd209)"></path>
+      </svg>
+      <div class="flex items-center justify-between text-on-surface-variant/60 font-telemetry-num text-telemetry-num text-[11px]">
+        <span class="">-0.10 Phase</span>
+        <span class="text-on-surface">U-Shape Transit</span>
+        <span class="">+0.10 Phase</span>
+      </div>
+    </div>
+    <!-- Telemetry Data Rows -->
+    <div class="flex flex-col divide-y divide-outline-variant/20 mb-6 font-telemetry-num text-telemetry-num">
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Orbital Period (P)</span>
+        <span class="text-on-surface font-medium">3.52474 d</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Transit Depth</span>
+        <span class="text-[#54d8e8] font-medium">1.46 %</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Host Spectral Type</span>
+        <span class="text-on-surface">G0V • Solar Twin</span>
+      </div>
+    </div>
+  </div>
+  <!-- Action Pill Link -->
+  <a class="w-full flex items-center justify-between pl-5 pr-2 py-2 rounded-full transition-all duration-300 shadow-sm" href="#" style="background-color: #161f30; border: 1px solid #243047;">
+    <span class="font-label-caps text-label-caps uppercase tracking-wider font-medium text-on-surface">Analyze Star</span>
+    <div class="w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" style="background-color: #0d1320;">
+      <span class="material-symbols-outlined text-[17px] text-[#54d8e8]">north_east</span>
+    </div>
+  </a>
+</article>
+
+<!-- Card 2: TOI 184.01 -->
+<article class="star-card group flex flex-col justify-between rounded-lg p-space-lg transition-all duration-300 relative overflow-hidden" data-category="confirmed" style="background-color: rgb(13, 19, 32); border: 1px solid rgb(32, 42, 56); box-shadow: rgba(0, 0, 0, 0.3) 0px 4px 20px;">
+  <div class="flex flex-col">
+    <div class="flex items-start justify-between gap-2 mb-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="font-headline-md text-headline-md text-on-surface tracking-wider font-normal">TOI 184.01</h2>
+        </div>
+        <div class="font-telemetry-num text-telemetry-num text-on-surface-variant/80 tracking-widest mt-0.5">TIC 350146260</div>
+      </div>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[#54d8e8] shadow-sm" style="background: rgba(84,216,232,0.08); border: 1px solid rgba(84,216,232,0.25);">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#54d8e8]" style="box-shadow: 0 0 6px rgba(84,216,232,0.8);"></span>
+        <span class="font-label-caps text-label-caps uppercase tracking-wider">Confirmed Planet</span>
+      </span>
+    </div>
+    <div class="w-full h-32 rounded-DEFAULT mb-4 overflow-hidden relative group/img border border-[#202a38]"><img src="app/static/stitch/stitch_2.jpg" alt="TOI 184.01 Rocky Exoplanet Rim" class="w-full h-full object-cover object-center opacity-85 transition-all duration-500 group-hover/img:scale-105 group-hover/img:opacity-100"><div class="absolute inset-0 bg-gradient-to-t from-[#080d17] via-transparent to-transparent"></div><span class="absolute bottom-2 left-2.5 font-label-caps text-[10px] tracking-widest uppercase text-secondary/90 bg-[#080d17]/80 px-2 py-0.5 rounded-full border border-secondary/20">Rocky Core Simulation</span></div><p class="font-body-sm text-body-sm text-on-surface-variant font-light min-h-[48px] mb-5">
+      Sub-Neptune discovery showcasing clean planetary occultation, minimal limb darkening, and exceptionally pristine raw photometry.
+    </p>
+    <div class="w-full h-28 rounded-DEFAULT p-3 flex flex-col justify-between relative overflow-hidden mb-6" style="background-color: #080d17; border: 1px solid #161f30;">
+      <div class="flex items-center justify-between text-on-surface-variant/70 font-label-caps text-label-caps tracking-widest uppercase">
+        <span class="">Flux Phase Fold</span>
+        <span class="text-[#54d8e8] font-telemetry-num text-telemetry-num">SNR: 62.4</span>
+      </div>
+      <svg class="w-full h-14 overflow-visible" fill="none" viewBox="0 0 320 60">
+        <defs>
+          <linearGradient id="grad-subnep" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#54d8e8" stop-opacity="0.2"></stop>
+            <stop offset="100%" stop-color="#54d8e8" stop-opacity="0.0"></stop>
+          </linearGradient>
+        </defs>
+        <path style="filter: drop-shadow(0 0 5px rgba(84,216,232,0.5));" d="M 0,18 L 105,18 Q 128,18 136,42 L 184,42 Q 192,18 215,18 L 320,18" stroke="#54d8e8" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path>
+        <path d="M 0,18 L 105,18 Q 128,18 136,42 L 184,42 Q 192,18 215,18 L 320,18 L 320,60 L 0,60 Z" fill="url(#grad-subnep)"></path>
+      </svg>
+      <div class="flex items-center justify-between text-on-surface-variant/60 font-telemetry-num text-telemetry-num text-[11px]">
+        <span class="">-0.08 Phase</span>
+        <span class="text-on-surface">Planetary Dip</span>
+        <span class="">+0.08 Phase</span>
+      </div>
+    </div>
+    <div class="flex flex-col divide-y divide-outline-variant/20 mb-6 font-telemetry-num text-telemetry-num">
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Orbital Period (P)</span>
+        <span class="text-on-surface font-medium">8.46321 d</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Transit Depth</span>
+        <span class="text-[#54d8e8] font-medium">0.82 %</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Host Spectral Type</span>
+        <span class="text-on-surface">K2V • Orange Dwarf</span>
+      </div>
+    </div>
+  </div>
+  <a class="w-full flex items-center justify-between pl-5 pr-2 py-2 rounded-full transition-all duration-300 shadow-sm" href="#" style="background-color: #161f30; border: 1px solid #243047;">
+    <span class="font-label-caps text-label-caps uppercase tracking-wider font-medium text-on-surface">Analyze Star</span>
+    <div class="w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" style="background-color: #0d1320;">
+      <span class="material-symbols-outlined text-[17px] text-[#54d8e8]">north_east</span>
+    </div>
+  </a>
+</article>
+
+<!-- Card 3: HIP 36213 -->
+<article class="star-card group flex flex-col justify-between rounded-lg p-space-lg transition-all duration-300 relative overflow-hidden" data-category="binary" style="background-color: rgb(13, 19, 32); border: 1px solid rgb(32, 42, 56); box-shadow: rgba(0, 0, 0, 0.3) 0px 4px 20px;">
+  <div class="flex flex-col">
+    <div class="flex items-start justify-between gap-2 mb-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="font-headline-md text-headline-md text-on-surface tracking-wider font-normal">HIP 36213</h2>
+        </div>
+        <div class="font-telemetry-num text-telemetry-num text-on-surface-variant/80 tracking-widest mt-0.5">TIC 178944743</div>
+      </div>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[#e2b357] shadow-sm" style="background: rgba(226,179,87,0.08); border: 1px solid rgba(226,179,87,0.25);">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#e2b357]" style="box-shadow: 0 0 6px rgba(226,179,87,0.8);"></span>
+        <span class="font-label-caps text-label-caps uppercase tracking-wider">Eclipsing Binary</span>
+      </span>
+    </div>
+    <div class="w-full h-32 rounded-DEFAULT mb-4 overflow-hidden relative group/img border border-[#202a38]"><img src="app/static/stitch/stitch_3.jpg" alt="HIP 36213 Eclipsing Binary Gravitational Interaction" class="w-full h-full object-cover object-center opacity-85 transition-all duration-500 group-hover/img:scale-105 group-hover/img:opacity-100"><div class="absolute inset-0 bg-gradient-to-t from-[#080d17] via-transparent to-transparent"></div><span class="absolute bottom-2 left-2.5 font-label-caps text-[10px] tracking-widest uppercase text-[#e2b357] bg-[#080d17]/80 px-2 py-0.5 rounded-full border border-[#e2b357]/30">Tidal Plasma Bridge</span></div><p class="font-body-sm text-body-sm text-on-surface-variant font-light min-h-[48px] mb-5">
+      Grazing binary star pair mimicking a massive Jovian transit with distinct V-shaped morphology and secondary eclipse.
+    </p>
+    <div class="w-full h-28 rounded-DEFAULT p-3 flex flex-col justify-between relative overflow-hidden mb-6" style="background-color: #080d17; border: 1px solid #161f30;">
+      <div class="flex items-center justify-between text-on-surface-variant/70 font-label-caps text-label-caps tracking-widest uppercase">
+        <span class="">Primary &amp; Secondary Flux</span>
+        <span class="text-[#e2b357] font-telemetry-num text-telemetry-num">V-Type Dip</span>
+      </div>
+      <svg class="w-full h-14 overflow-visible" fill="none" viewBox="0 0 320 60">
+        <defs>
+          <linearGradient id="grad-amber" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#e2b357" stop-opacity="0.2"></stop>
+            <stop offset="100%" stop-color="#e2b357" stop-opacity="0.0"></stop>
+          </linearGradient>
+        </defs>
+        <path style="filter: drop-shadow(0 0 5px rgba(226,179,87,0.5));" d="M 0,14 L 60,14 L 90,52 L 120,14 L 210,14 L 230,28 L 250,14 L 320,14" stroke="#e2b357" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path>
+        <path d="M 0,14 L 60,14 L 90,52 L 120,14 L 210,14 L 230,28 L 250,14 L 320,14 L 320,60 L 0,60 Z" fill="url(#grad-amber)"></path>
+      </svg>
+      <div class="flex items-center justify-between text-on-surface-variant/60 font-telemetry-num text-telemetry-num text-[11px]">
+        <span class="">Primary 14.2%</span>
+        <span class="text-[#e2b357]">Binary Eclipse</span>
+        <span class="">Secondary 3.4%</span>
+      </div>
+    </div>
+    <div class="flex flex-col divide-y divide-outline-variant/20 mb-6 font-telemetry-num text-telemetry-num">
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Orbital Period (P)</span>
+        <span class="text-on-surface font-medium">4.18205 d</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Primary Depth</span>
+        <span class="text-[#e2b357] font-medium">14.20 %</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Morphology Type</span>
+        <span class="text-on-surface">Detached Grazing (Algol)</span>
+      </div>
+    </div>
+  </div>
+  <a class="w-full flex items-center justify-between pl-5 pr-2 py-2 rounded-full transition-all duration-300 shadow-sm" href="#" style="background-color: #161f30; border: 1px solid #243047;">
+    <span class="font-label-caps text-label-caps uppercase tracking-wider font-medium text-on-surface">Analyze Star</span>
+    <div class="w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" style="background-color: #0d1320;">
+      <span class="material-symbols-outlined text-[17px] text-[#e2b357]">north_east</span>
+    </div>
+  </a>
+</article>
+
+<!-- Card 4: TOI 476.01 -->
+<article class="star-card group flex flex-col justify-between rounded-lg p-space-lg transition-all duration-300 relative overflow-hidden" data-category="variable" style="background-color: rgb(13, 19, 32); border: 1px solid rgb(32, 42, 56); box-shadow: rgba(0, 0, 0, 0.3) 0px 4px 20px;">
+  <div class="flex flex-col">
+    <div class="flex items-start justify-between gap-2 mb-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="font-headline-md text-headline-md text-on-surface tracking-wider font-normal">TOI 476.01</h2>
+        </div>
+        <div class="font-telemetry-num text-telemetry-num text-on-surface-variant/80 tracking-widest mt-0.5">TIC 278825952</div>
+      </div>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[#e06c9f] shadow-sm" style="background: rgba(224,108,159,0.08); border: 1px solid rgba(224,108,159,0.25);">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#e06c9f]" style="box-shadow: 0 0 6px rgba(224,108,159,0.8);"></span>
+        <span class="font-label-caps text-label-caps uppercase tracking-wider">Variable Star</span>
+      </span>
+    </div>
+    <p class="font-body-sm text-body-sm text-on-surface-variant font-light min-h-[48px] mb-5">
+      Delta Scuti pulsating host star with rhythmic expansions. Demonstrates intrinsic stellar oscillation that easily fools naive classifiers.
+    </p>
+    <div class="w-full h-28 rounded-DEFAULT p-3 flex flex-col justify-between relative overflow-hidden mb-6" style="background-color: #080d17; border: 1px solid #161f30;">
+      <div class="flex items-center justify-between text-on-surface-variant/70 font-label-caps text-label-caps tracking-widest uppercase">
+        <span class="">Harmonic Modulation</span>
+        <span class="text-[#e06c9f] font-telemetry-num text-telemetry-num">Sinusoidal</span>
+      </div>
+      <svg class="w-full h-14 overflow-visible" fill="none" viewBox="0 0 320 60">
+        <defs>
+          <linearGradient id="grad-pink" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#e06c9f" stop-opacity="0.2"></stop>
+            <stop offset="100%" stop-color="#e06c9f" stop-opacity="0.0"></stop>
+          </linearGradient>
+        </defs>
+        <path style="filter: drop-shadow(0 0 5px rgba(224,108,159,0.5));" d="M 0,30 Q 20,8 40,30 T 80,30 T 120,30 T 160,30 T 200,30 T 240,30 T 280,30 T 320,30" stroke="#e06c9f" stroke-linecap="round" stroke-width="1.75"></path>
+        <path d="M 0,30 Q 20,8 40,30 T 80,30 T 120,30 T 160,30 T 200,30 T 240,30 T 280,30 T 320,30 L 320,60 L 0,60 Z" fill="url(#grad-pink)"></path>
+      </svg>
+      <div class="flex items-center justify-between text-on-surface-variant/60 font-telemetry-num text-telemetry-num text-[11px]">
+        <span class="">Continuous Cycle</span>
+        <span class="text-[#e06c9f]">Non-Occultation</span>
+        <span class="">A = 3.1%</span>
+      </div>
+    </div>
+    <div class="flex flex-col divide-y divide-outline-variant/20 mb-6 font-telemetry-num text-telemetry-num">
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Pulsation Period</span>
+        <span class="text-on-surface font-medium">1.24080 d</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Modulation Amplitude</span>
+        <span class="text-[#e06c9f] font-medium">3.10 %</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Oscillation Mode</span>
+        <span class="text-on-surface">Radial p-mode</span>
+      </div>
+    </div>
+  </div>
+  <a class="w-full flex items-center justify-between pl-5 pr-2 py-2 rounded-full transition-all duration-300 shadow-sm" href="#" style="background-color: #161f30; border: 1px solid #243047;">
+    <span class="font-label-caps text-label-caps uppercase tracking-wider font-medium text-on-surface">Analyze Star</span>
+    <div class="w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" style="background-color: #0d1320;">
+      <span class="material-symbols-outlined text-[17px] text-[#e06c9f]">north_east</span>
+    </div>
+  </a>
+</article>
+
+<!-- Card 5: TOI 1385.01 -->
+<article class="star-card group flex flex-col justify-between rounded-lg p-space-lg transition-all duration-300 relative overflow-hidden" data-category="review" style="background-color: rgb(13, 19, 32); border: 1px solid rgb(32, 42, 56); box-shadow: rgba(0, 0, 0, 0.3) 0px 4px 20px;">
+  <div class="flex flex-col">
+    <div class="flex items-start justify-between gap-2 mb-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="font-headline-md text-headline-md text-on-surface tracking-wider font-normal">TOI 1385.01</h2>
+        </div>
+        <div class="font-telemetry-num text-telemetry-num text-on-surface-variant/80 tracking-widest mt-0.5">TIC 410153553</div>
+      </div>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[#a78bfa] shadow-sm" style="background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.25);">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#a78bfa]" style="box-shadow: 0 0 6px rgba(167,139,250,0.8);"></span>
+        <span class="font-label-caps text-label-caps uppercase tracking-wider">Needs Review</span>
+      </span>
+    </div>
+    <p class="font-body-sm text-body-sm text-on-surface-variant font-light min-h-[48px] mb-5">
+      Overlapping instrumental momentum dump artifacts and stellar flares producing asymmetric transit false positives.
+    </p>
+    <div class="w-full h-28 rounded-DEFAULT p-3 flex flex-col justify-between relative overflow-hidden mb-6" style="background-color: #080d17; border: 1px solid #161f30;">
+      <div class="flex items-center justify-between text-on-surface-variant/70 font-label-caps text-label-caps tracking-widest uppercase">
+        <span class="">Raw Instrument Cadence</span>
+        <span class="text-[#a78bfa] font-telemetry-num text-telemetry-num">Jitter Detected</span>
+      </div>
+      <svg class="w-full h-14 overflow-visible" fill="none" viewBox="0 0 320 60">
+        <defs>
+          <linearGradient id="grad-lavender" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.2"></stop>
+            <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.0"></stop>
+          </linearGradient>
+        </defs>
+        <path style="filter: drop-shadow(0 0 5px rgba(167,139,250,0.5));" d="M 0,26 L 50,24 L 70,6 L 85,28 L 140,27 L 160,46 L 175,22 L 220,26 L 250,29 L 320,24" stroke="#a78bfa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path>
+        <path d="M 0,26 L 50,24 L 70,6 L 85,28 L 140,27 L 160,46 L 175,22 L 220,26 L 250,29 L 320,24 L 320,60 L 0,60 Z" fill="url(#grad-lavender)"></path>
+      </svg>
+      <div class="flex items-center justify-between text-on-surface-variant/60 font-telemetry-num text-telemetry-num text-[11px]">
+        <span class="">Flare Spike</span>
+        <span class="text-[#a78bfa]">Reaction Wheel Dump</span>
+        <span class="">Dip Artifact</span>
+      </div>
+    </div>
+    <div class="flex flex-col divide-y divide-outline-variant/20 mb-6 font-telemetry-num text-telemetry-num">
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Candidate Period</span>
+        <span class="text-on-surface font-medium">19.8140 d</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Artifact Depth</span>
+        <span class="text-[#a78bfa] font-medium">0.45 %</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Quality Flag</span>
+        <span class="text-on-surface">Bit 32 (Desat)</span>
+      </div>
+    </div>
+  </div>
+  <a class="w-full flex items-center justify-between pl-5 pr-2 py-2 rounded-full transition-all duration-300 shadow-sm" href="#" style="background-color: #161f30; border: 1px solid #243047;">
+    <span class="font-label-caps text-label-caps uppercase tracking-wider font-medium text-on-surface">Analyze Star</span>
+    <div class="w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" style="background-color: #0d1320;">
+      <span class="material-symbols-outlined text-[17px] text-[#a78bfa]">north_east</span>
+    </div>
+  </a>
+</article>
+
+<!-- Card 6: TOI 862.01 -->
+<article class="star-card group flex flex-col justify-between rounded-lg p-space-lg transition-all duration-300 relative overflow-hidden" data-category="binary" style="background-color: rgb(13, 19, 32); border: 1px solid rgb(32, 42, 56); box-shadow: rgba(0, 0, 0, 0.3) 0px 4px 20px;">
+  <div class="flex flex-col">
+    <div class="flex items-start justify-between gap-2 mb-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="font-headline-md text-headline-md text-on-surface tracking-wider font-normal">TOI 862.01</h2>
+        </div>
+        <div class="font-telemetry-num text-telemetry-num text-on-surface-variant/80 tracking-widest mt-0.5">TIC 267263889</div>
+      </div>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[#e2b357] shadow-sm" style="background: rgba(226,179,87,0.08); border: 1px solid rgba(226,179,87,0.25);">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#e2b357]" style="box-shadow: 0 0 6px rgba(226,179,87,0.8);"></span>
+        <span class="font-label-caps text-label-caps uppercase tracking-wider">Eclipsing Binary</span>
+      </span>
+    </div>
+    <div class="w-full h-32 rounded-DEFAULT mb-4 overflow-hidden relative group/img border border-[#202a38]"><img src="app/static/stitch/stitch_3.jpg" alt="TOI 862.01 Overcontact Binary Shared Envelope" class="w-full h-full object-cover object-center opacity-85 transition-all duration-500 group-hover/img:scale-105 group-hover/img:opacity-100"><div class="absolute inset-0 bg-gradient-to-t from-[#080d17] via-transparent to-transparent"></div><span class="absolute bottom-2 left-2.5 font-label-caps text-[10px] tracking-widest uppercase text-[#e2b357] bg-[#080d17]/80 px-2 py-0.5 rounded-full border border-[#e2b357]/30">W UMa Shared Envelope</span></div><p class="font-body-sm text-body-sm text-on-surface-variant font-light min-h-[48px] mb-5">
+      Contact binary sharing a common stellar envelope (W UMa type) resulting in smooth, continuous photometric light curves.
+    </p>
+    <div class="w-full h-28 rounded-DEFAULT p-3 flex flex-col justify-between relative overflow-hidden mb-6" style="background-color: #080d17; border: 1px solid #161f30;">
+      <div class="flex items-center justify-between text-on-surface-variant/70 font-label-caps text-label-caps tracking-widest uppercase">
+        <span class="">Continuous Envelope Wave</span>
+        <span class="text-[#e2b357] font-telemetry-num text-telemetry-num">W UMa Type</span>
+      </div>
+      <svg class="w-full h-14 overflow-visible" fill="none" viewBox="0 0 320 60">
+        <defs>
+          <linearGradient id="grad-wuma" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#e2b357" stop-opacity="0.2"></stop>
+            <stop offset="100%" stop-color="#e2b357" stop-opacity="0.0"></stop>
+          </linearGradient>
+        </defs>
+        <path style="filter: drop-shadow(0 0 5px rgba(226,179,87,0.5));" d="M 0,38 C 40,8 60,8 80,42 C 100,50 140,50 160,12 C 180,8 220,8 240,42 C 260,50 300,50 320,12" stroke="#e2b357" stroke-linecap="round" stroke-width="1.75"></path>
+        <path d="M 0,38 C 40,8 60,8 80,42 C 100,50 140,50 160,12 C 180,8 220,8 240,42 C 260,50 300,50 320,12 L 320,60 L 0,60 Z" fill="url(#grad-wuma)"></path>
+      </svg>
+      <div class="flex items-center justify-between text-on-surface-variant/60 font-telemetry-num text-telemetry-num text-[11px]">
+        <span class="">Continuous Ingress</span>
+        <span class="text-[#e2b357]">Contact Envelope</span>
+        <span class="">Secondary Min</span>
+      </div>
+    </div>
+    <div class="flex flex-col divide-y divide-outline-variant/20 mb-6 font-telemetry-num text-telemetry-num">
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Orbital Period (P)</span>
+        <span class="text-on-surface font-medium">2.81190 d</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Eclipse Depth</span>
+        <span class="text-[#e2b357] font-medium">8.70 %</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-on-surface-variant uppercase font-label-caps text-label-caps tracking-widest">Stellar Geometry</span>
+        <span class="text-on-surface">Overcontact System</span>
+      </div>
+    </div>
+  </div>
+  <a class="w-full flex items-center justify-between pl-5 pr-2 py-2 rounded-full transition-all duration-300 shadow-sm" href="#" style="background-color: #161f30; border: 1px solid #243047;">
+    <span class="font-label-caps text-label-caps uppercase tracking-wider font-medium text-on-surface">Analyze Star</span>
+    <div class="w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" style="background-color: #0d1320;">
+      <span class="material-symbols-outlined text-[17px] text-[#e2b357]">north_east</span>
+    </div>
+  </a>
+</article></section>
+<!-- Custom Ingestion / Pipeline Footer Panel -->
+<section class="w-full rounded-lg bg-surface-container-low/80 backdrop-blur-2xl p-space-xl mb-16 relative overflow-hidden shadow-2xl" style="background-color: rgb(13, 19, 32); border: 1px solid rgb(32, 42, 56); box-shadow: rgba(0, 0, 0, 0.5) 0px 4px 30px;">
+<div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-primary-container/20 blur-[100px] pointer-events-none"></div>
+<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 relative z-10">
+<div class="max-w-2xl">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">dataset</span>
+<span class="font-label-caps text-label-caps tracking-[0.2em] uppercase text-secondary">Live analysis</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface font-light tracking-wide">
+          Want fresh TESS data?
+        </h3>
+<p class="font-body-md text-body-md text-on-surface-variant font-light mt-2">
+          In the Analyzer, pick a star and tick “Re-run live analysis”: the app downloads the latest TESS sectors from MAST and runs the whole pipeline again, in about one to two minutes.
+        </p>
+</div>
+<div class="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+<a class="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-primary-container text-on-primary-container hover:bg-primary-container/90 transition-all shadow-[0_0_24px_rgba(37,99,235,0.55)]" href="#" data-path="analyzer">
+<span class="material-symbols-outlined text-[20px]">rocket_launch</span>
+<span class="font-label-caps text-label-caps uppercase tracking-wider font-medium">Open the Analyzer</span>
+</a>
+<a class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-surface-container-high/70 hover:bg-surface-container-high text-on-surface transition-all" href="#" data-path="how-it-works">
+<span class="material-symbols-outlined text-[19px] text-on-surface-variant">menu_book</span>
+<span class="font-label-caps text-label-caps uppercase tracking-wider">Read How It Works</span>
+</a>
+</div>
+</div>
+<!-- Telemetry status indicator bar -->
+<div class="mt-8 pt-6 flex flex-wrap items-center justify-between gap-4 font-telemetry-num text-telemetry-num text-on-surface-variant/70 border-t border-outline-variant/15">
+<div class="flex items-center gap-4 text-body-sm font-body-sm">
+<span class="">Data: <strong class="text-secondary font-medium">NASA TESS via MAST</strong></span>
+<span class="">•</span>
+<span class="">Model: <strong class="text-on-surface font-medium">calibrated XGBoost + physics rules</strong></span>
+<span class="">•</span>
+<span class="">Training stars: <strong class="text-on-surface font-medium">100</strong></span>
+</div>
+<div class="font-label-caps text-label-caps uppercase tracking-widest text-[11px] text-on-surface-variant/50">
+        TESS data courtesy of NASA and the Mikulski Archive (MAST)
+      </div>
+</div>
+</section>
+<!-- Interactive JavaScript for Tab Filtering -->
+<script>
+    (function() {
+      const filterBtns = document.querySelectorAll('#filter-container .filter-btn');
+      const cards = document.querySelectorAll('.star-card');
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Update button styling
+          filterBtns.forEach(b => {
+            b.classList.remove('bg-primary-container', 'text-on-primary-container', 'shadow-[0_0_24px_rgba(37,99,235,0.45)]');
+            b.classList.add('text-on-surface-variant');
+          });
+
+          btn.classList.add('bg-primary-container', 'text-on-primary-container', 'shadow-[0_0_24px_rgba(37,99,235,0.45)]');
+          btn.classList.remove('text-on-surface-variant');
+
+          const targetCat = btn.getAttribute('data-filter');
+
+          // Filter card visibility with gentle animation
+          cards.forEach(card => {
+            const cardCat = card.getAttribute('data-category');
+            if (targetCat === 'all' || cardCat === targetCat) {
+              card.style.display = 'flex';
+              setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0) scale(1)';
+              }, 10);
+            } else {
+              card.style.opacity = '0';
+              card.style.transform = 'translateY(12px) scale(0.98)';
+              setTimeout(() => {
+                card.style.display = 'none';
+              }, 250);
+            }
+          });
+        });
+      });
+    })();
+  </script>
+</div></main><footer class="w-full bg-surface-container-lowest/80 py-space-lg px-margin-desktop mt-auto shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]"><div class="flex flex-col md:flex-row items-center justify-between gap-space-md text-on-surface-variant font-body-sm text-body-sm"><div class="flex items-center gap-space-sm"><span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(93,230,255,0.8)]"></span><span class="">Exoplanet Atlas • NASA TESS &amp; Mikulski Archive (MAST) • Astrophysics Machine Learning Pipeline</span></div><div class="flex items-center gap-space-lg"><a class="hover:text-on-surface transition-colors font-label-caps text-label-caps uppercase" href="#">GitHub Open Science</a><span class="text-outline-variant">•</span><a class="hover:text-on-surface transition-colors font-label-caps text-label-caps uppercase" href="#">Privacy &amp; Telemetry</a></div></div></footer></div>
+
+</body></html>
