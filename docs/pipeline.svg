@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 860" width="1400" height="860" font-family="Segoe UI, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <title>Exoplanet Atlas: pipeline flowchart</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#05070D"/><stop offset="1" stop-color="#0A1226"/>
+    </linearGradient>
+    <radialGradient id="g1" cx="0.1" cy="0.2" r="0.55"><stop offset="0" stop-color="#2563EB" stop-opacity="0.25"/><stop offset="1" stop-color="#2563EB" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g2" cx="0.85" cy="0.85" r="0.5"><stop offset="0" stop-color="#00CBE6" stop-opacity="0.14"/><stop offset="1" stop-color="#00CBE6" stop-opacity="0"/></radialGradient>
+    <linearGradient id="node" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#131B30"/><stop offset="1" stop-color="#0B1120"/></linearGradient>
+    <linearGradient id="star" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.45" stop-color="#FFDDB8"/><stop offset="1" stop-color="#FFB95F"/></linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4D9FFF"/></marker>
+    <marker id="aC" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#54D8E8"/></marker>
+    <marker id="aA" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#EFBF62"/></marker>
+    <marker id="aP" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#EC4899"/></marker>
+    <marker id="aL" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#A78BFA"/></marker>
+    <marker id="aG" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#94A3B8"/></marker>
+    <style>
+      .h { fill: #F2F5FA; font-size: 28px; font-weight: 300; letter-spacing: 6px; }
+      .sub { fill: #9AA8BA; font-size: 14px; }
+      .n { fill: #9AA8BA; font-size: 11px; font-weight: 700; letter-spacing: 2.5px; }
+      .t { fill: #F2F5FA; font-size: 16px; font-weight: 600; }
+      .d { fill: #9AA8BA; font-size: 12.5px; }
+      .m { font-family: Menlo, Consolas, monospace; font-size: 11.5px; }
+    </style>
+  </defs>
+  <rect width="1400" height="860" rx="28" fill="url(#bg)"/>
+  <rect width="1400" height="860" rx="28" fill="url(#g1)"/>
+  <rect width="1400" height="860" rx="28" fill="url(#g2)"/>
+  <rect x="1" y="1" width="1398" height="858" rx="27" fill="none" stroke="#1A2333"/>
+
+  <text x="60" y="68" class="h">FROM STARLIGHT <tspan fill="#5DE6FF">TO A VERDICT</tspan></text>
+  <text x="60" y="96" class="sub">The detection and false-positive recycling pipeline for one TESS star</text>
+
+  <!-- Input star -->
+  <circle cx="118" cy="230" r="46" fill="#FFB95F" opacity="0.35" filter="url(#soft)"/>
+  <circle cx="118" cy="230" r="34" fill="url(#star)"/>
+  <circle cx="104" cy="232" r="7" fill="#05070D"/>
+  <text x="118" y="300" text-anchor="middle" class="t">A star</text>
+  <text x="118" y="320" text-anchor="middle" class="d">name or TIC ID</text>
+
+  <!-- Row 1: stages 1-4 -->
+  <g>
+    <rect x="200" y="150" width="250" height="160" rx="20" fill="url(#node)" stroke="#202A38"/>
+    <text x="222" y="180" class="n">STEP 1 · COLLECT</text>
+    <text x="222" y="206" class="t">Download light curves</text>
+    <text x="222" y="230" class="d">TESS SPOC 2-min PDCSAP flux</text>
+    <text x="222" y="250" class="d">several ~27-day sectors, cached</text>
+    <g fill="#54D8E8">
+      <rect x="222" y="268" width="44" height="22" rx="5" opacity="0.25"/><rect x="272" y="268" width="44" height="22" rx="5" opacity="0.4"/>
+      <rect x="322" y="268" width="44" height="22" rx="5" opacity="0.55"/><rect x="372" y="268" width="44" height="22" rx="5" opacity="0.7"/>
+    </g>
+
+    <rect x="480" y="150" width="250" height="160" rx="20" fill="url(#node)" stroke="#202A38"/>
+    <text x="502" y="180" class="n">STEP 2 · CLEAN</text>
+    <text x="502" y="206" class="t">Remove the wobble</text>
+    <text x="502" y="230" class="d">upper-side outlier clip only</text>
+    <text x="502" y="250" class="d">biweight detrend (wotan) · stitch</text>
+    <path d="M502 284 C540 262 560 300 600 278 S660 268 708 282" stroke="#9AA8BA" stroke-width="1.6" fill="none" stroke-dasharray="3 4"/>
+    <path d="M502 292 L560 292 L566 300 L578 300 L584 292 L708 292" stroke="#54D8E8" stroke-width="2" fill="none"/>
+
+    <rect x="760" y="150" width="250" height="160" rx="20" fill="url(#node)" stroke="#202A38"/>
+    <text x="782" y="180" class="n">STEP 3 · SEARCH</text>
+    <text x="782" y="206" class="t">Find the repeating dip</text>
+    <text x="782" y="230" class="d">Box Least Squares, 0.5–30 days</text>
+    <text x="782" y="250" class="d">keep only if SDE ≥ 7</text>
+    <polyline points="782,296 800,292 812,294 826,290 840,294 852,268 860,294 880,291 900,293 920,286 940,293 960,291 988,292" stroke="#4D9FFF" stroke-width="1.8" fill="none"/>
+
+    <rect x="1040" y="150" width="300" height="160" rx="20" fill="url(#node)" stroke="#202A38"/>
+    <text x="1062" y="180" class="n">STEP 4 · MEASURE</text>
+    <text x="1062" y="206" class="t">Describe it with 56 features</text>
+    <text x="1062" y="230" class="d">U vs V shape · odd/even · phase 0.5</text>
+    <text x="1062" y="250" class="d">sector depth · Lomb–Scargle · star</text>
+    <g font-size="11" fill="#DDE2F5">
+      <rect x="1062" y="266" width="64" height="24" rx="12" fill="#0F1626" stroke="#202A38"/><text x="1094" y="282" text-anchor="middle">shape</text>
+      <rect x="1132" y="266" width="64" height="24" rx="12" fill="#0F1626" stroke="#202A38"/><text x="1164" y="282" text-anchor="middle">timing</text>
+      <rect x="1202" y="266" width="64" height="24" rx="12" fill="#0F1626" stroke="#202A38"/><text x="1234" y="282" text-anchor="middle">sectors</text>
+      <rect x="1272" y="266" width="56" height="24" rx="12" fill="#0F1626" stroke="#202A38"/><text x="1300" y="282" text-anchor="middle">star</text>
+    </g>
+  </g>
+  <g stroke="#4D9FFF" stroke-width="2.2" marker-end="url(#a)" fill="none">
+    <path d="M156 230 L196 230"/><path d="M450 230 L476 230"/><path d="M730 230 L756 230"/><path d="M1010 230 L1036 230"/>
+  </g>
+  <!-- turn down to row 2 -->
+  <path d="M1190 310 L1190 340 Q1190 360 1170 360 L1000 360 Q980 360 980 380 L980 396" stroke="#4D9FFF" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+
+  <!-- Row 2: classifier + router -->
+  <rect x="820" y="400" width="320" height="150" rx="20" fill="url(#node)" stroke="#4D9FFF" stroke-opacity="0.55"/>
+  <text x="842" y="430" class="n">STEP 5 · DECIDE</text>
+  <text x="842" y="456" class="t">Calibrated XGBoost (4 classes)</text>
+  <text x="842" y="478" class="d">400 shallow trees · Platt scaling</text>
+  <g font-size="11.5">
+    <text x="842" y="506" fill="#54D8E8">planet</text><rect x="900" y="497" width="200" height="8" rx="4" fill="#1F2230"/><rect x="900" y="497" width="140" height="8" rx="4" fill="#54D8E8"/>
+    <text x="842" y="526" fill="#EFBF62">binary</text><rect x="900" y="517" width="200" height="8" rx="4" fill="#1F2230"/><rect x="900" y="517" width="44" height="8" rx="4" fill="#EFBF62"/>
+  </g>
+  <path d="M820 475 L716 475" stroke="#4D9FFF" stroke-width="2.2" marker-end="url(#a)"/>
+
+  <!-- Router diamond -->
+  <polygon points="590,385 710,475 590,565 470,475" fill="url(#node)" stroke="#EFBF62" stroke-width="1.6"/>
+  <text x="590" y="458" text-anchor="middle" class="n" fill="#EFBF62">STEP 6</text>
+  <text x="590" y="480" text-anchor="middle" class="t">Physics router</text>
+  <text x="590" y="500" text-anchor="middle" class="d">checks &amp; overrides</text>
+
+  <rect x="60" y="395" width="380" height="160" rx="20" fill="#0F1626" stroke="#202A38"/>
+  <text x="82" y="424" class="n" fill="#EFBF62">THE THREE RULES</text>
+  <text x="82" y="452" class="d"><tspan fill="#F2F5FA">Implied size &gt; 2.5 Jupiter radii</tspan> → not a planet</text>
+  <text x="82" y="478" class="d"><tspan fill="#F2F5FA">Clear 2nd eclipse (SNR ≥ 7)</tspan> → eclipsing binary</text>
+  <text x="82" y="504" class="d"><tspan fill="#F2F5FA">No class above 50%</tspan> → needs review</text>
+  <text x="82" y="532" class="d">otherwise the classifier's answer stands</text>
+  <path d="M440 475 L466 475" stroke="#EFBF62" stroke-width="1.6" stroke-dasharray="4 4"/>
+
+  <!-- Branches to modules (row 3) -->
+  <g fill="none" stroke-width="2">
+    <path d="M590 565 C590 600 170 590 170 636" stroke="#54D8E8" marker-end="url(#aC)"/>
+    <path d="M590 565 C590 605 420 600 420 636" stroke="#EFBF62" marker-end="url(#aA)"/>
+    <path d="M590 565 L670 636" stroke="#EC4899" marker-end="url(#aP)"/>
+    <path d="M590 565 C590 605 920 600 920 636" stroke="#94A3B8" marker-end="url(#aG)"/>
+    <path d="M590 565 C590 600 1170 590 1170 636" stroke="#A78BFA" marker-end="url(#aL)"/>
+  </g>
+  <text x="728" y="556" class="n" fill="#9AA8BA">STEP 7 · RECYCLE ↓</text>
+
+  <g>
+    <rect x="60"   y="640" width="220" height="110" rx="18" fill="url(#node)" stroke="#54D8E8" stroke-opacity="0.6"/>
+    <text x="80" y="668" class="t" fill="#54D8E8">Planet module</text>
+    <text x="80" y="692" class="d">size · orbit · temperature</text><text x="80" y="712" class="d">errors from 1,000 trials</text>
+
+    <rect x="310"  y="640" width="220" height="110" rx="18" fill="url(#node)" stroke="#EFBF62" stroke-opacity="0.6"/>
+    <text x="330" y="668" class="t" fill="#EFBF62">Binary module</text>
+    <text x="330" y="692" class="d">true period: P or 2P?</text><text x="330" y="712" class="d">eclipses · binary type</text>
+
+    <rect x="560"  y="640" width="220" height="110" rx="18" fill="url(#node)" stroke="#EC4899" stroke-opacity="0.6"/>
+    <text x="580" y="668" class="t" fill="#EC4899">Variable module</text>
+    <text x="580" y="692" class="d">type · period · amplitude</text><text x="580" y="712" class="d">checked against Gaia</text>
+
+    <rect x="810"  y="640" width="220" height="110" rx="18" fill="url(#node)" stroke="#94A3B8" stroke-opacity="0.6"/>
+    <text x="830" y="668" class="t" fill="#C3C9D6">Noise</text>
+    <text x="830" y="692" class="d">written to the</text><text x="830" y="712" class="d">systematics log</text>
+
+    <rect x="1060" y="640" width="280" height="110" rx="18" fill="url(#node)" stroke="#A78BFA" stroke-opacity="0.6"/>
+    <text x="1080" y="668" class="t" fill="#A78BFA">Needs review</text>
+    <text x="1080" y="692" class="d">kept, not discarded</text><text x="1080" y="712" class="d">top two modules shown</text>
+  </g>
+
+  <!-- Output -->
+  <rect x="60" y="772" width="1280" height="62" rx="18" fill="#2563EB" opacity="0.14"/>
+  <rect x="60" y="772" width="1280" height="62" rx="18" fill="none" stroke="#2563EB" stroke-opacity="0.7"/>
+  <text x="84" y="809" fill="#F2F5FA" font-size="15" font-weight="600">Report  →</text>
+  <text x="170" y="809" class="d"><tspan fill="#DDE2F5">verdict + confidence</tspan>  ·  class probabilities  ·  <tspan fill="#DDE2F5">"Why?" from physics checks + SHAP</tspan>  ·  NASA catalog check  ·  plots  ·  parameters with errors</text>
+</svg>
