@@ -1,0 +1,23 @@
+# Keep the image small: only what the app needs at run time.
+.git
+.github
+.venv
+venv
+env
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.idea
+.vscode
+.DS_Store
+
+# Downloaded data and generated outputs are rebuilt or fetched at run time.
+# data/examples/ (the six demo reports) is kept.
+data/*
+!data/examples/
+outputs/
+
+# Documentation screenshots are not needed inside the container.
+docs/screenshots/

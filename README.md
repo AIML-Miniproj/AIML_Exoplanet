@@ -124,6 +124,32 @@ python -m pytest -m network     # the few tests that query NASA's archives
 ruff check .
 ```
 
+### Run with Docker
+
+A `Dockerfile` and `docker-compose.yml` package the app with its pinned dependencies, the
+trained model and the six demo reports:
+
+```bash
+docker build -t exoplanet-atlas .
+docker run -p 8501:8501 exoplanet-atlas        # or: docker compose up --build
+```
+
+Then open http://localhost:8501.
+
+### The pages
+
+| Page | What it shows |
+|---|---|
+| Home | What the project does, the four signal types, real results |
+| Learn | Plain-language glossary of every idea the app uses |
+| Analyzer | The pipeline itself: pick a demo star, Analyze, four tabs (unchanged behaviour) |
+| Demo Stars | The six demo stars with their real verdicts; each opens in the Analyzer |
+| How It Works | The pipeline told as a story, step by step, with diagrams and the results |
+
+Home, Learn, Demo Stars and How It Works use the "Exoplanet Atlas" design exported from
+Google Stitch (`ui/stitch/`, served by `ui/stitch_pages.py`); images are in `static/stitch/`
+(credits in `static/stitch/CREDITS.md`).
+
 ## For developers: rebuilding everything
 
 Downloaded data (`data/`, except `data/examples/`) and evaluation plots
@@ -154,7 +180,7 @@ live in `config.py`.
 ## Project structure
 
 ```
-app.py                  Streamlit app (sidebar + 4 tabs)
+app.py                  Streamlit app: page routing + the Analyzer (sidebar + 4 tabs)
 config.py               all settings in one typed dataclass
 src/
   ingest/               star lookup, TESS download + cache, catalogs
@@ -165,7 +191,9 @@ src/
   recycler/             router + planet / EB / variable / noise modules
   pipeline.py           one star end to end
   demo_cache.py         precomputed demo reports
-ui/                     theme (CSS), plots, plot views, plain-English reasons
+ui/                     theme (CSS), plots, plot views, plain-English reasons,
+                        Stitch pages (ui/stitch/, ui/stitch_pages.py)
+static/stitch/          images for the pages (served by Streamlit)
 scripts/                build labels / features / model / examples / evaluation
 tests/                  offline test suite (synthetic light curves)
 data/examples/          the six precomputed demo reports (committed)
