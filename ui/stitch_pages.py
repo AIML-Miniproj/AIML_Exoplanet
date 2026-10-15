@@ -39,7 +39,12 @@ iframe { display: block; border: 0; }
 
 # Injected into each Stitch page: links switch app pages, the frame fits the content.
 FRAME_SCRIPT = """
-<style>body{min-height:0!important}body>div{min-height:0!important}</style>
+<style>body{min-height:0!important}body>div{min-height:0!important}
+.ea-reveal{opacity:0;transform:translateY(22px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+.ea-reveal.ea-in{opacity:1;transform:none}
+@keyframes ea-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+main img{will-change:transform}
+@media (prefers-reduced-motion: reduce){.ea-reveal{opacity:1;transform:none;transition:none}}</style>
 <script>
 (function () {
   function go(href) {                      // navigate the app (the top page), not the frame
@@ -58,6 +63,23 @@ FRAME_SCRIPT = """
   window.addEventListener("resize", fit);
   if (window.ResizeObserver) new ResizeObserver(fit).observe(document.body);
   setTimeout(fit, 300); setTimeout(fit, 1500);
+
+  // Gentle reveal: sections and cards fade up as they scroll into the app window.
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var items = [].slice.call(document.querySelectorAll(
+    "main section, article.star-card, .glossary-item, main .grid > div"));
+  if (!reduce) items.forEach(function (el) { el.classList.add("ea-reveal"); });
+  function reveal() {
+    var f = window.frameElement, top = f ? f.getBoundingClientRect().top : 0;
+    var h = (window.parent && window.parent.innerHeight) || window.innerHeight;
+    items.forEach(function (el) {
+      if (!el.classList.contains("ea-in") && top + el.getBoundingClientRect().top < h * 0.92)
+        el.classList.add("ea-in");
+    });
+  }
+  try { window.parent.document.addEventListener("scroll", reveal, true); } catch (e) {}
+  window.addEventListener("scroll", reveal, true);
+  window.addEventListener("load", reveal); setTimeout(reveal, 200); setTimeout(reveal, 1200);
 })();
 </script>
 """
@@ -127,7 +149,37 @@ def star_facts(report: dict) -> dict:
             "snr": _fmt(snr, ".1f", ""), "sectors": str(len(report.get("sectors") or []))}
 
 
-def _card(skin: str, ex: dict, report: dict) -> str:
+def _facts_lookup(report: dict) -> dict[str, str]:
+    """{key fact name: value} from every recycler module of a report."""
+    out = {}
+    for mod in (report.get("modules") or {}).values():
+        for f in mod.get("key_facts") or []:
+            out.setdefault(str(f[0]), str(f[1]))
+    return out
+
+
+def _captions(skin_no: int, report: dict) -> list[tuple[str, str]]:
+    """Replace the Stitch mini-chart captions with this star's real values."""
+    k = _facts_lookup(report)
+    main, sec = k.get("Main eclipse depth", "—"), k.get("Second eclipse depth", "—")
+    if skin_no == 2:            # detached eclipsing binary
+        return [(">Primary 14.2%<", f">Primary {main}%<"), (">Secondary 3.4%<", f">Secondary {sec}%<")]
+    if skin_no == 3:            # pulsating variable
+        return [(">Sinusoidal<", f">{k.get('Type', 'Pulsating')}<"),
+                (">A = 3.1%<", f">A = {k.get('Brightness change', '—')}%<")]
+    if skin_no == 5:            # second eclipsing binary (period ambiguous)
+        return [(">Continuous Envelope Wave<", ">Primary &amp; Secondary Flux<"),
+                (">W UMa Type<", f">{k.get('Binary type', 'Binary').title()}<"),
+                (">Continuous Ingress<", f">Primary {main}%<"), (">Contact Envelope<", ">Period ambiguous<"),
+                (">Secondary Min<", f">Secondary {sec}%<")]
+    if skin_no == 4:            # planet candidate hidden by the star's variability
+        return [(">Raw Instrument Cadence<", ">Small dip under variability<"),
+                (">Jitter Detected<", ">Hard case<"), (">Flare Spike<", ">Faint dip<"),
+                (">Reaction Wheel Dump<", ">Starspots<"), (">Dip Artifact<", ">More data needed<")]
+    return []
+
+
+def _card(skin: str, ex: dict, report: dict, skin_no: int = -1) -> str:
     """One Stitch card re-filled with a real demo star."""
     cls = ex.get("verdict", "NEEDS_REVIEW")
     name, rgb, hexc, category = BADGE.get(cls, BADGE["NEEDS_REVIEW"])
@@ -166,6 +218,8 @@ def _card(skin: str, ex: dict, report: dict) -> str:
         return f"{LABEL_SPAN}{lab}</span>{m.group(1)}{m.group(2)}{val}</span>"
 
     c = re.sub(re.escape(LABEL_SPAN) + r"[^<]*</span>(\s*)(<span[^>]*>)[^<]*</span>", row, c)
+    for old, new in _captions(skin_no, report):
+        c = c.replace(old, new)
     c = c.replace('href="#"', f'href="#" data-app-href="?page=analyzer&star={ex["tic_id"]}"', 1)
     return c
 
@@ -190,7 +244,7 @@ def demo_stars_html(page: str, examples: list[dict], load_demo) -> str:
             skin = CARD_SKIN[cls]
         else:
             skin = next(reviews, REVIEW_SKINS[-1])
-        out.append(_card(cards[skin], ex, load_demo(ex["tic_id"])))
+        out.append(_card(cards[skin], ex, load_demo(ex["tic_id"]), skin))
     groups = [BADGE.get(e.get("verdict"), BADGE["NEEDS_REVIEW"])[3] for e in examples]
     counts = {k: groups.count(k) for k in ("confirmed", "binary", "variable", "review")}
     for label, key in (("Confirmed Planets", "confirmed"), ("Eclipsing Binaries", "binary"),

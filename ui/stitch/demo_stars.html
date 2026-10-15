@@ -205,15 +205,15 @@
 <section class="flex flex-col items-center text-center pt-8 pb-12 relative">
 <div class="inline-flex items-center gap-space-sm px-space-md py-space-xs rounded-full bg-surface-container-high/60 backdrop-blur-xl mb-6 shadow-sm">
 <span class="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_10px_rgba(93,230,255,0.9)] animate-pulse"></span>
-<span class="font-label-caps text-label-caps tracking-[0.24em] uppercase text-on-surface-variant">TESS Cycle 6 Benchmark Directory</span>
+<span class="font-label-caps text-label-caps tracking-[0.24em] uppercase text-on-surface-variant">Six demo stars</span>
 <span class="text-outline-variant font-telemetry-num text-telemetry-num">•</span>
-<span class="font-telemetry-num text-telemetry-num text-secondary">TIC Catalog v8.2</span>
+<span class="font-telemetry-num text-telemetry-num text-secondary">None used for training</span>
 </div>
 <h1 class="font-display-hero text-display-hero text-on-surface tracking-[0.24em] uppercase font-extralight select-none drop-shadow-md">
-      Curated Benchmark Stars
+      Demo Benchmark Stars
     </h1>
 <p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl mt-4 font-light leading-relaxed">
-      Real NASA TESS targets demonstrating verified exoplanets, tricky eclipsing binaries, pulsating variables, and edge-case instrumental noise calibrated for machine learning verification pipelines.
+      Six real TESS stars the model never trained on: a confirmed planet, two eclipsing binaries, a pulsating variable star and two hard cases that are kept for review. Each opens instantly in the Analyzer.
     </p>
 <!-- Filters Strip -->
 <div class="flex flex-wrap items-center justify-center gap-2 mt-10 p-1.5 rounded-full bg-surface-container-low/70 backdrop-blur-2xl shadow-xl" id="filter-container">
@@ -622,37 +622,37 @@
 <div class="max-w-2xl">
 <div class="flex items-center gap-2 mb-2">
 <span class="material-symbols-outlined text-secondary text-[20px]">dataset</span>
-<span class="font-label-caps text-label-caps tracking-[0.2em] uppercase text-secondary">Custom Pipeline Ingestion</span>
+<span class="font-label-caps text-label-caps tracking-[0.2em] uppercase text-secondary">Live analysis</span>
 </div>
 <h3 class="font-headline-lg text-headline-lg text-on-surface font-light tracking-wide">
-          Have your own TESS target?
+          Want fresh TESS data?
         </h3>
 <p class="font-body-md text-body-md text-on-surface-variant font-light mt-2">
-          Directly load any Mikulski Archive for Space Telescopes (MAST) FITS file, enter a custom TIC ID, or submit programmatic photometric arrays into the neural classifier.
+          In the Analyzer, pick a star and tick “Re-run live analysis”: the app downloads the latest TESS sectors from MAST and runs the whole pipeline again, in about one to two minutes.
         </p>
 </div>
 <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-<button class="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-primary-container text-on-primary-container hover:bg-primary-container/90 transition-all shadow-[0_0_24px_rgba(37,99,235,0.55)]">
-<span class="material-symbols-outlined text-[20px]">upload_file</span>
-<span class="font-label-caps text-label-caps uppercase tracking-wider font-medium">Upload FITS File</span>
-</button>
-<a class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-surface-container-high/70 hover:bg-surface-container-high text-on-surface transition-all" href="#">
-<span class="material-symbols-outlined text-[19px] text-on-surface-variant">terminal</span>
-<span class="font-label-caps text-label-caps uppercase tracking-wider">Python API Documentation</span>
+<a class="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-primary-container text-on-primary-container hover:bg-primary-container/90 transition-all shadow-[0_0_24px_rgba(37,99,235,0.55)]" href="#" data-path="analyzer">
+<span class="material-symbols-outlined text-[20px]">rocket_launch</span>
+<span class="font-label-caps text-label-caps uppercase tracking-wider font-medium">Open the Analyzer</span>
+</a>
+<a class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-surface-container-high/70 hover:bg-surface-container-high text-on-surface transition-all" href="#" data-path="how-it-works">
+<span class="material-symbols-outlined text-[19px] text-on-surface-variant">menu_book</span>
+<span class="font-label-caps text-label-caps uppercase tracking-wider">Read How It Works</span>
 </a>
 </div>
 </div>
 <!-- Telemetry status indicator bar -->
 <div class="mt-8 pt-6 flex flex-wrap items-center justify-between gap-4 font-telemetry-num text-telemetry-num text-on-surface-variant/70 border-t border-outline-variant/15">
 <div class="flex items-center gap-4 text-body-sm font-body-sm">
-<span class="">MAST Connection: <strong class="text-secondary font-medium">Online (42ms)</strong></span>
+<span class="">Data: <strong class="text-secondary font-medium">NASA TESS via MAST</strong></span>
 <span class="">•</span>
-<span class="">Neural Model: <strong class="text-on-surface font-medium">ResNet-Astro v4.1</strong></span>
+<span class="">Model: <strong class="text-on-surface font-medium">calibrated XGBoost + physics rules</strong></span>
 <span class="">•</span>
-<span class="">Calibrated Targets: <strong class="text-on-surface font-medium">28,490</strong></span>
+<span class="">Training stars: <strong class="text-on-surface font-medium">100</strong></span>
 </div>
 <div class="font-label-caps text-label-caps uppercase tracking-widest text-[11px] text-on-surface-variant/50">
-        Data product of NASA Goddard Space Flight Center &amp; MAST
+        TESS data courtesy of NASA and the Mikulski Archive (MAST)
       </div>
 </div>
 </section>

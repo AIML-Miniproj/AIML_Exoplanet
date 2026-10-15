@@ -137,7 +137,13 @@ h3 {{ text-transform: uppercase; font-size: 1.05rem !important; font-weight: 400
 /* Selected-star picture card (same look as the Demo Stars cards) */
 .star-card {{ position: relative; border-radius: 28px; overflow: hidden; border: 1px solid var(--border-hi);
   background: #05070D; aspect-ratio: 1 / 0.92; box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 80px rgba(84,216,232,0.08); }}
-.star-card img {{ width: 100%; height: 100%; object-fit: cover; transition: transform .7s ease; }}
+.star-card {{ animation: ea-rise .9s cubic-bezier(.2,.7,.2,1) both; }}
+.star-card img {{ width: 100%; height: 100%; object-fit: cover; transition: transform .7s ease;
+  animation: ea-drift 18s ease-in-out infinite alternate; }}
+@keyframes ea-rise {{ from {{ opacity: 0; transform: translateY(24px); }} to {{ opacity: 1; transform: none; }} }}
+@keyframes ea-drift {{ from {{ transform: scale(1.02); }} to {{ transform: scale(1.09) translate(-1.5%, -1%); }} }}
+.hero-title, .hero-sub, .chips {{ animation: ea-rise .9s cubic-bezier(.2,.7,.2,1) both; }}
+.hero-sub {{ animation-delay: .12s; }} .chips {{ animation-delay: .22s; }}
 .star-card:hover img {{ transform: scale(1.04); }}
 .star-card .shade {{ position: absolute; inset: 0; background: linear-gradient(to top, #070A11 5%, transparent 60%); opacity: .8; }}
 .star-card .top {{ position: absolute; top: 14px; left: 14px; right: 14px; display: flex; justify-content: space-between;
@@ -304,7 +310,8 @@ h3 {{ text-transform: uppercase; font-size: 1.05rem !important; font-weight: 400
   background: rgba(167,139,250,0.10); border: 1px solid rgba(167,139,250,0.40); }}
 
 @media (prefers-reduced-motion: reduce) {{
-  .stApp::before, .stApp::after, .transit .star, .transit .planet, .verdict,
+  .stApp::before, .stApp::after, .transit .star, .transit .planet, .verdict, .star-card, .star-card img,
+  .hero-title, .hero-sub, .chips,
   .stTabs [data-baseweb="tab-panel"] {{ animation: none !important; }}
 }}
 </style>
