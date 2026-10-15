@@ -1,0 +1,709 @@
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Montserrat:wght@200;300;400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary-container": "#2563eb",
+          "inverse-surface": "#dbe1ff",
+          "surface-container": "#151f39",
+          "on-surface-variant": "#c3c6d7",
+          "error-container": "#93000a",
+          "surface-dim": "#08122c",
+          "surface-container-lowest": "#030d27",
+          "secondary-fixed-dim": "#2fd9f4",
+          "on-primary": "#002a78",
+          "on-secondary": "#00363e",
+          "on-surface": "#dbe1ff",
+          "on-error": "#690005",
+          "on-error-container": "#ffdad6",
+          "tertiary-fixed-dim": "#ffb95f",
+          "tertiary-fixed": "#ffddb8",
+          "on-tertiary-container": "#ffeedd",
+          "outline": "#8d90a0",
+          "surface-container-low": "#111a35",
+          "error": "#ffb4ab",
+          "secondary-container": "#00cbe6",
+          "on-primary-fixed-variant": "#003ea8",
+          "background": "#08122c",
+          "surface-variant": "#2b344f",
+          "on-tertiary-fixed-variant": "#653e00",
+          "surface": "#08122c",
+          "surface-container-high": "#202944",
+          "on-primary-container": "#eeefff",
+          "inverse-on-surface": "#262f4b",
+          "outline-variant": "#434655",
+          "on-secondary-fixed": "#001f25",
+          "on-tertiary-fixed": "#2a1700",
+          "on-secondary-fixed-variant": "#004e5a",
+          "tertiary-container": "#996100",
+          "secondary-fixed": "#a2eeff",
+          "surface-container-highest": "#2b344f",
+          "primary-fixed-dim": "#b4c5ff",
+          "on-secondary-container": "#00515d",
+          "secondary": "#5de6ff",
+          "surface-bright": "#2f3854",
+          "on-background": "#dbe1ff",
+          "surface-tint": "#b4c5ff",
+          "primary-fixed": "#dbe1ff",
+          "primary": "#b4c5ff",
+          "tertiary": "#ffb95f",
+          "on-primary-fixed": "#00174b",
+          "on-tertiary": "#472a00",
+          "inverse-primary": "#0053db"
+        },
+        "borderRadius": {
+          "DEFAULT": "1rem",
+          "lg": "2rem",
+          "xl": "3rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "margin-desktop": "3.5rem",
+          "margin": "1.5rem",
+          "space-md": "1rem",
+          "gutter": "1.5rem",
+          "space-xl": "2.5rem",
+          "space-lg": "1.5rem",
+          "space-2xl": "4rem",
+          "space-xs": "0.25rem",
+          "gutter-desktop": "2rem",
+          "space-sm": "0.5rem"
+        },
+        "fontFamily": {
+          "telemetry-num": [
+            "Inter"
+          ],
+          "display-hero-mobile": [
+            "Montserrat"
+          ],
+          "headline-sm": [
+            "Montserrat"
+          ],
+          "body-md": [
+            "Inter"
+          ],
+          "label-caps": [
+            "Montserrat"
+          ],
+          "headline-lg-mobile": [
+            "Montserrat"
+          ],
+          "display-hero": [
+            "Montserrat"
+          ],
+          "body-lg": [
+            "Inter"
+          ],
+          "headline-lg": [
+            "Montserrat"
+          ],
+          "headline-md": [
+            "Montserrat"
+          ],
+          "body-sm": [
+            "Inter"
+          ]
+        },
+        "fontSize": {
+          "telemetry-num": [
+            "0.875rem",
+            {
+              "lineHeight": "1.4",
+              "letterSpacing": "0.04em",
+              "fontWeight": "500"
+            }
+          ],
+          "display-hero-mobile": [
+            "2.25rem",
+            {
+              "lineHeight": "1.2",
+              "letterSpacing": "0.18em",
+              "fontWeight": "300"
+            }
+          ],
+          "headline-sm": [
+            "1.125rem",
+            {
+              "lineHeight": "1.4",
+              "letterSpacing": "0.08em",
+              "fontWeight": "500"
+            }
+          ],
+          "body-md": [
+            "0.9375rem",
+            {
+              "lineHeight": "1.6",
+              "letterSpacing": "0.01em",
+              "fontWeight": "400"
+            }
+          ],
+          "label-caps": [
+            "0.6875rem",
+            {
+              "lineHeight": "1",
+              "letterSpacing": "0.18em",
+              "fontWeight": "500"
+            }
+          ],
+          "headline-lg-mobile": [
+            "1.75rem",
+            {
+              "lineHeight": "1.25",
+              "letterSpacing": "0.14em",
+              "fontWeight": "300"
+            }
+          ],
+          "display-hero": [
+            "4.5rem",
+            {
+              "lineHeight": "1.1",
+              "letterSpacing": "0.28em",
+              "fontWeight": "200"
+            }
+          ],
+          "body-lg": [
+            "1.125rem",
+            {
+              "lineHeight": "1.7",
+              "letterSpacing": "0.01em",
+              "fontWeight": "300"
+            }
+          ],
+          "headline-lg": [
+            "2.5rem",
+            {
+              "lineHeight": "1.2",
+              "letterSpacing": "0.2em",
+              "fontWeight": "300"
+            }
+          ],
+          "headline-md": [
+            "1.5rem",
+            {
+              "lineHeight": "1.3",
+              "letterSpacing": "0.12em",
+              "fontWeight": "400"
+            }
+          ],
+          "body-sm": [
+            "0.8125rem",
+            {
+              "lineHeight": "1.5",
+              "letterSpacing": "0.02em",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      },
+    },
+  }</script></head><body class="bg-surface-container-lowest text-on-surface font-body-md text-body-md min-h-screen py-8 px-4 flex justify-center selection:bg-primary-container selection:text-on-primary-container"><div class="w-full max-w-[1440px] rounded-[28px] bg-surface relative flex flex-col min-h-[calc(100vh-4rem)] shadow-[0_0_50px_rgba(37,99,235,0.15),0_0_0_1px_rgba(255,255,255,0.06)] overflow-hidden"><header class="fixed top-12 left-1/2 -translate-x-1/2 w-full max-w-[1400px] z-50 px-gutter-desktop pointer-events-none"><div class="h-20 flex items-center justify-between px-space-lg rounded-full bg-surface-container-low/70 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.12)] pointer-events-auto"><nav class="flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-headline-sm"><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="home" href="#">Home</a><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="learn" href="#">Learn</a><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="analyzer" href="#">Analyzer</a><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="demo-stars" href="#">Demo Stars</a><a aria-current="page" class="px-space-md py-space-sm rounded-full uppercase transition-all duration-300 bg-primary-container text-on-primary-container font-headline-sm" data-path="how-it-works" href="#">How It Works</a></nav><div class="flex items-center gap-2 select-none"><span class="font-headline-sm text-headline-sm font-light text-on-surface tracking-[0.2em] uppercase">Exoplanet</span><span class="font-headline-sm text-headline-sm font-light text-secondary tracking-[0.2em] uppercase">Atlas</span></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-md py-space-sm rounded-full bg-surface-container/60 hover:bg-surface-container-high transition-colors cursor-pointer text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">menu</span><span class="font-label-caps text-label-caps uppercase">Menu</span></div><div class="h-4 w-[1px] bg-surface-variant"></div><a class="flex items-center gap-space-sm pl-space-md pr-space-xs py-space-xs rounded-full bg-primary-container hover:bg-primary-container text-on-primary-container shadow-[0_0_20px_rgba(37,99,235,0.6)] transition-all" data-path="analyzer" href="#"><span class="font-label-caps text-label-caps uppercase font-medium">Analyze a star</span><div class="w-7 h-7 rounded-full bg-surface-container-lowest/30 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">north_east</span></div></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 flex-1 px-margin-desktop"><div class="flex flex-col w-full relative">
+<!-- Ambient Space Core Glows -->
+<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-primary-container/10 rounded-full blur-[140px] pointer-events-none" style="opacity: 0.35; background: radial-gradient(circle, rgba(77, 159, 255, 0.12) 0%, transparent 70%);"></div>
+<div class="absolute top-[40%] right-[-10%] w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[160px] pointer-events-none" style="opacity: 0.25; background: radial-gradient(circle, rgba(84, 216, 232, 0.08) 0%, transparent 70%);"></div>
+<!-- Header Section with Deep Space Minimal Hierarchy -->
+<section class="relative pt-space-xl pb-space-2xl flex flex-col items-center text-center">
+<!-- Live Telemetry Pill Badge -->
+<div class="inline-flex items-center gap-space-sm px-space-md py-1.5 rounded-full bg-surface-container-low/80 backdrop-blur-md shadow-md mb-space-lg">
+<span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_10px_rgba(93,230,255,0.9)] animate-pulse"></span>
+<span class="font-label-caps text-label-caps uppercase text-secondary tracking-[0.2em]">Sector 72 Flux Ingestion</span>
+<span class="text-outline-variant font-telemetry-num text-telemetry-num">•</span>
+<span class="font-telemetry-num text-telemetry-num text-on-surface-variant font-normal">204,182 light curves validated via GPU pipeline</span>
+</div>
+<!-- Thin Uppercase Title -->
+<h1 class="font-display-hero text-headline-lg lg:text-display-hero tracking-[0.26em] text-on-surface uppercase max-w-5xl leading-tight font-extralight">
+      The AI Verification <span class="text-secondary font-light">Engine</span>
+</h1>
+<p class="mt-space-md max-w-3xl font-body-lg text-body-lg text-on-surface-variant font-light tracking-wide">
+      How machine learning and stellar physics validate planet candidates from raw photon counts down to single-part-per-million precision.
+    </p>
+<!-- Top Benchmark Stats Band -->
+<div class="w-full grid grid-cols-1 md:grid-cols-3 gap-gutter-desktop mt-space-2xl">
+<!-- Benchmark 1 -->
+<div class="group relative rounded-lg bg-surface-container-low/50 backdrop-blur-xl p-space-xl text-left shadow-lg hover:bg-surface-container-high/40 transition-all duration-500">
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-label-caps text-label-caps uppercase text-outline tracking-[0.2em]">NASA Holdout Test</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">science</span>
+</div>
+<div class="flex items-baseline gap-space-xs mb-space-xs">
+<span class="font-display-hero text-headline-lg text-on-surface tracking-tight font-light">0.76</span>
+<span class="font-headline-sm text-headline-sm text-secondary tracking-normal">Macro F1</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Validated against rigorously cross-vetted TESS multi-sector confirmed exoplanets.</p>
+<div class="mt-space-md w-full bg-surface-variant h-1 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full transition-all duration-1000" style="width: 76%"></div>
+</div>
+</div>
+<!-- Benchmark 2 -->
+<div class="group relative rounded-lg bg-surface-container-low/50 backdrop-blur-xl p-space-xl text-left shadow-lg hover:bg-surface-container-high/40 transition-all duration-500">
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-label-caps text-label-caps uppercase text-outline tracking-[0.2em]">Disentanglement</span>
+<span class="material-symbols-outlined text-primary-fixed-dim text-[20px]">join_inner</span>
+</div>
+<div class="flex items-baseline gap-space-xs mb-space-xs">
+<span class="font-display-hero text-headline-lg text-on-surface tracking-tight font-light">23 <span class="text-outline text-headline-sm font-normal">/ 25</span></span>
+<span class="font-headline-sm text-headline-sm text-primary tracking-normal">Periods</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Accurate period separation in tight hierarchical and eclipsing binary systems.</p>
+<div class="mt-space-md w-full bg-surface-variant h-1 rounded-full overflow-hidden">
+<div class="bg-secondary-container h-full rounded-full transition-all duration-1000" style="width: 92%"></div>
+</div>
+</div>
+<!-- Benchmark 3 -->
+<div class="group relative rounded-lg bg-surface-container-low/50 backdrop-blur-xl p-space-xl text-left shadow-lg hover:bg-surface-container-high/40 transition-all duration-500">
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-label-caps text-label-caps uppercase text-outline tracking-[0.2em]">Purity Rate</span>
+<span class="material-symbols-outlined text-tertiary text-[20px]">filter_alt</span>
+</div>
+<div class="flex items-baseline gap-space-xs mb-space-xs">
+<span class="font-display-hero text-headline-lg text-on-surface tracking-tight font-light">99.1%</span>
+<span class="font-headline-sm text-headline-sm text-tertiary tracking-normal">Noise Cut</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Autonomous false-alarm suppression eliminating instrumental drift &amp; cosmic rays.</p>
+<div class="mt-space-md w-full bg-surface-variant h-1 rounded-full overflow-hidden">
+<div class="bg-tertiary-fixed-dim h-full rounded-full transition-all duration-1000" style="width: 99.1%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- 7-Stage End-to-End Pipeline Section -->
+<section class="relative py-space-2xl">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-space-2xl gap-space-md">
+<div>
+<span class="font-label-caps text-label-caps uppercase text-secondary tracking-[0.25em]">Workflow Topology</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface font-light tracking-[0.16em] uppercase mt-space-xs">
+          The 7-Stage Synthesis Protocol
+        </h2>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-telemetry-num text-telemetry-num text-on-surface-variant">Avg latency: <span class="text-secondary font-medium">380ms / curve</span></span>
+<div class="h-4 w-px bg-surface-variant"></div>
+<span class="font-label-caps text-label-caps uppercase text-outline">Deterministic GPU Pipeline</span>
+</div>
+</div>
+<!-- Stepper Pipeline Architecture -->
+<div class="space-y-space-lg relative">
+<!-- Continuous Background Glow Trace Line -->
+<div class="hidden lg:block absolute left-8 top-12 bottom-12 w-0.5 bg-gradient-to-b from-secondary/80 via-primary-container/40 to-tertiary/60" style="background: linear-gradient(rgba(84, 216, 232, 0.4) 0%, rgba(77, 159, 255, 0.25) 50%, rgba(239, 191, 98, 0.3) 100%);"></div>
+<!-- Stage 01 -->
+<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-secondary shadow-[0_0_15px_rgba(93,230,255,0.4)] shrink-0 z-10">
+            01
+          </div>
+<div>
+<span class="font-label-caps text-label-caps uppercase text-outline">Ingestion</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Raw Photometry</h3>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Directly extracts Target Pixel Files (TPF) and Simple Aperture Photometry (SAP) from NASA Mikulski Archive (MAST). Flags and masks momentum dumps, thermal settles, and known detector anomalies.
+          </p>
+<div class="flex flex-wrap gap-space-xs mt-space-sm">
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-secondary font-label-caps text-label-caps uppercase">MAST API</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Quality Bitmask 175</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Cadence: 120s / 20s</span>
+</div>
+</div>
+<!-- Inline Mini Graphic -->
+<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
+<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
+<span class="">FLUX INTENSITY</span>
+<span class="text-secondary font-telemetry-num">4.18e5 e⁻/s</span>
+</div>
+<svg class="w-full h-8 text-secondary/70" fill="none" viewBox="0 0 100 24">
+<path d="M0,12 Q10,4 20,12 T40,12 T60,14 T80,11 T100,12" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path>
+<circle cx="60" cy="14" fill="currentColor" r="2"></circle>
+</svg>
+</div>
+</div>
+<!-- Stage 02 -->
+<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-secondary shadow-[0_0_15px_rgba(93,230,255,0.4)] shrink-0 z-10">
+            02
+          </div>
+<div>
+<span class="font-label-caps text-label-caps uppercase text-outline">De-noising</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Clean &amp; Detrend</h3>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Removes long-term low-frequency stellar variability, instrumental temperature swings, and Earthshine scattering using iterative bi-weight polynomial regressions while preserving transit depth morphology.
+          </p>
+<div class="flex flex-wrap gap-space-xs mt-space-sm">
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-secondary font-label-caps text-label-caps uppercase">Bi-Weight Filter</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Window: 0.5 Days</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Earthshine Cutoff</span>
+</div>
+</div>
+<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
+<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
+<span class="">DETREND RESIDUAL</span>
+<span class="text-primary font-telemetry-num">σ = 14.2 ppm</span>
+</div>
+<svg class="w-full h-8 text-primary" fill="none" viewBox="0 0 100 24">
+<path d="M0,12 L15,12 L30,13 L45,11 L60,12 L75,12 L90,12 L100,12" stroke="currentColor" stroke-dasharray="2 2" stroke-width="1.5"></path>
+<path d="M0,12 C20,12 25,6 35,6 C45,6 50,18 60,18 C70,18 75,12 100,12" stroke="rgba(255,255,255,0.2)" stroke-width="1"></path>
+</svg>
+</div>
+</div>
+<!-- Stage 03 -->
+<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-secondary shadow-[0_0_15px_rgba(93,230,255,0.4)] shrink-0 z-10">
+            03
+          </div>
+<div>
+<span class="font-label-caps text-label-caps uppercase text-outline">Search</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Dip Detection</h3>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Combines Box Least Squares (BLS) and realistic Transit Least Squares (TLS) to test orbital periods ranging from 0.4 to 120 days, modeling ingress/egress curvature and planetary limb-darkening profiles.
+          </p>
+<div class="flex flex-wrap gap-space-xs mt-space-sm">
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-secondary font-label-caps text-label-caps uppercase">TLS Algorithm</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">BLS Periodogram</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">SDE &gt; 7.0 Threshold</span>
+</div>
+</div>
+<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
+<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
+<span class="">PERIODOGRAM PEAK</span>
+<span class="text-secondary font-telemetry-num">P = 3.213 d</span>
+</div>
+<svg class="w-full h-8 text-secondary" fill="none" viewBox="0 0 100 24">
+<path d="M0,22 L20,20 L35,21 L48,22 L50,4 L52,22 L65,21 L80,20 L100,22" stroke="currentColor" stroke-width="1.5"></path>
+</svg>
+</div>
+</div>
+<!-- Stage 04 -->
+<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-primary shadow-[0_0_15px_rgba(37,99,235,0.4)] shrink-0 z-10">
+            04
+          </div>
+<div>
+<span class="font-label-caps text-label-caps uppercase text-outline">Morphology</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Measure 56 Features</h3>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Derives mathematical characteristics: transit depth, total duration, ingress-to-egress ratio, V-shape vs U-shape index, odd/even depth consistency, and photo-center pixel displacement.
+          </p>
+<div class="flex flex-wrap gap-space-xs mt-space-sm">
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-primary font-label-caps text-label-caps uppercase">56 Scalar Metrics</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Odd/Even Parity</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Centroid Pixel Shift</span>
+</div>
+</div>
+<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
+<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
+<span class="">TRANSIT U-SHAPE</span>
+<span class="text-on-surface font-telemetry-num">ΔF = 840 ppm</span>
+</div>
+<svg class="w-full h-8 text-primary" fill="none" viewBox="0 0 100 24">
+<path d="M5,4 L30,4 Q35,4 40,18 L60,18 Q65,4 70,4 L95,4" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path>
+</svg>
+</div>
+</div>
+<!-- Stage 05 -->
+<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-primary shadow-[0_0_15px_rgba(37,99,235,0.4)] shrink-0 z-10">
+            05
+          </div>
+<div>
+<span class="font-label-caps text-label-caps uppercase text-outline">Inference</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Neural Classifier</h3>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Ensemble model pairing a multi-scale 1D Convolutional Neural Network (inspecting global and local folded views) with a tuned Gradient Boosted Decision Tree (LightGBM) analyzing scalar astrophysical features.
+          </p>
+<div class="flex flex-wrap gap-space-xs mt-space-sm">
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-primary font-label-caps text-label-caps uppercase">1D-CNN + LightGBM</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Cross-Entropy Loss</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Multi-Scale Fold</span>
+</div>
+</div>
+<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
+<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
+<span class="">CONFIDENCE SCORE</span>
+<span class="text-secondary font-telemetry-num">98.4% PC</span>
+</div>
+<div class="flex items-center gap-1.5 h-6">
+<div class="flex-1 bg-surface-variant h-full rounded-sm overflow-hidden flex flex-col justify-end">
+<div class="bg-secondary h-[98%] w-full"></div>
+</div>
+<div class="flex-1 bg-surface-variant h-full rounded-sm overflow-hidden flex flex-col justify-end">
+<div class="bg-tertiary h-[12%] w-full"></div>
+</div>
+<div class="flex-1 bg-surface-variant h-full rounded-sm overflow-hidden flex flex-col justify-end">
+<div class="bg-error h-[4%] w-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Stage 06 -->
+<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-tertiary shadow-[0_0_15px_rgba(255,185,95,0.4)] shrink-0 z-10">
+            06
+          </div>
+<div>
+<span class="font-label-caps text-label-caps uppercase text-outline">Verification</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Physics Checks</h3>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Astrophysical vetting guardrails verify physical consistency: Roche tidal disruption limits, stellar mean density comparisons from transit duration vs Gaia DR3 specs, and strict centroid motion tests (&lt; 0.4 arcsec).
+          </p>
+<div class="flex flex-wrap gap-space-xs mt-space-sm">
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-tertiary font-label-caps text-label-caps uppercase">Roche Radius Test</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Gaia DR3 Kinematics</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Centroid &lt; 0.4"</span>
+</div>
+</div>
+<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
+<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
+<span class="">ASTROPHYSICS GUARD</span>
+<span class="text-tertiary font-telemetry-num">PASSED (4/4)</span>
+</div>
+<div class="flex items-center justify-between px-2 pt-1 text-tertiary">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Stage 07 -->
+<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
+<div class="flex items-center gap-space-md lg:w-72 shrink-0">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-secondary shadow-[0_0_15px_rgba(93,230,255,0.4)] shrink-0 z-10">
+            07
+          </div>
+<div>
+<span class="font-label-caps text-label-caps uppercase text-outline">Synthesis</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Explain &amp; Output</h3>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Generates natural language rationale detailing classification confidence, marginal flags, predicted radius in Earth radii ($R_\oplus$), and highlights potential ambiguous blend scenarios for spectroscopic followup.
+          </p>
+<div class="flex flex-wrap gap-space-xs mt-space-sm">
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-secondary font-label-caps text-label-caps uppercase">Automated Dossier</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Radius Calibration</span>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">TESS TOI Submission</span>
+</div>
+</div>
+<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
+<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
+<span class="">CANDIDATE DISPOSITION</span>
+<span class="text-secondary font-telemetry-num">CONFIRMED PC</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">TOI-561 e Equivalent</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Demo Light Curve Inspector Callout -->
+<section class="my-space-2xl rounded-xl bg-surface-container-low/70 backdrop-blur-2xl p-space-xl lg:p-space-2xl relative overflow-hidden shadow-xl">
+<div class="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-primary-container/10 to-transparent pointer-events-none"></div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center relative z-10">
+<div class="lg:col-span-7 flex flex-col items-start">
+<div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-primary-container/20 text-primary-fixed mb-space-md">
+<span class="material-symbols-outlined text-[16px]">auto_graph</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Realtime Model Diagnostic</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface font-light uppercase tracking-[0.16em]">
+          Inspect Feature Weights
+        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-space-sm max-w-xl">
+          Observe how the ensemble assigns importance across 56 extracted telemetry channels during a live classification pass on Kepler-452b transit replicates.
+        </p>
+<!-- Feature Importance Bar Stack -->
+<div class="w-full space-y-space-md mt-space-lg">
+<div>
+<div class="flex justify-between font-label-caps text-label-caps uppercase text-on-surface mb-1">
+<span class="">Transit Depth Even/Odd Parity</span>
+<span class="font-telemetry-num text-secondary">32.4%</span>
+</div>
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 32.4%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-caps text-label-caps uppercase text-on-surface mb-1">
+<span class="">Local CNN Ingress/Egress Curvature</span>
+<span class="font-telemetry-num text-primary">28.1%</span>
+</div>
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 28.1%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-caps text-label-caps uppercase text-on-surface mb-1">
+<span class="">Centroid Arcsecond Offset Test</span>
+<span class="font-telemetry-num text-tertiary">21.8%</span>
+</div>
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 21.8%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-caps text-label-caps uppercase text-on-surface mb-1">
+<span class="">Gaia Stellar Density Consistency</span>
+<span class="font-telemetry-num text-on-surface-variant">17.7%</span>
+</div>
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
+<div class="bg-outline h-full rounded-full" style="width: 17.7%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Pipeline Telemetry Node -->
+<div class="lg:col-span-5 flex flex-col justify-center">
+<div class="rounded-lg bg-surface-container-lowest/80 p-space-lg backdrop-blur-md shadow-inner space-y-space-md">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-outline">Target Spectrum</span>
+<span class="px-space-sm py-0.5 rounded-full bg-secondary/10 text-secondary font-label-caps text-label-caps uppercase">TIC 261136679</span>
+</div>
+<div class="p-space-md rounded bg-surface-container-high/40 space-y-space-xs font-telemetry-num text-telemetry-num text-on-surface-variant">
+<div class="flex justify-between">
+<span class="text-outline">Calculated Period:</span>
+<span class="text-on-surface">3.21305 ± 0.00004 d</span>
+</div>
+<div class="flex justify-between">
+<span class="text-outline">Planet Radius ($R_p$):</span>
+<span class="text-on-surface">2.04 $R_\oplus$ (Super-Earth)</span>
+</div>
+<div class="flex justify-between">
+<span class="text-outline">Stellar Host:</span>
+<span class="text-on-surface">G2V (1.02 $M_\odot$)</span>
+</div>
+<div class="flex justify-between">
+<span class="text-outline">Insolation Flux ($S_\oplus$):</span>
+<span class="text-on-surface">1.14 Solar constant</span>
+</div>
+</div>
+<!-- Compound Action Pill Button -->
+<a class="w-full flex items-center justify-between p-space-xs pl-space-md rounded-full bg-primary-container text-on-primary-container hover:bg-primary-container/90 transition-all shadow-[0_0_24px_rgba(37,99,235,0.5)]" data-path="analyzer" href="#">
+<span class="font-label-caps text-label-caps uppercase font-medium">Test in Interactive Analyzer</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-lowest/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</div>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Scientific Limitations Panel -->
+<section class="py-space-xl">
+<div class="text-left mb-space-xl">
+<span class="font-label-caps text-label-caps uppercase text-tertiary tracking-[0.25em]">Boundary Conditions</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface font-light tracking-[0.16em] uppercase mt-space-xs">
+        Honest Scientific Limitations
+      </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-space-xs max-w-2xl">
+        Machine learning accelerates candidate identification by 10,000x, but empirical confirmation always demands ground-based observational astrophysics in edge cases.
+      </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter-desktop">
+<!-- Limit 01 -->
+<div class="rounded-lg bg-surface-container-low/50 backdrop-blur-xl p-space-xl shadow-md hover:bg-surface-container/50 transition-all flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center mb-space-md text-tertiary">
+<span class="material-symbols-outlined text-[22px]">hourglass_empty</span>
+</div>
+<span class="font-label-caps text-label-caps uppercase text-tertiary tracking-widest">Temporal Constraint</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase mt-space-xs mb-space-sm">
+            Long-Period Transits (&gt;50 Days)
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            TESS 27-day sector baselines rarely record multiple transits for long-orbit cold worlds. The model flags monotransits, but true confirmation requires long-baseline Doppler radial velocity tracking.
+          </p>
+</div>
+<div class="mt-space-lg pt-space-md border-t border-surface-variant/40 flex items-center justify-between text-outline font-label-caps text-label-caps uppercase">
+<span class="">Requires</span>
+<span class="text-on-surface">HARPS / ESPRESSO RV</span>
+</div>
+</div>
+<!-- Limit 02 -->
+<div class="rounded-lg bg-surface-container-low/50 backdrop-blur-xl p-space-xl shadow-md hover:bg-surface-container/50 transition-all flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center mb-space-md text-error">
+<span class="material-symbols-outlined text-[22px]">flare</span>
+</div>
+<span class="font-label-caps text-label-caps uppercase text-error tracking-widest">Host Activity</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase mt-space-xs mb-space-sm">
+            Extreme M-Dwarf Flaring
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Stochastic magnetic reconnection events on active red dwarfs produce asymmetrical flare decay curves. These can mask or mimic shallow sub-Earth transits ($&lt;200$ ppm), requiring spot-modeling manual audits.
+          </p>
+</div>
+<div class="mt-space-lg pt-space-md border-t border-surface-variant/40 flex items-center justify-between text-outline font-label-caps text-label-caps uppercase">
+<span class="">Requires</span>
+<span class="text-on-surface">Spot-Map Inversion</span>
+</div>
+</div>
+<!-- Limit 03 -->
+<div class="rounded-lg bg-surface-container-low/50 backdrop-blur-xl p-space-xl shadow-md hover:bg-surface-container/50 transition-all flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center mb-space-md text-secondary">
+<span class="material-symbols-outlined text-[22px]">blur_on</span>
+</div>
+<span class="font-label-caps text-label-caps uppercase text-secondary tracking-widest">Spatial Resolution</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase mt-space-xs mb-space-sm">
+            Background Eclipsing Binaries
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Because TESS pixels are large (21 arcseconds across), a faint background eclipsing binary within the same pixel aperture can dilute its transit dip, closely masquerading as a true planetary transit.
+          </p>
+</div>
+<div class="mt-space-lg pt-space-md border-t border-surface-variant/40 flex items-center justify-between text-outline font-label-caps text-label-caps uppercase">
+<span class="">Requires</span>
+<span class="text-on-surface">Adaptive Optics Imaging</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Open Science Framework Banner -->
+<section class="mt-space-2xl mb-space-xl rounded-lg bg-surface-container-low/40 backdrop-blur-xl p-space-lg lg:p-space-xl shadow-lg flex flex-col md:flex-row items-center justify-between gap-space-lg">
+<div class="flex items-center gap-space-lg">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center text-primary-fixed shrink-0">
+<span class="material-symbols-outlined text-[24px]">terminal</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-light uppercase tracking-wider">
+          Built on Open Astrophysics Infrastructure
+        </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+          Orchestrated with <span class="text-on-surface font-medium">Lightkurve</span>, <span class="text-on-surface font-medium">Astropy</span>, and <span class="text-on-surface font-medium">PyTorch</span>. Trained on NASA Exoplanet Archive datasets.
+        </p>
+</div>
+</div>
+<!-- Compound Outer Pill Button with Sapphire Circular Badge -->
+<a class="shrink-0 flex items-center gap-space-sm pl-space-md pr-space-xs py-space-xs rounded-full bg-surface-container-high/80 hover:bg-surface-container-highest transition-all duration-300 text-on-surface shadow-md" href="#">
+<span class="font-label-caps text-label-caps uppercase tracking-wider">Inspect Architecture &amp; Weights</span>
+<div class="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shadow-[0_0_12px_rgba(37,99,235,0.7)]">
+<span class="material-symbols-outlined text-[16px]">north_east</span>
+</div>
+</a>
+</section>
+</div></main><footer class="w-full bg-surface-container-lowest/80 py-space-lg px-margin-desktop mt-auto shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]"><div class="flex flex-col md:flex-row items-center justify-between gap-space-md text-on-surface-variant font-body-sm text-body-sm"><div class="flex items-center gap-space-sm"><span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(93,230,255,0.8)]"></span><span class="">Exoplanet Atlas • NASA TESS &amp; Mikulski Archive (MAST) • Astrophysics Machine Learning Pipeline</span></div><div class="flex items-center gap-space-lg"><a class="hover:text-on-surface transition-colors font-label-caps text-label-caps uppercase" href="#">GitHub Open Science</a><span class="text-outline-variant">•</span><a class="hover:text-on-surface transition-colors font-label-caps text-label-caps uppercase" href="#">Privacy &amp; Telemetry</a></div></div></footer></div>
+
+</body></html>
