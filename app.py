@@ -12,34 +12,38 @@ import re
 import traceback
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from config import CONFIG
-from ui import explain, plots
+from ui import explain, plots, stitch_pages
 from ui import theme as th
 from ui.views import compute_views, eb_period, final_period, variable_period
 
-st.set_page_config(page_title="Exoplanet Detection & False Positive Recycler", page_icon="🪐",
+st.set_page_config(page_title="Exoplanet Detection & False Positive Recycler",
+                   page_icon=":material/travel_explore:",
                    layout="wide")
-st.markdown(th.CSS, unsafe_allow_html=True)
 
-TITLE = "🪐 Exoplanet Detection & False Positive Recycler"
+TITLE = "Exoplanet Detection & False Positive Recycler"
 SUBTITLE = ("Finds planets in TESS data, and identifies what the signal really is when it "
             "isn't a planet.")
 EXAMPLES_FILE = CONFIG.paths.examples / "examples.json"
 EVAL_FILE = CONFIG.paths.models / "model_evaluation.json"
-TYPE_ICONS = {"Confirmed planets": "🪐", "Eclipsing binaries": "🌗", "Variable stars": "✨",
-              "Unconfirmed candidates": "❓", "Tricky cases": "⚠️"}
-MODULE_TITLES = {"planet": "🪐 If it is a planet", "eb": "🌗 If it is a binary",
-                 "variable": "✨ If it is a variable star", "noise": "〰️ If it is noise"}
+MODULE_TITLES = {"planet": ":material/public: If it is a planet",
+                 "eb": ":material/contrast: If it is a binary",
+                 "variable": ":material/auto_awesome: If it is a variable star",
+                 "noise": ":material/graphic_eq: If it is noise"}
+OK = th.icon_html("check_circle", "#22D3EE")
+WARN = th.icon_html("warning", "#F59E0B")
+LOOK = th.icon_html("search", "#A78BFA")
 STAGES = {
-    "Looking up the star": "🔭 Looking up the star...",
-    "Cleaning the data": "🧹 Preprocessing...",
-    "Searching for repeating dips": "🔍 Running BLS: searching for transits...",
-    "Re-cleaning around the dips": "🧹 Re-cleaning around the dips...",
-    "Checking whether it's really a planet": "📐 Measuring the dip...",
-    "Classifying the signal": "🤖 Classifying...",
-    "Working out what it is": "♻️ Working out what the signal really is...",
-    "Writing your report": "📝 Writing the report...",
+    "Looking up the star": "Looking up the star...",
+    "Cleaning the data": "Preprocessing...",
+    "Searching for repeating dips": "Running BLS: searching for transits...",
+    "Re-cleaning around the dips": "Re-cleaning around the dips...",
+    "Checking whether it's really a planet": "Measuring the dip...",
+    "Classifying the signal": "Classifying...",
+    "Working out what it is": "Working out what the signal really is...",
+    "Writing your report": "Writing the report...",
 }
 
 
@@ -63,17 +67,17 @@ def run_live(tic: int) -> dict:
     """Run the full pipeline with spinner + progress messages; returns the report dict."""
     from src.pipeline import analyze_target
 
-    bar = st.progress(0.0, text="🛰️ Contacting NASA's archive...")
+    bar = st.progress(0.0, text="Contacting NASA's archive...")
 
     def progress(stage: str, frac: float) -> None:
         m = re.match(r"Downloading (\d+) sectors of TESS data \((\d+)/(\d+)\)", stage)
         if m:
-            text = f"📡 Fetching TESS data ({m.group(1)} sectors)... {m.group(2)}/{m.group(3)}"
+            text = f"Fetching TESS data ({m.group(1)} sectors)... {m.group(2)}/{m.group(3)}"
         else:
-            text = STAGES.get(stage, f"🛰️ {stage}...")
+            text = STAGES.get(stage, f"{stage}...")
         bar.progress(min(max(frac, 0.0), 1.0), text=text)
 
-    with st.spinner("🛰️ Downloading TESS sectors and searching for transits..."):
+    with st.spinner("Downloading TESS sectors and searching for transits..."):
         rep = analyze_target(f"TIC {tic}", preset="standard", progress_cb=progress)
         d = rep.to_dict()
         pre = getattr(rep, "_objects", {}).get("pre")
@@ -114,29 +118,81 @@ def num(v) -> float:
         return math.nan
 
 
+def open_star(tic: int) -> None:
+    """Select a demo star and open its precomputed report in the Analyzer."""
+    st.session_state.update(page="analyzer", star=tic, live=False, report=load_demo(tic),
+                            report_tic=tic, report_live=False)
+
+
+def sync_page(by_tic: dict) -> str:
+    """The current page: from a Stitch link (?page=...&star=...) or the session."""
+    qp = st.query_params.get("page")
+    if qp in stitch_pages.PAGES and qp != st.session_state.get("_qp_page"):
+        st.session_state["page"] = qp
+        star = st.query_params.get("star", "")
+        if qp == "analyzer" and star.isdigit() and int(star) in by_tic:
+            open_star(int(star))
+    if st.session_state.get("analyze"):          # the sidebar Analyze button opens the Analyzer
+        st.session_state["page"] = "analyzer"
+    page = st.session_state.setdefault("page", "home")
+    st.query_params.clear()
+    st.query_params["page"] = page
+    st.session_state["_qp_page"] = page
+    return page
+
+
+@st.cache_data
+def star_images() -> dict:
+    return stitch_pages.star_images(load_examples(), load_demo)
+
+
+def star_card(ex: dict) -> str:
+    """Picture card for the selected star, with the same image as its Demo Stars card."""
+    src, alt = star_images().get(ex["tic_id"], ("", ""))
+    facts = stitch_pages.star_facts(load_demo(ex["tic_id"]))
+    return th.star_card_html(ex["display_name"], ex["tic_id"], ex.get("verdict", ""),
+                             ex["type"], facts, src, alt)
+
+
 def main() -> None:
-    # ── Header ───────────────────────────────────────────────────
-    st.markdown(th.hero_html(TITLE.split(" ", 1)[1].upper(), SUBTITLE,
-                             ["TESS", "Multi-sector", "100 training stars", "4-class triage"]),
-                unsafe_allow_html=True)
+    examples = load_examples()
+    page = sync_page({e["tic_id"]: e for e in examples})
+    if page != "analyzer":
+        # Home / Learn / Demo Stars / How It Works: the Stitch design, full width.
+        st.markdown(stitch_pages.PAGE_CSS, unsafe_allow_html=True)
+        components.html(stitch_pages.render(page, examples, load_demo), height=1400)
+    else:
+        st.markdown(th.CSS, unsafe_allow_html=True)
+        st.markdown(th.nav_html("analyzer"), unsafe_allow_html=True)
+        # ── Header: title on the left, the selected star's picture on the right ──
+        by_tic = {e["tic_id"]: e for e in examples}
+        selected = by_tic.get(st.session_state.get("star"), examples[0])
+        head_l, head_r = st.columns([7, 5], gap="large", vertical_alignment="center")
+        head_l.markdown(th.hero_html(TITLE.upper(), SUBTITLE,
+                                     ["TESS", "Multi-sector", "100 training stars",
+                                      "4-class triage"]),
+                        unsafe_allow_html=True)
+        head_r.markdown(star_card(selected), unsafe_allow_html=True)
 
     # ── Sidebar ──────────────────────────────────────────────────
-    examples = load_examples()
     by_tic = {e["tic_id"]: e for e in examples}
     with st.sidebar:
         st.markdown('<div class="side-title">Select a star</div>', unsafe_allow_html=True)
         tic = st.selectbox(
             "Select a star", list(by_tic), key="star", label_visibility="collapsed",
-            format_func=lambda t: f"{TYPE_ICONS.get(by_tic[t]['group'], '•')} "
-                                  f"{by_tic[t]['display_name']}: {by_tic[t]['type']}")
+            format_func=lambda t: f"{by_tic[t]['display_name']}: {by_tic[t]['type']}")
         st.markdown(f'<div class="star-desc">{by_tic[tic]["hint"]}</div>', unsafe_allow_html=True)
         live = st.checkbox("Re-run live analysis (~1–2 min, downloads TESS data)", value=False,
                            key="live")
-        run_btn = st.button("🚀 Analyze", key="analyze", width="stretch")
+        run_btn = st.button("Analyze", key="analyze", width="stretch",
+                            icon=":material/rocket_launch:")
         st.markdown("---")
         st.caption("Data: NASA TESS via MAST")
         st.caption("Model: XGBoost triage + physics rules")
         st.caption("Multi-sector mode")
+
+    if page != "analyzer":
+        return
 
     if run_btn:
         try:
@@ -149,7 +205,8 @@ def main() -> None:
     report = st.session_state.get("report")
     if not report or st.session_state.get("report_tic") != tic:
         if not run_btn:
-            st.info("👈 Pick a star in the sidebar and click **Analyze**.")
+            st.info("Pick a star in the sidebar and click **Analyze**.",
+                    icon=":material/arrow_back:")
         return
 
     ex = by_tic[tic]
@@ -166,12 +223,15 @@ def main() -> None:
     if (report.get("triage") or {}).get("status") == "no_model":
         st.warning("No trained classifier found in models/, so there is no verdict. Build it with "
                    "scripts/build_features.py and scripts/train_triage.py.")
-    st.caption(("🔴 Live analysis" if st.session_state.get("report_live") else
-                "⚡ Precomputed result (tick \"Re-run live analysis\" to analyse fresh data)")
+    st.caption((":material/sensors: Live analysis" if st.session_state.get("report_live") else
+                ":material/bolt: Precomputed result "
+                "(tick \"Re-run live analysis\" to analyse fresh data)")
                + f" · {ex['display_name']} · TIC {tic}")
 
-    tab1, tab2, tab3, tab4 = st.tabs(["📈 Light Curves", "🔍 BLS Detection",
-                                      "🌀 Phase-Folded", "🤖 Results"])
+    tab1, tab2, tab3, tab4 = st.tabs([":material/show_chart: Light Curves",
+                                      ":material/radar: BLS Detection",
+                                      ":material/cyclone: Phase-Folded",
+                                      ":material/insights: Results"])
 
     # ── TAB 1: Light curves ──────────────────────────────────────
     with tab1:
@@ -189,8 +249,9 @@ def main() -> None:
     key="lc_flat")
         sectors = [s.get("sector") for s in report.get("sectors") or []]
         n_cad = (report.get("preprocessing") or {}).get("n_cadences")
-        st.info(f"📦 {len(sectors)} sectors used: {sectors} | Cadences after cleaning: "
-                f"{n_cad:,}" if n_cad else f"📦 {len(sectors)} sectors used: {sectors}")
+        st.info(f"{len(sectors)} sectors used: {sectors} | Cadences after cleaning: "
+                f"{n_cad:,}" if n_cad else f"{len(sectors)} sectors used: {sectors}",
+                icon=":material/inventory_2:")
         st.caption("Shaded bands are TESS sectors (about 27 days each). Drag to zoom, double-click "
                    "to reset. The plots show a thinned copy; the analysis used every point.")
 
@@ -198,7 +259,7 @@ def main() -> None:
     with tab2:
         st.subheader("Box Least Squares periodogram")
         best, sde = num(signal.get("period")), num(signal.get("sde", features.get("sde")))
-        chart(plots.bls_periodogram(pdata.get("periodogram") or {}, best, sde, th.VIOLET),
+        chart(plots.bls_periodogram(pdata.get("periodogram") or {}, best, sde, th.ACCENT),
               key="bls")
         st.caption("BLS slides a box-shaped dip across every trial period; the highest peak is the "
                    "period where repeating dips fit best. SDE says how far that peak stands out "
@@ -293,16 +354,16 @@ def main() -> None:
             st.markdown("\n".join(f"- {r}" for r in explain.reasons(report)) or
                         "- No strong reasons to report.")
             kind_c, what = explain.catalog_statement(report)
-            mark = {"agree": "✅ agrees", "disagree": "⚠️ disagrees",
-                    "unsure": "🔍 we're not sure yet, kept for review", "none": "—"}[kind_c]
+            mark = {"agree": f"{OK} agrees", "disagree": f"{WARN} disagrees",
+                    "unsure": f"{LOOK} we're not sure yet, kept for review", "none": "—"}[kind_c]
             st.markdown(f'<div class="catalog">NASA catalog says: <b>{what}</b> → {mark}</div>',
                         unsafe_allow_html=True)
             cp = explain.catalog_period(report, final_period(report)[0])
             if cp:
-                verdict_p = {"match": "✅ match (within 1%)",
-                             "half": "⚠️ we found half the catalog period",
-                             "double": "⚠️ we found double the catalog period",
-                             "differs": "⚠️ the periods differ"}[cp["kind"]]
+                verdict_p = {"match": f"{OK} match (within 1%)",
+                             "half": f"{WARN} we found half the catalog period",
+                             "double": f"{WARN} we found double the catalog period",
+                             "differs": f"{WARN} the periods differ"}[cp["kind"]]
                 st.markdown(f'<div class="catalog">Catalog period: <b>{cp["catalog"]:.4f} d</b>'
                             f' | Our period: <b>{cp["ours"]:.4f} d</b> → {verdict_p}</div>',
                             unsafe_allow_html=True)
@@ -320,7 +381,7 @@ def main() -> None:
             st.subheader("Findings")
             hint = explain.review_hint(report)
             if final == "NEEDS_REVIEW" and hint:
-                st.markdown(f'<div class="hint">🔍 {hint}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="hint">{LOOK} {hint}</div>', unsafe_allow_html=True)
             left, right = st.columns([1.4, 1])
             with left:
                 shown = routing.get("modules") or list(modules)
@@ -373,7 +434,7 @@ def main() -> None:
                 with c2:
                     st.markdown("**Per-class scores** (mean ± std over the 5 folds)")
                     pc = ev["per_class"]
-                    st.table([{"Class": f"{th.icon(c)} {th.label(c)}",
+                    st.table([{"Class": th.label(c),
                                **{k: pm(pc[c][m])
                                   for k, m in (("Precision", "precision"), ("Recall", "recall"),
                                                ("F1", "f1"), ("PR-AUC", "pr_auc"))}}
@@ -406,7 +467,7 @@ def main() -> None:
                         if c == "EB" and ratios:
                             found += (f" ({ratios.get('1.0', 0)} at the true period, "
                                       f"{ratios.get('0.5', 0)} at half)")
-                        rows.append({"Class": f"{th.icon(c)} {th.label(c)}", "Recovered": found,
+                        rows.append({"Class": th.label(c), "Recovered": found,
                                      "How it is counted": how[c]})
                     st.table(rows)
                     ebp = ev.get("eb_true_period") or {}
