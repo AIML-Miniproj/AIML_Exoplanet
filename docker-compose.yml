@@ -1,0 +1,24 @@
+# Exoplanet Atlas: run the Streamlit app with Docker Compose.
+#
+#   docker compose up --build      then open http://localhost:8501
+#   docker compose down
+services:
+  app:
+    build: .
+    image: exoplanet-atlas:latest
+    container_name: exoplanet-atlas
+    ports:
+      - "8501:8501"
+    volumes:
+      # Keep downloaded TESS light curves between restarts (used by live analysis).
+      - tess-cache:/app/data/cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  tess-cache:
