@@ -4,7 +4,8 @@
     python scripts/take_screenshots.py [--port 8599]
 
 Starts the app headless, waits until it is healthy, opens it in Chromium at
-1600x1000 and saves docs/screenshots/{lightcurves,bls,results,phasefold}.png
+1600x1000 and saves docs/screenshots/: the four pages (home, learn, demo_stars,
+how_it_works) and the Analyzer (analyzer, lightcurves, bls, phasefold, results)
 from the precomputed examples (no network needed for the analysis). The server
 and the browser are always shut down at the end.
 """
@@ -61,6 +62,22 @@ def analyze(page, star: str) -> None:
     page.locator('button[role="tab"]', has_text="Light Curves").wait_for(timeout=60_000)
 
 
+def stitch_page(page, url: str, name: str, height: int) -> None:
+    """A Stitch page (Home / Learn / Demo Stars / How It Works) in its full-width frame."""
+    page.set_viewport_size({"width": VIEWPORT["width"], "height": height})
+    page.goto(f"{url}/?page={name}")
+    page.wait_for_load_state("networkidle")
+    page.locator("iframe").first.wait_for(timeout=60_000)
+    frame = page.locator("iframe").first.content_frame
+    frame.locator("main").wait_for(timeout=60_000)
+    # Show every section at once (the scroll-reveal animation would hide lower ones).
+    frame.locator("body").evaluate(
+        "b => b.querySelectorAll('.ea-reveal').forEach(e => e.classList.add('ea-in'))")
+    page.wait_for_timeout(3500)
+    page.screenshot(path=OUT / f"{name}.png")
+    page.set_viewport_size(VIEWPORT)
+
+
 def open_tab(page, name: str, charts: int = 1) -> None:
     page.locator('button[role="tab"]', has_text=name).click()
     settle(page, charts)
@@ -86,12 +103,19 @@ def main() -> None:
             browser = pw.chromium.launch()
             try:
                 page = browser.new_page(viewport=VIEWPORT, device_scale_factor=1)
-                page.goto(url)
+                stitch_page(page, url, "home", 1000)
+                stitch_page(page, url, "learn", 1000)
+                stitch_page(page, url, "demo_stars", 1500)
+                stitch_page(page, url, "how_it_works", 1600)
+
+                page.goto(f"{url}/?page=analyzer")
                 page.wait_for_load_state("networkidle")
                 page.add_style_tag(content=HIDE_CHROME)
                 page.locator('[data-testid="stSidebar"] [data-testid="stSelectbox"]').wait_for()
 
                 analyze(page, "HD 209458 b")
+                page.wait_for_timeout(2500)
+                page.screenshot(path=OUT / "analyzer.png")
                 open_tab(page, "Light Curves", charts=2)
                 page.screenshot(path=OUT / "lightcurves.png")
                 open_tab(page, "BLS Detection", charts=1)
@@ -117,7 +141,8 @@ def main() -> None:
             server.wait(timeout=15)
         except subprocess.TimeoutExpired:
             server.kill()
-    for name in ("lightcurves", "bls", "results", "phasefold"):
+    for name in ("home", "learn", "demo_stars", "how_it_works", "analyzer", "lightcurves",
+                 "bls", "results", "phasefold"):
         print(OUT / f"{name}.png")
 
 
