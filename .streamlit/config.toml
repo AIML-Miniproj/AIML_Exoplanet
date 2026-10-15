@@ -2,11 +2,15 @@
 # block in ui/theme.py. Class colours live in ui/theme.py and always carry a text label.
 [theme]
 base = "dark"
-primaryColor = "#7C5CFF"
-backgroundColor = "#05060F"
-secondaryBackgroundColor = "#0D1026"
-textColor = "#E6E9FF"
+primaryColor = "#2563EB"
+backgroundColor = "#02040A"
+secondaryBackgroundColor = "#0B1530"
+textColor = "#E2E8F0"
 font = "sans serif"
+
+[server]
+# Serves static/ (images on the explainer pages) at app/static/.
+enableStaticServing = true
 
 [client]
 toolbarMode = "minimal"

@@ -19,3 +19,4 @@ select = ["E", "F", "W"]
 
 [tool.ruff.lint.per-file-ignores]
 "ui/theme.py" = ["E501"]          # long CSS lines inside the style string
+"ui/stitch_pages.py" = ["E501"]   # same, for the Stitch page CSS

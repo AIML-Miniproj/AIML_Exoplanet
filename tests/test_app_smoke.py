@@ -1,4 +1,4 @@
-"""The single-page app loads, and every example star renders all four tabs offline."""
+"""The app loads, its pages render, and every example star renders all four tabs offline."""
 
 import html
 import json
@@ -13,7 +13,8 @@ from config import CONFIG  # noqa: E402
 TIMEOUT = 120
 EXAMPLES = json.loads((CONFIG.paths.examples / "examples.json").read_text(encoding="utf-8"))
 TICS = [e["tic_id"] for e in EXAMPLES["examples"]]
-TABS = ["📈 Light Curves", "🔍 BLS Detection", "🌀 Phase-Folded", "🤖 Results"]
+TABS = [":material/show_chart: Light Curves", ":material/radar: BLS Detection",
+        ":material/cyclone: Phase-Folded", ":material/insights: Results"]
 
 
 @pytest.fixture
@@ -47,11 +48,56 @@ def _analyze(tic: int) -> AppTest:
 def test_app_loads_with_the_six_stars_and_a_prompt(offline):
     at = AppTest.from_file("app.py", default_timeout=TIMEOUT).run()
     assert not at.exception
-    assert "EXOPLANET DETECTION &amp; FALSE POSITIVE RECYCLER" in _texts(at)
+    assert not at.tabs                                   # opens on the Stitch Home page
     assert at.selectbox(key="star").options and len(at.selectbox(key="star").options) == 6
     assert at.checkbox(key="live").value is False
+    at.query_params["page"] = "analyzer"
+    at.run()
+    assert not at.exception
+    text = _texts(at)
+    assert "EXOPLANET DETECTION &amp;" in text and "FALSE POSITIVE RECYCLER" in text
     assert any("Pick a star in the sidebar" in i.value for i in at.info)
     assert not at.tabs
+
+
+@pytest.mark.parametrize("page", ["home", "learn", "demo_stars", "how_it_works"])
+def test_stitch_pages_render_offline(offline, page):
+    at = AppTest.from_file("app.py", default_timeout=TIMEOUT)
+    at.query_params["page"] = page
+    at.run()
+    assert not at.exception
+    assert not at.tabs
+
+
+def test_stitch_pages_are_wired_and_use_the_real_demo_stars():
+    from ui import stitch_pages
+
+    examples = EXAMPLES["examples"]
+
+    def load(tic):
+        return json.loads((CONFIG.paths.examples / "demo" / f"{tic}.json").read_text("utf-8"))
+
+    for page in ("home", "learn", "demo_stars", "how_it_works"):
+        page_html = stitch_pages.render(page, examples, load)
+        assert "googleusercontent" not in page_html            # images are served locally
+        assert 'data-app-href="?page=analyzer"' in page_html   # nav opens the Analyzer
+    demo = stitch_pages.render("demo_stars", examples, load)
+    assert demo.count('<article class="star-card') == 6
+    for ex in examples:
+        assert f"TIC {ex['tic_id']}" in demo
+        assert f"?page=analyzer&star={ex['tic_id']}" in demo
+    assert "Eclipsing Binaries (2)" in demo and "Needs Review (2)" in demo
+    assert "3.52476 d" in demo                                  # HD 209458 b's real period
+
+
+def test_demo_star_link_opens_the_analyzer(offline):
+    at = AppTest.from_file("app.py", default_timeout=TIMEOUT)
+    at.query_params["page"] = "analyzer"
+    at.query_params["star"] = "300871545"
+    at.run()
+    assert not at.exception
+    assert at.selectbox(key="star").value == 300871545
+    assert [t.label for t in at.tabs] == TABS
 
 
 def test_examples_have_the_plot_views_and_stay_small():
@@ -122,7 +168,7 @@ def test_live_failure_shows_a_friendly_error(monkeypatch):
 def test_catalog_period_check(offline):
     eb = _analyze(300871545)
     text = "\n".join(m.value for m in eb.tabs[3].markdown)
-    assert "Catalog period: <b>4.8171 d</b>" in text and "✅ match" in text
+    assert "Catalog period: <b>4.8171 d</b>" in text and "match (within 1%)" in text
     tricky = _analyze(329864959)
     text = "\n".join(m.value for m in tricky.tabs[3].markdown)
     assert "we found half the catalog period" in text
