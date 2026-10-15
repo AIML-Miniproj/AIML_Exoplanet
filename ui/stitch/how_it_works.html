@@ -197,513 +197,288 @@
         }
       },
     },
-  }</script></head><body class="bg-surface-container-lowest text-on-surface font-body-md text-body-md min-h-screen py-8 px-4 flex justify-center selection:bg-primary-container selection:text-on-primary-container"><div class="w-full max-w-[1440px] rounded-[28px] bg-surface relative flex flex-col min-h-[calc(100vh-4rem)] shadow-[0_0_50px_rgba(37,99,235,0.15),0_0_0_1px_rgba(255,255,255,0.06)] overflow-hidden"><header class="fixed top-12 left-1/2 -translate-x-1/2 w-full max-w-[1400px] z-50 px-gutter-desktop pointer-events-none"><div class="h-20 flex items-center justify-between px-space-lg rounded-full bg-surface-container-low/70 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.12)] pointer-events-auto"><nav class="flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-headline-sm"><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="home" href="#">Home</a><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="learn" href="#">Learn</a><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="analyzer" href="#">Analyzer</a><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="demo-stars" href="#">Demo Stars</a><a aria-current="page" class="px-space-md py-space-sm rounded-full uppercase transition-all duration-300 bg-primary-container text-on-primary-container font-headline-sm" data-path="how-it-works" href="#">How It Works</a></nav><div class="flex items-center gap-2 select-none"><span class="font-headline-sm text-headline-sm font-light text-on-surface tracking-[0.2em] uppercase">Exoplanet</span><span class="font-headline-sm text-headline-sm font-light text-secondary tracking-[0.2em] uppercase">Atlas</span></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-md py-space-sm rounded-full bg-surface-container/60 hover:bg-surface-container-high transition-colors cursor-pointer text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">menu</span><span class="font-label-caps text-label-caps uppercase">Menu</span></div><div class="h-4 w-[1px] bg-surface-variant"></div><a class="flex items-center gap-space-sm pl-space-md pr-space-xs py-space-xs rounded-full bg-primary-container hover:bg-primary-container text-on-primary-container shadow-[0_0_20px_rgba(37,99,235,0.6)] transition-all" data-path="analyzer" href="#"><span class="font-label-caps text-label-caps uppercase font-medium">Analyze a star</span><div class="w-7 h-7 rounded-full bg-surface-container-lowest/30 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">north_east</span></div></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 flex-1 px-margin-desktop"><div class="flex flex-col w-full relative">
-<!-- Ambient Space Core Glows -->
-<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-primary-container/10 rounded-full blur-[140px] pointer-events-none" style="opacity: 0.35; background: radial-gradient(circle, rgba(77, 159, 255, 0.12) 0%, transparent 70%);"></div>
-<div class="absolute top-[40%] right-[-10%] w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[160px] pointer-events-none" style="opacity: 0.25; background: radial-gradient(circle, rgba(84, 216, 232, 0.08) 0%, transparent 70%);"></div>
-<!-- Header Section with Deep Space Minimal Hierarchy -->
-<section class="relative pt-space-xl pb-space-2xl flex flex-col items-center text-center">
-<!-- Live Telemetry Pill Badge -->
-<div class="inline-flex items-center gap-space-sm px-space-md py-1.5 rounded-full bg-surface-container-low/80 backdrop-blur-md shadow-md mb-space-lg">
-<span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_10px_rgba(93,230,255,0.9)] animate-pulse"></span>
-<span class="font-label-caps text-label-caps uppercase text-secondary tracking-[0.2em]">Sector 72 Flux Ingestion</span>
-<span class="text-outline-variant font-telemetry-num text-telemetry-num">•</span>
-<span class="font-telemetry-num text-telemetry-num text-on-surface-variant font-normal">204,182 light curves validated via GPU pipeline</span>
-</div>
-<!-- Thin Uppercase Title -->
-<h1 class="font-display-hero text-headline-lg lg:text-display-hero tracking-[0.26em] text-on-surface uppercase max-w-5xl leading-tight font-extralight">
-      The AI Verification <span class="text-secondary font-light">Engine</span>
-</h1>
-<p class="mt-space-md max-w-3xl font-body-lg text-body-lg text-on-surface-variant font-light tracking-wide">
-      How machine learning and stellar physics validate planet candidates from raw photon counts down to single-part-per-million precision.
-    </p>
-<!-- Top Benchmark Stats Band -->
-<div class="w-full grid grid-cols-1 md:grid-cols-3 gap-gutter-desktop mt-space-2xl">
-<!-- Benchmark 1 -->
-<div class="group relative rounded-lg bg-surface-container-low/50 backdrop-blur-xl p-space-xl text-left shadow-lg hover:bg-surface-container-high/40 transition-all duration-500">
-<div class="flex items-center justify-between mb-space-md">
-<span class="font-label-caps text-label-caps uppercase text-outline tracking-[0.2em]">NASA Holdout Test</span>
-<span class="material-symbols-outlined text-secondary text-[20px]">science</span>
-</div>
-<div class="flex items-baseline gap-space-xs mb-space-xs">
-<span class="font-display-hero text-headline-lg text-on-surface tracking-tight font-light">0.76</span>
-<span class="font-headline-sm text-headline-sm text-secondary tracking-normal">Macro F1</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Validated against rigorously cross-vetted TESS multi-sector confirmed exoplanets.</p>
-<div class="mt-space-md w-full bg-surface-variant h-1 rounded-full overflow-hidden">
-<div class="bg-primary-container h-full rounded-full transition-all duration-1000" style="width: 76%"></div>
-</div>
-</div>
-<!-- Benchmark 2 -->
-<div class="group relative rounded-lg bg-surface-container-low/50 backdrop-blur-xl p-space-xl text-left shadow-lg hover:bg-surface-container-high/40 transition-all duration-500">
-<div class="flex items-center justify-between mb-space-md">
-<span class="font-label-caps text-label-caps uppercase text-outline tracking-[0.2em]">Disentanglement</span>
-<span class="material-symbols-outlined text-primary-fixed-dim text-[20px]">join_inner</span>
-</div>
-<div class="flex items-baseline gap-space-xs mb-space-xs">
-<span class="font-display-hero text-headline-lg text-on-surface tracking-tight font-light">23 <span class="text-outline text-headline-sm font-normal">/ 25</span></span>
-<span class="font-headline-sm text-headline-sm text-primary tracking-normal">Periods</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Accurate period separation in tight hierarchical and eclipsing binary systems.</p>
-<div class="mt-space-md w-full bg-surface-variant h-1 rounded-full overflow-hidden">
-<div class="bg-secondary-container h-full rounded-full transition-all duration-1000" style="width: 92%"></div>
-</div>
-</div>
-<!-- Benchmark 3 -->
-<div class="group relative rounded-lg bg-surface-container-low/50 backdrop-blur-xl p-space-xl text-left shadow-lg hover:bg-surface-container-high/40 transition-all duration-500">
-<div class="flex items-center justify-between mb-space-md">
-<span class="font-label-caps text-label-caps uppercase text-outline tracking-[0.2em]">Purity Rate</span>
-<span class="material-symbols-outlined text-tertiary text-[20px]">filter_alt</span>
-</div>
-<div class="flex items-baseline gap-space-xs mb-space-xs">
-<span class="font-display-hero text-headline-lg text-on-surface tracking-tight font-light">99.1%</span>
-<span class="font-headline-sm text-headline-sm text-tertiary tracking-normal">Noise Cut</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Autonomous false-alarm suppression eliminating instrumental drift &amp; cosmic rays.</p>
-<div class="mt-space-md w-full bg-surface-variant h-1 rounded-full overflow-hidden">
-<div class="bg-tertiary-fixed-dim h-full rounded-full transition-all duration-1000" style="width: 99.1%"></div>
-</div>
-</div>
-</div>
+  }</script></head><body class="bg-surface-container-lowest text-on-surface font-body-md text-body-md min-h-screen py-8 px-4 flex justify-center selection:bg-primary-container selection:text-on-primary-container"><div class="w-full max-w-[1440px] rounded-[28px] bg-surface relative flex flex-col min-h-[calc(100vh-4rem)] shadow-[0_0_50px_rgba(37,99,235,0.15),0_0_0_1px_rgba(255,255,255,0.06)] overflow-hidden"><header class="fixed top-12 left-1/2 -translate-x-1/2 w-full max-w-[1400px] z-50 px-gutter-desktop pointer-events-none"><div class="h-20 flex items-center justify-between px-space-lg rounded-full bg-surface-container-low/70 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.12)] pointer-events-auto"><nav class="flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-headline-sm"><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="home" href="#">Home</a><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="learn" href="#">Learn</a><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="analyzer" href="#">Analyzer</a><a class="px-space-md py-space-sm rounded-full font-label-caps text-label-caps uppercase transition-all duration-300 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface" data-path="demo-stars" href="#">Demo Stars</a><a aria-current="page" class="px-space-md py-space-sm rounded-full uppercase transition-all duration-300 bg-primary-container text-on-primary-container font-headline-sm" data-path="how-it-works" href="#">How It Works</a></nav><div class="flex items-center gap-2 select-none"><span class="font-headline-sm text-headline-sm font-light text-on-surface tracking-[0.2em] uppercase">Exoplanet</span><span class="font-headline-sm text-headline-sm font-light text-secondary tracking-[0.2em] uppercase">Atlas</span></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-md py-space-sm rounded-full bg-surface-container/60 hover:bg-surface-container-high transition-colors cursor-pointer text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">menu</span><span class="font-label-caps text-label-caps uppercase">Menu</span></div><div class="h-4 w-[1px] bg-surface-variant"></div><a class="flex items-center gap-space-sm pl-space-md pr-space-xs py-space-xs rounded-full bg-primary-container hover:bg-primary-container text-on-primary-container shadow-[0_0_20px_rgba(37,99,235,0.6)] transition-all" data-path="analyzer" href="#"><span class="font-label-caps text-label-caps uppercase font-medium">Analyze a star</span><div class="w-7 h-7 rounded-full bg-surface-container-lowest/30 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">north_east</span></div></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 flex-1 px-margin-desktop">
+<div class="relative max-w-[1240px] mx-auto pb-16">
+  <div class="absolute -top-40 -left-40 w-[600px] h-[600px] bg-[#2563eb]/10 rounded-full blur-[140px] pointer-events-none"></div>
+  <div class="absolute top-[30%] -right-40 w-[550px] h-[550px] bg-[#00cbe6]/10 rounded-full blur-[160px] pointer-events-none"></div>
+  <div class="relative">
+  
+<section class="relative pt-16 pb-12 text-center">
+  <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0F1626] border border-[#202A38]">
+    <span class="w-1.5 h-1.5 rounded-full bg-[#54D8E8] shadow-[0_0_8px_#54D8E8]"></span>
+    <span class="font-label-caps text-label-caps uppercase text-[#9AA8BA] tracking-[0.22em]">How it works · the story of one star</span>
+  </div>
+  <h1 class="font-display-hero text-4xl sm:text-5xl lg:text-[3.6rem] uppercase tracking-[0.2em] leading-[1.1] text-[#F2F5FA] font-light mt-6">
+    From starlight<br><span class="font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#A4C8FF] via-[#DDE2F5] to-[#8FB7EA]">to a verdict</span></h1>
+  <p class="font-body-lg text-[17px] text-[#9AA8BA] max-w-2xl mx-auto mt-6 font-light leading-relaxed">
+    Follow one star through the whole pipeline, in plain words: how its light is collected and cleaned, how a repeating dip
+    is found, how the AI decides what the dip really is, and how even the “not a planet” answers are turned into something useful.</p>
+  <div class="mt-10 grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto">
+    <div class="rounded-2xl bg-[#090D17] border border-[#1A2333] px-4 py-3"><div class="font-mono text-[#54D8E8] text-[20px]">100</div><div class="text-[12px] text-[#9AA8BA]">stars to learn from</div></div><div class="rounded-2xl bg-[#090D17] border border-[#1A2333] px-4 py-3"><div class="font-mono text-[#54D8E8] text-[20px]">56</div><div class="text-[12px] text-[#9AA8BA]">features per signal</div></div><div class="rounded-2xl bg-[#090D17] border border-[#1A2333] px-4 py-3"><div class="font-mono text-[#54D8E8] text-[20px]">4</div><div class="text-[12px] text-[#9AA8BA]">possible answers</div></div><div class="rounded-2xl bg-[#090D17] border border-[#1A2333] px-4 py-3"><div class="font-mono text-[#54D8E8] text-[20px]">0.76</div><div class="text-[12px] text-[#9AA8BA]">macro-F1 score</div></div>
+  </div>
+  <div class="mt-10 flex flex-wrap justify-center gap-2 text-[12px]">
+    <span class="px-3 py-1.5 rounded-full border border-[#1A2333] bg-[#090D17] text-[#C3C9D6]"><span class="text-[#54D8E8] font-mono mr-1.5">00</span>The problem</span><span class="px-3 py-1.5 rounded-full border border-[#1A2333] bg-[#090D17] text-[#C3C9D6]"><span class="text-[#54D8E8] font-mono mr-1.5">01</span>Collect</span><span class="px-3 py-1.5 rounded-full border border-[#1A2333] bg-[#090D17] text-[#C3C9D6]"><span class="text-[#54D8E8] font-mono mr-1.5">02</span>Clean</span><span class="px-3 py-1.5 rounded-full border border-[#1A2333] bg-[#090D17] text-[#C3C9D6]"><span class="text-[#54D8E8] font-mono mr-1.5">03</span>Search</span><span class="px-3 py-1.5 rounded-full border border-[#1A2333] bg-[#090D17] text-[#C3C9D6]"><span class="text-[#54D8E8] font-mono mr-1.5">04</span>Measure</span><span class="px-3 py-1.5 rounded-full border border-[#1A2333] bg-[#090D17] text-[#C3C9D6]"><span class="text-[#54D8E8] font-mono mr-1.5">05</span>Decide</span><span class="px-3 py-1.5 rounded-full border border-[#1A2333] bg-[#090D17] text-[#C3C9D6]"><span class="text-[#54D8E8] font-mono mr-1.5">06</span>Double-check</span><span class="px-3 py-1.5 rounded-full border border-[#1A2333] bg-[#090D17] text-[#C3C9D6]"><span class="text-[#54D8E8] font-mono mr-1.5">07</span>Recycle</span><span class="px-3 py-1.5 rounded-full border border-[#1A2333] bg-[#090D17] text-[#C3C9D6]"><span class="text-[#54D8E8] font-mono mr-1.5">08</span>Explain</span><span class="px-3 py-1.5 rounded-full border border-[#1A2333] bg-[#090D17] text-[#C3C9D6]"><span class="text-[#54D8E8] font-mono mr-1.5">09</span>How good is it?</span><span class="px-3 py-1.5 rounded-full border border-[#1A2333] bg-[#090D17] text-[#C3C9D6]"><span class="text-[#54D8E8] font-mono mr-1.5">10</span>Honest limits</span>
+  </div>
 </section>
-<!-- 7-Stage End-to-End Pipeline Section -->
-<section class="relative py-space-2xl">
-<div class="flex flex-col md:flex-row md:items-end justify-between mb-space-2xl gap-space-md">
-<div>
-<span class="font-label-caps text-label-caps uppercase text-secondary tracking-[0.25em]">Workflow Topology</span>
-<h2 class="font-headline-lg text-headline-lg text-on-surface font-light tracking-[0.16em] uppercase mt-space-xs">
-          The 7-Stage Synthesis Protocol
-        </h2>
-</div>
-<div class="flex items-center gap-space-md">
-<span class="font-telemetry-num text-telemetry-num text-on-surface-variant">Avg latency: <span class="text-secondary font-medium">380ms / curve</span></span>
-<div class="h-4 w-px bg-surface-variant"></div>
-<span class="font-label-caps text-label-caps uppercase text-outline">Deterministic GPU Pipeline</span>
-</div>
-</div>
-<!-- Stepper Pipeline Architecture -->
-<div class="space-y-space-lg relative">
-<!-- Continuous Background Glow Trace Line -->
-<div class="hidden lg:block absolute left-8 top-12 bottom-12 w-0.5 bg-gradient-to-b from-secondary/80 via-primary-container/40 to-tertiary/60" style="background: linear-gradient(rgba(84, 216, 232, 0.4) 0%, rgba(77, 159, 255, 0.25) 50%, rgba(239, 191, 98, 0.3) 100%);"></div>
-<!-- Stage 01 -->
-<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
-<div class="flex items-center gap-space-md lg:w-72 shrink-0">
-<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-secondary shadow-[0_0_15px_rgba(93,230,255,0.4)] shrink-0 z-10">
-            01
-          </div>
-<div>
-<span class="font-label-caps text-label-caps uppercase text-outline">Ingestion</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Raw Photometry</h3>
-</div>
-</div>
-<div class="flex-1 min-w-0">
-<p class="font-body-md text-body-md text-on-surface-variant">
-            Directly extracts Target Pixel Files (TPF) and Simple Aperture Photometry (SAP) from NASA Mikulski Archive (MAST). Flags and masks momentum dumps, thermal settles, and known detector anomalies.
-          </p>
-<div class="flex flex-wrap gap-space-xs mt-space-sm">
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-secondary font-label-caps text-label-caps uppercase">MAST API</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Quality Bitmask 175</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Cadence: 120s / 20s</span>
-</div>
-</div>
-<!-- Inline Mini Graphic -->
-<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
-<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
-<span class="">FLUX INTENSITY</span>
-<span class="text-secondary font-telemetry-num">4.18e5 e⁻/s</span>
-</div>
-<svg class="w-full h-8 text-secondary/70" fill="none" viewBox="0 0 100 24">
-<path d="M0,12 Q10,4 20,12 T40,12 T60,14 T80,11 T100,12" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path>
-<circle cx="60" cy="14" fill="currentColor" r="2"></circle>
-</svg>
-</div>
-</div>
-<!-- Stage 02 -->
-<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
-<div class="flex items-center gap-space-md lg:w-72 shrink-0">
-<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-secondary shadow-[0_0_15px_rgba(93,230,255,0.4)] shrink-0 z-10">
-            02
-          </div>
-<div>
-<span class="font-label-caps text-label-caps uppercase text-outline">De-noising</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Clean &amp; Detrend</h3>
-</div>
-</div>
-<div class="flex-1 min-w-0">
-<p class="font-body-md text-body-md text-on-surface-variant">
-            Removes long-term low-frequency stellar variability, instrumental temperature swings, and Earthshine scattering using iterative bi-weight polynomial regressions while preserving transit depth morphology.
-          </p>
-<div class="flex flex-wrap gap-space-xs mt-space-sm">
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-secondary font-label-caps text-label-caps uppercase">Bi-Weight Filter</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Window: 0.5 Days</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Earthshine Cutoff</span>
-</div>
-</div>
-<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
-<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
-<span class="">DETREND RESIDUAL</span>
-<span class="text-primary font-telemetry-num">σ = 14.2 ppm</span>
-</div>
-<svg class="w-full h-8 text-primary" fill="none" viewBox="0 0 100 24">
-<path d="M0,12 L15,12 L30,13 L45,11 L60,12 L75,12 L90,12 L100,12" stroke="currentColor" stroke-dasharray="2 2" stroke-width="1.5"></path>
-<path d="M0,12 C20,12 25,6 35,6 C45,6 50,18 60,18 C70,18 75,12 100,12" stroke="rgba(255,255,255,0.2)" stroke-width="1"></path>
-</svg>
-</div>
-</div>
-<!-- Stage 03 -->
-<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
-<div class="flex items-center gap-space-md lg:w-72 shrink-0">
-<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-secondary shadow-[0_0_15px_rgba(93,230,255,0.4)] shrink-0 z-10">
-            03
-          </div>
-<div>
-<span class="font-label-caps text-label-caps uppercase text-outline">Search</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Dip Detection</h3>
-</div>
-</div>
-<div class="flex-1 min-w-0">
-<p class="font-body-md text-body-md text-on-surface-variant">
-            Combines Box Least Squares (BLS) and realistic Transit Least Squares (TLS) to test orbital periods ranging from 0.4 to 120 days, modeling ingress/egress curvature and planetary limb-darkening profiles.
-          </p>
-<div class="flex flex-wrap gap-space-xs mt-space-sm">
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-secondary font-label-caps text-label-caps uppercase">TLS Algorithm</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">BLS Periodogram</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">SDE &gt; 7.0 Threshold</span>
-</div>
-</div>
-<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
-<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
-<span class="">PERIODOGRAM PEAK</span>
-<span class="text-secondary font-telemetry-num">P = 3.213 d</span>
-</div>
-<svg class="w-full h-8 text-secondary" fill="none" viewBox="0 0 100 24">
-<path d="M0,22 L20,20 L35,21 L48,22 L50,4 L52,22 L65,21 L80,20 L100,22" stroke="currentColor" stroke-width="1.5"></path>
-</svg>
-</div>
-</div>
-<!-- Stage 04 -->
-<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
-<div class="flex items-center gap-space-md lg:w-72 shrink-0">
-<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-primary shadow-[0_0_15px_rgba(37,99,235,0.4)] shrink-0 z-10">
-            04
-          </div>
-<div>
-<span class="font-label-caps text-label-caps uppercase text-outline">Morphology</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Measure 56 Features</h3>
-</div>
-</div>
-<div class="flex-1 min-w-0">
-<p class="font-body-md text-body-md text-on-surface-variant">
-            Derives mathematical characteristics: transit depth, total duration, ingress-to-egress ratio, V-shape vs U-shape index, odd/even depth consistency, and photo-center pixel displacement.
-          </p>
-<div class="flex flex-wrap gap-space-xs mt-space-sm">
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-primary font-label-caps text-label-caps uppercase">56 Scalar Metrics</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Odd/Even Parity</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Centroid Pixel Shift</span>
-</div>
-</div>
-<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
-<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
-<span class="">TRANSIT U-SHAPE</span>
-<span class="text-on-surface font-telemetry-num">ΔF = 840 ppm</span>
-</div>
-<svg class="w-full h-8 text-primary" fill="none" viewBox="0 0 100 24">
-<path d="M5,4 L30,4 Q35,4 40,18 L60,18 Q65,4 70,4 L95,4" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path>
-</svg>
-</div>
-</div>
-<!-- Stage 05 -->
-<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
-<div class="flex items-center gap-space-md lg:w-72 shrink-0">
-<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-primary shadow-[0_0_15px_rgba(37,99,235,0.4)] shrink-0 z-10">
-            05
-          </div>
-<div>
-<span class="font-label-caps text-label-caps uppercase text-outline">Inference</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Neural Classifier</h3>
-</div>
-</div>
-<div class="flex-1 min-w-0">
-<p class="font-body-md text-body-md text-on-surface-variant">
-            Ensemble model pairing a multi-scale 1D Convolutional Neural Network (inspecting global and local folded views) with a tuned Gradient Boosted Decision Tree (LightGBM) analyzing scalar astrophysical features.
-          </p>
-<div class="flex flex-wrap gap-space-xs mt-space-sm">
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-primary font-label-caps text-label-caps uppercase">1D-CNN + LightGBM</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Cross-Entropy Loss</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Multi-Scale Fold</span>
-</div>
-</div>
-<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
-<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
-<span class="">CONFIDENCE SCORE</span>
-<span class="text-secondary font-telemetry-num">98.4% PC</span>
-</div>
-<div class="flex items-center gap-1.5 h-6">
-<div class="flex-1 bg-surface-variant h-full rounded-sm overflow-hidden flex flex-col justify-end">
-<div class="bg-secondary h-[98%] w-full"></div>
-</div>
-<div class="flex-1 bg-surface-variant h-full rounded-sm overflow-hidden flex flex-col justify-end">
-<div class="bg-tertiary h-[12%] w-full"></div>
-</div>
-<div class="flex-1 bg-surface-variant h-full rounded-sm overflow-hidden flex flex-col justify-end">
-<div class="bg-error h-[4%] w-full"></div>
-</div>
-</div>
-</div>
-</div>
-<!-- Stage 06 -->
-<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
-<div class="flex items-center gap-space-md lg:w-72 shrink-0">
-<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-tertiary shadow-[0_0_15px_rgba(255,185,95,0.4)] shrink-0 z-10">
-            06
-          </div>
-<div>
-<span class="font-label-caps text-label-caps uppercase text-outline">Verification</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Physics Checks</h3>
-</div>
-</div>
-<div class="flex-1 min-w-0">
-<p class="font-body-md text-body-md text-on-surface-variant">
-            Astrophysical vetting guardrails verify physical consistency: Roche tidal disruption limits, stellar mean density comparisons from transit duration vs Gaia DR3 specs, and strict centroid motion tests (&lt; 0.4 arcsec).
-          </p>
-<div class="flex flex-wrap gap-space-xs mt-space-sm">
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-tertiary font-label-caps text-label-caps uppercase">Roche Radius Test</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Gaia DR3 Kinematics</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Centroid &lt; 0.4"</span>
-</div>
-</div>
-<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
-<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
-<span class="">ASTROPHYSICS GUARD</span>
-<span class="text-tertiary font-telemetry-num">PASSED (4/4)</span>
-</div>
-<div class="flex items-center justify-between px-2 pt-1 text-tertiary">
-<span class="material-symbols-outlined text-[16px]">check_circle</span>
-<span class="material-symbols-outlined text-[16px]">check_circle</span>
-<span class="material-symbols-outlined text-[16px]">check_circle</span>
-<span class="material-symbols-outlined text-[16px]">check_circle</span>
-</div>
-</div>
-</div>
-<!-- Stage 07 -->
-<div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-space-lg rounded-lg bg-surface-container-low/60 backdrop-blur-xl p-space-lg shadow-md hover:bg-surface-container/60 transition-all duration-300">
-<div class="flex items-center gap-space-md lg:w-72 shrink-0">
-<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center font-telemetry-num text-headline-sm text-secondary shadow-[0_0_15px_rgba(93,230,255,0.4)] shrink-0 z-10">
-            07
-          </div>
-<div>
-<span class="font-label-caps text-label-caps uppercase text-outline">Synthesis</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase tracking-wider">Explain &amp; Output</h3>
-</div>
-</div>
-<div class="flex-1 min-w-0">
-<p class="font-body-md text-body-md text-on-surface-variant">
-            Generates natural language rationale detailing classification confidence, marginal flags, predicted radius in Earth radii ($R_\oplus$), and highlights potential ambiguous blend scenarios for spectroscopic followup.
-          </p>
-<div class="flex flex-wrap gap-space-xs mt-space-sm">
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-secondary font-label-caps text-label-caps uppercase">Automated Dossier</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">Radius Calibration</span>
-<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase">TESS TOI Submission</span>
-</div>
-</div>
-<div class="lg:w-64 h-20 rounded-md bg-surface-container-lowest/70 p-space-sm flex flex-col justify-between shrink-0">
-<div class="flex justify-between items-center text-outline font-label-caps text-label-caps">
-<span class="">CANDIDATE DISPOSITION</span>
-<span class="text-secondary font-telemetry-num">CONFIRMED PC</span>
-</div>
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-secondary"></span>
-<span class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">TOI-561 e Equivalent</span>
-</div>
-</div>
-</div>
-</div>
+<section class="relative py-14 border-t border-[#161D2B]/70">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    <div class="lg:col-span-6 ">
+<div class="flex items-center gap-4 mb-5">
+  <div class="w-12 h-12 rounded-full flex items-center justify-center font-headline-sm text-[15px] text-white shrink-0"
+       style="background:#54D8E822;border:1px solid #54D8E866;box-shadow:0 0 18px #54D8E833;color:#54D8E8">00</div>
+  <div>
+    <div class="font-label-caps text-label-caps uppercase tracking-[0.22em]" style="color:#54D8E8">The problem</div>
+    <h2 class="font-headline-lg text-[26px] lg:text-[32px] text-[#F2F5FA] font-light tracking-[0.12em] uppercase leading-tight">Most dips are<br>not planets</h2>
+  </div>
+</div><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">When a planet passes in front of its star, the star looks a tiny bit dimmer for a few hours. NASA's TESS telescope records the brightness of hundreds of thousands of stars, so it sees these repeating dips all the time.</p><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">The catch: a dip is not proof of a planet. <b class='text-[#EFBF62] font-medium'>Two stars eclipsing each other</b>, <b class='text-[#EC4899] font-medium'>a star that pulses or has dark spots</b>, and <b class='text-[#94A3B8] font-medium'>instrument noise</b> can all make dips that look the same at first glance. Checking every one by eye is far too slow.</p><div class="mt-5 p-4 rounded-2xl bg-[#090D17] border border-[#1A2333] flex gap-3 items-start"><span class="material-symbols-outlined text-[20px]" style="color:#54D8E8">lightbulb</span><div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] mb-1" style="color:#54D8E8">In short</div><div class="font-body-md text-[14px] text-[#DDE2F5]">This project sorts every dip into one of four answers (planet, eclipsing binary, variable star, noise) and explains why.</div></div></div></div>
+    <div class="lg:col-span-6 "><div class="grid grid-cols-2 gap-3"><div class="relative rounded-[22px] overflow-hidden border border-[#202A38] h-44"><img src="app/static/stitch/stitch_1.jpg" class="w-full h-full object-cover" alt="A planet"><div class="absolute inset-0 bg-gradient-to-t from-[#070A11] to-transparent"></div><div class="absolute bottom-3 left-3 right-3"><div class="font-label-caps text-[10.5px] uppercase tracking-[0.16em]" style="color:#54D8E8">The one we want</div><div class="text-[13px] text-white">A planet</div></div></div><div class="relative rounded-[22px] overflow-hidden border border-[#202A38] h-44"><img src="app/static/stitch/stitch_3.jpg" class="w-full h-full object-cover" alt="Two eclipsing stars"><div class="absolute inset-0 bg-gradient-to-t from-[#070A11] to-transparent"></div><div class="absolute bottom-3 left-3 right-3"><div class="font-label-caps text-[10.5px] uppercase tracking-[0.16em]" style="color:#EFBF62">Impostor 1</div><div class="text-[13px] text-white">Two eclipsing stars</div></div></div><div class="relative rounded-[22px] overflow-hidden border border-[#202A38] h-44"><img src="app/static/stitch/nasa_v838_monocerotis.jpg" class="w-full h-full object-cover" alt="A star that varies"><div class="absolute inset-0 bg-gradient-to-t from-[#070A11] to-transparent"></div><div class="absolute bottom-3 left-3 right-3"><div class="font-label-caps text-[10.5px] uppercase tracking-[0.16em]" style="color:#EC4899">Impostor 2</div><div class="text-[13px] text-white">A star that varies</div></div></div><div class="relative rounded-[22px] overflow-hidden border border-[#202A38] h-44"><img src="app/static/stitch/stitch_2.jpg" class="w-full h-full object-cover" alt="Noise in the data"><div class="absolute inset-0 bg-gradient-to-t from-[#070A11] to-transparent"></div><div class="absolute bottom-3 left-3 right-3"><div class="font-label-caps text-[10.5px] uppercase tracking-[0.16em]" style="color:#94A3B8">Impostor 3</div><div class="text-[13px] text-white">Noise in the data</div></div></div></div></div>
+  </div>
 </section>
-<!-- Interactive Demo Light Curve Inspector Callout -->
-<section class="my-space-2xl rounded-xl bg-surface-container-low/70 backdrop-blur-2xl p-space-xl lg:p-space-2xl relative overflow-hidden shadow-xl">
-<div class="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-primary-container/10 to-transparent pointer-events-none"></div>
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center relative z-10">
-<div class="lg:col-span-7 flex flex-col items-start">
-<div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-primary-container/20 text-primary-fixed mb-space-md">
-<span class="material-symbols-outlined text-[16px]">auto_graph</span>
-<span class="font-label-caps text-label-caps uppercase tracking-widest">Realtime Model Diagnostic</span>
-</div>
-<h2 class="font-headline-lg text-headline-lg text-on-surface font-light uppercase tracking-[0.16em]">
-          Inspect Feature Weights
-        </h2>
-<p class="font-body-md text-body-md text-on-surface-variant mt-space-sm max-w-xl">
-          Observe how the ensemble assigns importance across 56 extracted telemetry channels during a live classification pass on Kepler-452b transit replicates.
-        </p>
-<!-- Feature Importance Bar Stack -->
-<div class="w-full space-y-space-md mt-space-lg">
-<div>
-<div class="flex justify-between font-label-caps text-label-caps uppercase text-on-surface mb-1">
-<span class="">Transit Depth Even/Odd Parity</span>
-<span class="font-telemetry-num text-secondary">32.4%</span>
-</div>
-<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
-<div class="bg-secondary h-full rounded-full" style="width: 32.4%"></div>
-</div>
-</div>
-<div>
-<div class="flex justify-between font-label-caps text-label-caps uppercase text-on-surface mb-1">
-<span class="">Local CNN Ingress/Egress Curvature</span>
-<span class="font-telemetry-num text-primary">28.1%</span>
-</div>
-<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
-<div class="bg-primary-container h-full rounded-full" style="width: 28.1%"></div>
-</div>
-</div>
-<div>
-<div class="flex justify-between font-label-caps text-label-caps uppercase text-on-surface mb-1">
-<span class="">Centroid Arcsecond Offset Test</span>
-<span class="font-telemetry-num text-tertiary">21.8%</span>
-</div>
-<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
-<div class="bg-tertiary h-full rounded-full" style="width: 21.8%"></div>
-</div>
-</div>
-<div>
-<div class="flex justify-between font-label-caps text-label-caps uppercase text-on-surface mb-1">
-<span class="">Gaia Stellar Density Consistency</span>
-<span class="font-telemetry-num text-on-surface-variant">17.7%</span>
-</div>
-<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
-<div class="bg-outline h-full rounded-full" style="width: 17.7%"></div>
-</div>
-</div>
-</div>
-</div>
-<!-- Live Pipeline Telemetry Node -->
-<div class="lg:col-span-5 flex flex-col justify-center">
-<div class="rounded-lg bg-surface-container-lowest/80 p-space-lg backdrop-blur-md shadow-inner space-y-space-md">
-<div class="flex items-center justify-between">
-<span class="font-label-caps text-label-caps uppercase text-outline">Target Spectrum</span>
-<span class="px-space-sm py-0.5 rounded-full bg-secondary/10 text-secondary font-label-caps text-label-caps uppercase">TIC 261136679</span>
-</div>
-<div class="p-space-md rounded bg-surface-container-high/40 space-y-space-xs font-telemetry-num text-telemetry-num text-on-surface-variant">
-<div class="flex justify-between">
-<span class="text-outline">Calculated Period:</span>
-<span class="text-on-surface">3.21305 ± 0.00004 d</span>
-</div>
-<div class="flex justify-between">
-<span class="text-outline">Planet Radius ($R_p$):</span>
-<span class="text-on-surface">2.04 $R_\oplus$ (Super-Earth)</span>
-</div>
-<div class="flex justify-between">
-<span class="text-outline">Stellar Host:</span>
-<span class="text-on-surface">G2V (1.02 $M_\odot$)</span>
-</div>
-<div class="flex justify-between">
-<span class="text-outline">Insolation Flux ($S_\oplus$):</span>
-<span class="text-on-surface">1.14 Solar constant</span>
-</div>
-</div>
-<!-- Compound Action Pill Button -->
-<a class="w-full flex items-center justify-between p-space-xs pl-space-md rounded-full bg-primary-container text-on-primary-container hover:bg-primary-container/90 transition-all shadow-[0_0_24px_rgba(37,99,235,0.5)]" data-path="analyzer" href="#">
-<span class="font-label-caps text-label-caps uppercase font-medium">Test in Interactive Analyzer</span>
-<div class="w-8 h-8 rounded-full bg-surface-container-lowest/30 flex items-center justify-center">
-<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-</div>
-</a>
-</div>
-</div>
-</div>
+<section class="relative py-14 border-t border-[#161D2B]/70">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    <div class="lg:col-span-6 lg:order-2">
+<div class="flex items-center gap-4 mb-5">
+  <div class="w-12 h-12 rounded-full flex items-center justify-center font-headline-sm text-[15px] text-white shrink-0"
+       style="background:#54D8E822;border:1px solid #54D8E866;box-shadow:0 0 18px #54D8E833;color:#54D8E8">01</div>
+  <div>
+    <div class="font-label-caps text-label-caps uppercase tracking-[0.22em]" style="color:#54D8E8">Step 1 · Collect</div>
+    <h2 class="font-headline-lg text-[26px] lg:text-[32px] text-[#F2F5FA] font-light tracking-[0.12em] uppercase leading-tight">Gather the<br>starlight</h2>
+  </div>
+</div><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">You pick a star. Its name is turned into a TESS catalog number (a <b class='text-white font-medium'>TIC ID</b>), and its light curves are downloaded from NASA's MAST archive: a brightness reading every 2 minutes, already cleaned of known spacecraft problems by NASA's own pipeline.</p><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">TESS watches each patch of sky for about 27 days, a <b class='text-white font-medium'>sector</b>. Many stars are seen in several sectors, so the pipeline downloads them all (up to 10 in the app) and saves them on disk, so the same data is never downloaded twice.</p><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">To learn what each kind of signal looks like, the project also uses public catalogs: NASA's TOI list for planets, the TESS eclipsing-binary catalog, Gaia's list of variable stars, and the TESS Input Catalog for each star's size and temperature.</p><div class="mt-5 p-4 rounded-2xl bg-[#090D17] border border-[#1A2333] flex gap-3 items-start"><span class="material-symbols-outlined text-[20px]" style="color:#54D8E8">lightbulb</span><div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] mb-1" style="color:#54D8E8">In short</div><div class="font-body-md text-[14px] text-[#DDE2F5]">One star in, many weeks of brightness readings out.</div></div></div></div>
+    <div class="lg:col-span-6 lg:order-1">
+<div class="relative rounded-[28px] overflow-hidden border border-[#202A38] h-[230px] bg-black shadow-[0_20px_60px_rgba(0,0,0,0.8)] group">
+  <img src="app/static/stitch/nasa_tess_launch.jpg" alt="SpaceX Falcon 9 launching TESS" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+  <div class="absolute inset-0 bg-gradient-to-t from-[#070A11] via-[#070A11]/30 to-transparent"></div>
+  <span class="absolute top-4 left-4 px-2.5 py-1 rounded-md bg-[#030407]/80 border border-[#202A38] text-[11px] font-mono uppercase tracking-wider text-[#DDE2F5]">TESS launch · 18 April 2018</span>
+  <span class="absolute bottom-3 left-4 right-4 text-[10.5px] text-[#9AA8BA]/80">Photo: NASA/Tony Gray</span>
+</div><div class="mt-4"><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] ">
+<svg viewBox="0 0 560 210" class="w-full">
+  <text x="0" y="16" fill="#9AA8BA" font-family="Inter" font-size="11" letter-spacing="1.5">FOUR SECTORS OF ONE STAR (≈27 DAYS EACH)</text>
+  <rect x="10" y="30" width="128" height="62" rx="12" fill="#04060C" stroke="#1A2333"/><text x="20" y="47" fill="#54D8E8" font-family="JetBrains Mono" font-size="10">SECTOR 1</text><circle cx="18.0" cy="70.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="22.1" cy="71.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="26.3" cy="71.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="30.4" cy="71.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="34.6" cy="68.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="38.7" cy="69.5" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="42.9" cy="70.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="47.0" cy="71.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="51.2" cy="71.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="55.3" cy="71.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="59.5" cy="76.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="63.6" cy="77.7" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="67.8" cy="67.6" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="71.9" cy="67.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="76.1" cy="68.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="80.2" cy="68.6" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="84.4" cy="72.2" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="88.5" cy="70.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="92.7" cy="67.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="96.8" cy="71.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="101.0" cy="70.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="105.1" cy="69.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="109.3" cy="70.7" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="113.4" cy="68.7" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="117.6" cy="67.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="121.7" cy="70.7" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="125.9" cy="69.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="130.0" cy="67.7" r="1.6" fill="#DDE2F5" opacity="0.75"/><rect x="147" y="30" width="128" height="62" rx="12" fill="#04060C" stroke="#1A2333"/><text x="157" y="47" fill="#54D8E8" font-family="JetBrains Mono" font-size="10">SECTOR 2</text><circle cx="155.0" cy="68.1" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="159.1" cy="71.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="163.3" cy="70.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="167.4" cy="72.7" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="171.6" cy="68.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="175.7" cy="72.7" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="179.9" cy="67.1" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="184.0" cy="71.2" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="188.2" cy="68.2" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="192.3" cy="72.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="196.5" cy="77.1" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="200.6" cy="80.2" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="204.8" cy="71.6" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="208.9" cy="68.1" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="213.1" cy="71.6" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="217.2" cy="68.2" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="221.4" cy="67.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="225.5" cy="68.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="229.7" cy="72.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="233.8" cy="68.6" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="238.0" cy="71.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="242.1" cy="71.6" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="246.3" cy="69.1" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="250.4" cy="71.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="254.6" cy="70.7" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="258.7" cy="72.6" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="262.9" cy="72.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="267.0" cy="71.5" r="1.6" fill="#DDE2F5" opacity="0.75"/><rect x="284" y="30" width="128" height="62" rx="12" fill="#04060C" stroke="#1A2333"/><text x="294" y="47" fill="#54D8E8" font-family="JetBrains Mono" font-size="10">SECTOR 3</text><circle cx="292.0" cy="73.0" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="296.1" cy="68.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="300.3" cy="69.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="304.4" cy="70.1" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="308.6" cy="70.0" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="312.7" cy="67.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="316.9" cy="68.5" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="321.0" cy="71.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="325.2" cy="67.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="329.3" cy="67.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="333.5" cy="77.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="337.6" cy="76.1" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="341.8" cy="67.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="345.9" cy="69.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="350.1" cy="70.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="354.2" cy="67.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="358.4" cy="72.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="362.5" cy="70.2" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="366.7" cy="72.6" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="370.8" cy="67.6" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="375.0" cy="72.5" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="379.1" cy="70.7" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="383.3" cy="67.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="387.4" cy="67.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="391.6" cy="67.2" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="395.7" cy="70.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="399.9" cy="67.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="404.0" cy="72.2" r="1.6" fill="#DDE2F5" opacity="0.75"/><rect x="421" y="30" width="128" height="62" rx="12" fill="#04060C" stroke="#1A2333"/><text x="431" y="47" fill="#54D8E8" font-family="JetBrains Mono" font-size="10">SECTOR 4</text><circle cx="429.0" cy="68.1" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="433.1" cy="70.5" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="437.3" cy="67.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="441.4" cy="70.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="445.6" cy="72.2" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="449.7" cy="70.6" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="453.9" cy="69.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="458.0" cy="67.1" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="462.2" cy="67.7" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="466.3" cy="70.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="470.5" cy="79.0" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="474.6" cy="81.2" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="478.8" cy="68.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="482.9" cy="69.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="487.1" cy="69.6" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="491.2" cy="69.0" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="495.4" cy="70.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="499.5" cy="72.8" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="503.7" cy="70.5" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="507.8" cy="69.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="512.0" cy="70.9" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="516.1" cy="71.0" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="520.3" cy="72.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="524.4" cy="69.4" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="528.6" cy="68.1" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="532.7" cy="68.3" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="536.9" cy="70.2" r="1.6" fill="#DDE2F5" opacity="0.75"/><circle cx="541.0" cy="70.7" r="1.6" fill="#DDE2F5" opacity="0.75"/>
+  <path d="M280 104 L280 126" stroke="#4D9FFF" stroke-width="1.5" marker-end="url(#ar)"/>
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#4D9FFF"/></marker></defs>
+  <rect x="10" y="134" width="540" height="62" rx="12" fill="#04060C" stroke="#4D9FFF55"/>
+  <text x="20" y="151" fill="#4D9FFF" font-family="JetBrains Mono" font-size="10">STITCHED: ONE LONG LIGHT CURVE</text>
+  <circle cx="20.0" cy="174.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="24.8" cy="174.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="29.5" cy="172.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="34.3" cy="175.4" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="39.1" cy="172.7" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="43.9" cy="173.3" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="48.6" cy="173.8" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="53.4" cy="175.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="58.2" cy="182.0" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="62.9" cy="181.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="67.7" cy="172.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="72.5" cy="173.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="77.2" cy="175.0" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="82.0" cy="177.1" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="86.8" cy="173.0" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="91.6" cy="175.7" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="96.3" cy="176.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="101.1" cy="174.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="105.9" cy="174.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="110.6" cy="172.7" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="115.4" cy="174.8" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="120.2" cy="175.7" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="125.0" cy="176.2" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="129.7" cy="172.7" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="134.5" cy="176.7" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="139.3" cy="175.2" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="144.0" cy="173.1" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="148.8" cy="173.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="153.6" cy="172.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="158.3" cy="173.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="163.1" cy="173.2" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="167.9" cy="173.0" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="172.7" cy="175.8" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="177.4" cy="172.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="182.2" cy="174.2" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="187.0" cy="177.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="191.7" cy="176.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="196.5" cy="182.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="201.3" cy="172.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="206.1" cy="176.4" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="210.8" cy="176.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="215.6" cy="175.3" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="220.4" cy="176.3" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="225.1" cy="174.8" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="229.9" cy="176.3" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="234.7" cy="174.8" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="239.4" cy="172.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="244.2" cy="176.3" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="249.0" cy="172.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="253.8" cy="174.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="258.5" cy="173.4" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="263.3" cy="173.3" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="268.1" cy="175.8" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="272.8" cy="176.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="277.6" cy="174.3" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="282.4" cy="174.2" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="287.2" cy="176.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="291.9" cy="173.0" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="296.7" cy="174.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="301.5" cy="176.8" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="306.2" cy="175.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="311.0" cy="177.3" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="315.8" cy="173.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="320.6" cy="172.8" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="325.3" cy="177.1" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="330.1" cy="185.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="334.9" cy="181.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="339.6" cy="176.8" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="344.4" cy="174.2" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="349.2" cy="176.1" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="353.9" cy="175.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="358.7" cy="174.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="363.5" cy="173.2" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="368.3" cy="174.2" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="373.0" cy="172.7" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="377.8" cy="176.7" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="382.6" cy="176.4" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="387.3" cy="175.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="392.1" cy="174.1" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="396.9" cy="177.1" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="401.7" cy="174.3" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="406.4" cy="173.1" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="411.2" cy="173.3" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="416.0" cy="173.3" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="420.7" cy="177.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="425.5" cy="174.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="430.3" cy="174.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="435.0" cy="172.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="439.8" cy="176.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="444.6" cy="176.8" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="449.4" cy="173.8" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="454.1" cy="174.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="458.9" cy="172.7" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="463.7" cy="174.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="468.4" cy="182.8" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="473.2" cy="184.0" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="478.0" cy="176.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="482.8" cy="174.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="487.5" cy="174.1" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="492.3" cy="174.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="497.1" cy="175.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="501.8" cy="177.4" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="506.6" cy="173.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="511.4" cy="175.0" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="516.1" cy="173.0" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="520.9" cy="175.9" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="525.7" cy="176.5" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="530.5" cy="175.6" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="535.2" cy="177.2" r="1.6" fill="#54D8E8" opacity="0.75"/><circle cx="540.0" cy="174.9" r="1.6" fill="#54D8E8" opacity="0.75"/>
+</svg></div></div></div>
+  </div>
 </section>
-<!-- Scientific Limitations Panel -->
-<section class="py-space-xl">
-<div class="text-left mb-space-xl">
-<span class="font-label-caps text-label-caps uppercase text-tertiary tracking-[0.25em]">Boundary Conditions</span>
-<h2 class="font-headline-lg text-headline-lg text-on-surface font-light tracking-[0.16em] uppercase mt-space-xs">
-        Honest Scientific Limitations
-      </h2>
-<p class="font-body-md text-body-md text-on-surface-variant mt-space-xs max-w-2xl">
-        Machine learning accelerates candidate identification by 10,000x, but empirical confirmation always demands ground-based observational astrophysics in edge cases.
-      </p>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter-desktop">
-<!-- Limit 01 -->
-<div class="rounded-lg bg-surface-container-low/50 backdrop-blur-xl p-space-xl shadow-md hover:bg-surface-container/50 transition-all flex flex-col justify-between">
-<div>
-<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center mb-space-md text-tertiary">
-<span class="material-symbols-outlined text-[22px]">hourglass_empty</span>
-</div>
-<span class="font-label-caps text-label-caps uppercase text-tertiary tracking-widest">Temporal Constraint</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase mt-space-xs mb-space-sm">
-            Long-Period Transits (&gt;50 Days)
-          </h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant">
-            TESS 27-day sector baselines rarely record multiple transits for long-orbit cold worlds. The model flags monotransits, but true confirmation requires long-baseline Doppler radial velocity tracking.
-          </p>
-</div>
-<div class="mt-space-lg pt-space-md border-t border-surface-variant/40 flex items-center justify-between text-outline font-label-caps text-label-caps uppercase">
-<span class="">Requires</span>
-<span class="text-on-surface">HARPS / ESPRESSO RV</span>
-</div>
-</div>
-<!-- Limit 02 -->
-<div class="rounded-lg bg-surface-container-low/50 backdrop-blur-xl p-space-xl shadow-md hover:bg-surface-container/50 transition-all flex flex-col justify-between">
-<div>
-<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center mb-space-md text-error">
-<span class="material-symbols-outlined text-[22px]">flare</span>
-</div>
-<span class="font-label-caps text-label-caps uppercase text-error tracking-widest">Host Activity</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase mt-space-xs mb-space-sm">
-            Extreme M-Dwarf Flaring
-          </h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant">
-            Stochastic magnetic reconnection events on active red dwarfs produce asymmetrical flare decay curves. These can mask or mimic shallow sub-Earth transits ($&lt;200$ ppm), requiring spot-modeling manual audits.
-          </p>
-</div>
-<div class="mt-space-lg pt-space-md border-t border-surface-variant/40 flex items-center justify-between text-outline font-label-caps text-label-caps uppercase">
-<span class="">Requires</span>
-<span class="text-on-surface">Spot-Map Inversion</span>
-</div>
-</div>
-<!-- Limit 03 -->
-<div class="rounded-lg bg-surface-container-low/50 backdrop-blur-xl p-space-xl shadow-md hover:bg-surface-container/50 transition-all flex flex-col justify-between">
-<div>
-<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center mb-space-md text-secondary">
-<span class="material-symbols-outlined text-[22px]">blur_on</span>
-</div>
-<span class="font-label-caps text-label-caps uppercase text-secondary tracking-widest">Spatial Resolution</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal uppercase mt-space-xs mb-space-sm">
-            Background Eclipsing Binaries
-          </h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant">
-            Because TESS pixels are large (21 arcseconds across), a faint background eclipsing binary within the same pixel aperture can dilute its transit dip, closely masquerading as a true planetary transit.
-          </p>
-</div>
-<div class="mt-space-lg pt-space-md border-t border-surface-variant/40 flex items-center justify-between text-outline font-label-caps text-label-caps uppercase">
-<span class="">Requires</span>
-<span class="text-on-surface">Adaptive Optics Imaging</span>
-</div>
-</div>
-</div>
+<section class="relative py-14 border-t border-[#161D2B]/70">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    <div class="lg:col-span-6 ">
+<div class="flex items-center gap-4 mb-5">
+  <div class="w-12 h-12 rounded-full flex items-center justify-center font-headline-sm text-[15px] text-white shrink-0"
+       style="background:#4D9FFF22;border:1px solid #4D9FFF66;box-shadow:0 0 18px #4D9FFF33;color:#4D9FFF">02</div>
+  <div>
+    <div class="font-label-caps text-label-caps uppercase tracking-[0.22em]" style="color:#4D9FFF">Step 2 · Clean</div>
+    <h2 class="font-headline-lg text-[26px] lg:text-[32px] text-[#F2F5FA] font-light tracking-[0.12em] uppercase leading-tight">Remove the wobble,<br>keep the dips</h2>
+  </div>
+</div><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">Raw light curves are messy. Each sector is divided by its own average brightness so they line up. Sudden upward spikes, such as cosmic-ray hits, are cut out, but <b class='text-white font-medium'>only upward ones</b>: an early version also cut downward points and accidentally deleted about two thirds of a real planet's dips.</p><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">Then a smoothing filter called <b class='text-white font-medium'>biweight</b> (from the Wotan library) follows the slow wobble of the star and the spacecraft and removes it. Its window is long (at least about 0.75 days), so short dips pass through untouched; if a strong dip is found, the filter is run again with the dip masked so its depth is not reduced.</p><div class="mt-5 p-4 rounded-2xl bg-[#090D17] border border-[#1A2333] flex gap-3 items-start"><span class="material-symbols-outlined text-[20px]" style="color:#54D8E8">lightbulb</span><div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] mb-1" style="color:#54D8E8">In short</div><div class="font-body-md text-[14px] text-[#DDE2F5]">Two versions are kept: one flattened for finding dips, and one that still shows the star's own variability.</div></div></div></div>
+    <div class="lg:col-span-6 "><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] ">
+<svg viewBox="0 0 560 300" class="w-full">
+  <text x="0" y="16" fill="#9AA8BA" font-family="Inter" font-size="11" letter-spacing="1.5">BEFORE CLEANING</text>
+  <rect x="0" y="26" width="560" height="110" rx="14" fill="#04060C" stroke="#1A2333"/>
+  <path d="M10,80 C80,50 140,110 210,75 S350,45 420,85 S520,100 550,70" fill="none" stroke="#9AA8BA" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"/>
+  <circle cx="14" cy="85.08687972395457" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="19" cy="86.85081541814851" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="24" cy="88.56720353079031" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="29" cy="90.22413159616899" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="34" cy="105.81009982666714" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="39" cy="93.31410092619286" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="44" cy="94.72569648551026" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="49" cy="96.03508942925255" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="54" cy="97.23319201180463" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="59" cy="98.31168889013436" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="64" cy="99.26309483582057" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="69" cy="100.08080668573146" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="74" cy="100.75914917079373" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="79" cy="101.29341430478087" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="84" cy="101.67989405974612" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="89" cy="101.91590610131819" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="94" cy="101.99981240524608" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="99" cy="101.93103062598621" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="104" cy="101.71003813842887" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="109" cy="101.33836872471286" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="114" cy="100.81860192912312" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="119" cy="100.15434515495298" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="124" cy="99.35020862758635" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="129" cy="98.41177339756695" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="134" cy="97.3455526057265" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="139" cy="96.15894627920896" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="144" cy="94.86018997212533" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="149" cy="93.45829760729471" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="154" cy="91.96299891577478" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="159" cy="90.38467190837741" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="164" cy="102.7342708478465" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="169" cy="87.02325022160134" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="174" cy="85.26348524270762" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="179" cy="83.46718943083256" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="184" cy="81.6468298452084" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="189" cy="79.81504055792273" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="194" cy="77.98453496806856" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="199" cy="76.16801756533113" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="204" cy="74.37809575540972" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="209" cy="72.62719235924381" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="214" cy="70.92745939333625" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="219" cy="69.29069372957461" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="224" cy="67.7282552199078" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="229" cy="66.2509878541274" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="234" cy="64.86914449795258" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="239" cy="63.592315733767975" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="244" cy="62.42936329789079" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="249" cy="61.38835857634018" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="254" cy="60.47652658597518" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="259" cy="59.70019582979543" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="264" cy="59.06475437443065" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="269" cy="58.57461245465967" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="274" cy="58.23317186449971" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="279" cy="58.04280234730465" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="284" cy="58.00482514873525" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="289" cy="58.119503846750604" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="294" cy="72.38604252226469" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="299" cy="58.802591283164325" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="304" cy="59.36625910334965" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="309" cy="60.0731338876885" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="314" cy="60.918309623625575" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="319" cy="61.895920431002466" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="324" cy="62.999181273768286" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="329" cy="64.22043505102438" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="334" cy="65.55120574057113" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="339" cy="66.9822572261178" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="344" cy="68.50365739986968" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="349" cy="70.10484709559337" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="354" cy="71.77471337373481" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="359" cy="73.50166664996058" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="364" cy="75.27372113181737" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="369" cy="77.07857800524464" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="374" cy="78.90371079359083" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="379" cy="80.73645229670527" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="384" cy="82.56408250671086" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="389" cy="84.37391689028513" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="394" cy="86.15339442473277" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="399" cy="87.8901647768416" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="404" cy="89.57217401946369" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="409" cy="91.18774829091195" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="414" cy="92.7256748165404" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="419" cy="94.17527973018342" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="424" cy="109.52650215534048" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="429" cy="96.76996403195105" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="434" cy="97.89703520413197" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="439" cy="98.89989331714102" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="444" cy="99.77157810785579" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="449" cy="100.50603971196892" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="454" cy="101.0981806526274" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="459" cy="101.5438912190964" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="464" cy="101.84007798990497" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="469" cy="101.98468530251077" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="474" cy="101.97670952047498" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="479" cy="101.81620599912742" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="484" cy="101.50428870137684" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="489" cy="101.0431224663332" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="494" cy="100.43590798440073" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="499" cy="99.68685958312102" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="504" cy="98.80117597794217" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="509" cy="97.7850041909158" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="514" cy="96.64539688774155" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="519" cy="95.3902634292587" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="524" cy="94.02831497710766" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="529" cy="92.56900403455198" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="534" cy="91.02245884207346" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="539" cy="89.39941308306237" r="1.7" fill="#DDE2F5" opacity="0.7"/><circle cx="544" cy="87.7111313874757" r="1.7" fill="#DDE2F5" opacity="0.7"/>
+  <circle cx="300" cy="40" r="3" fill="#EC4899"/><text x="310" y="44" fill="#EC4899" font-family="Inter" font-size="10.5">spike (cosmic ray): removed</text>
+  <text x="14" y="128" fill="#9AA8BA" font-family="Inter" font-size="10.5">slow wobble from the star and the spacecraft</text>
+  <path d="M280 146 L280 166" stroke="#4D9FFF" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#4D9FFF"/></marker></defs>
+  <text x="0" y="186" fill="#54D8E8" font-family="Inter" font-size="11" letter-spacing="1.5">AFTER CLEANING (BIWEIGHT FLATTENING)</text>
+  <rect x="0" y="196" width="560" height="100" rx="14" fill="#04060C" stroke="#54D8E844"/>
+  <circle cx="14" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="19" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="24" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="29" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="34" cy="246" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="39" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="44" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="49" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="54" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="59" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="64" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="69" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="74" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="79" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="84" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="89" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="94" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="99" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="104" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="109" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="114" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="119" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="124" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="129" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="134" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="139" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="144" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="149" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="154" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="159" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="164" cy="246" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="169" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="174" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="179" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="184" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="189" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="194" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="199" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="204" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="209" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="214" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="219" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="224" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="229" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="234" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="239" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="244" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="249" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="254" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="259" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="264" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="269" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="274" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="279" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="284" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="289" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="294" cy="246" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="299" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="304" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="309" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="314" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="319" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="324" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="329" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="334" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="339" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="344" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="349" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="354" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="359" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="364" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="369" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="374" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="379" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="384" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="389" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="394" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="399" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="404" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="409" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="414" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="419" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="424" cy="246" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="429" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="434" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="439" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="444" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="449" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="454" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="459" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="464" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="469" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="474" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="479" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="484" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="489" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="494" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="499" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="504" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="509" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="514" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="519" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="524" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="529" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="534" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="539" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/><circle cx="544" cy="232" r="1.7" fill="#54D8E8" opacity="0.8"/>
+  <text x="14" y="285" fill="#54D8E8" font-family="Inter" font-size="10.5">flat baseline · every dip kept at full depth</text>
+</svg></div></div>
+  </div>
 </section>
-<!-- Open Science Framework Banner -->
-<section class="mt-space-2xl mb-space-xl rounded-lg bg-surface-container-low/40 backdrop-blur-xl p-space-lg lg:p-space-xl shadow-lg flex flex-col md:flex-row items-center justify-between gap-space-lg">
-<div class="flex items-center gap-space-lg">
-<div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center text-primary-fixed shrink-0">
-<span class="material-symbols-outlined text-[24px]">terminal</span>
-</div>
-<div>
-<h4 class="font-headline-sm text-headline-sm text-on-surface font-light uppercase tracking-wider">
-          Built on Open Astrophysics Infrastructure
-        </h4>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-          Orchestrated with <span class="text-on-surface font-medium">Lightkurve</span>, <span class="text-on-surface font-medium">Astropy</span>, and <span class="text-on-surface font-medium">PyTorch</span>. Trained on NASA Exoplanet Archive datasets.
-        </p>
-</div>
-</div>
-<!-- Compound Outer Pill Button with Sapphire Circular Badge -->
-<a class="shrink-0 flex items-center gap-space-sm pl-space-md pr-space-xs py-space-xs rounded-full bg-surface-container-high/80 hover:bg-surface-container-highest transition-all duration-300 text-on-surface shadow-md" href="#">
-<span class="font-label-caps text-label-caps uppercase tracking-wider">Inspect Architecture &amp; Weights</span>
-<div class="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shadow-[0_0_12px_rgba(37,99,235,0.7)]">
-<span class="material-symbols-outlined text-[16px]">north_east</span>
-</div>
-</a>
+<section class="relative py-14 border-t border-[#161D2B]/70">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    <div class="lg:col-span-6 lg:order-2">
+<div class="flex items-center gap-4 mb-5">
+  <div class="w-12 h-12 rounded-full flex items-center justify-center font-headline-sm text-[15px] text-white shrink-0"
+       style="background:#4D9FFF22;border:1px solid #4D9FFF66;box-shadow:0 0 18px #4D9FFF33;color:#4D9FFF">03</div>
+  <div>
+    <div class="font-label-caps text-label-caps uppercase tracking-[0.22em]" style="color:#4D9FFF">Step 3 · Search</div>
+    <h2 class="font-headline-lg text-[26px] lg:text-[32px] text-[#F2F5FA] font-light tracking-[0.12em] uppercase leading-tight">Find the<br>repeating dip</h2>
+  </div>
+</div><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">The search method is <b class='text-white font-medium'>Box Least Squares (BLS)</b>. Imagine sliding a box-shaped dip along the light curve, repeating it every P days, and checking how well it fits. This is tried for thousands of periods between 0.5 and 30 days and twelve dip lengths.</p><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">The period with the best fit wins, but only if it stands out clearly from the rest: its score, the <b class='text-white font-medium'>SDE</b>, must be at least 7. Stars that pulse quickly get a second, cleaned copy searched too, used only when it gives a clearly stronger result.</p><div class="mt-5 p-4 rounded-2xl bg-[#090D17] border border-[#1A2333] flex gap-3 items-start"><span class="material-symbols-outlined text-[20px]" style="color:#4D9FFF">lightbulb</span><div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] mb-1" style="color:#4D9FFF">In short</div><div class="font-body-md text-[14px] text-[#DDE2F5]">Result: the best period, how deep and how long the dip is, and when it happens.</div></div></div></div>
+    <div class="lg:col-span-6 lg:order-1"><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] ">
+<svg viewBox="0 0 560 250" class="w-full">
+  <text x="0" y="16" fill="#9AA8BA" font-family="Inter" font-size="11" letter-spacing="1.5">BLS: HOW WELL A REPEATING BOX FITS, FOR EACH TRIAL PERIOD</text>
+  <rect x="0" y="26" width="560" height="190" rx="14" fill="#04060C" stroke="#1A2333"/>
+  <polyline fill="none" stroke="#4D9FFF" stroke-width="1.6" points="20,188.0 24,178.08335189547532 28,185.4445889797317 32,178.74185317672269 36,183.05886648861392 40,180.0151288737651 44,181.0012531240646 48,181.81862887762966 52,179.40838185143505 56,184.03259426869386 60,178.38602508120442 64,186.510009741858 68,178.00207099857332 72,186.91363404575924 76,178.28201554256137 80,184.40941645977833 84,179.20726938349276 88,182.14362660025702 92,180.71639232168405 96,180.2667211043378 100,182.70917313879977 104,178.90333328166474 108,185.05328398499742 112,178.14399701209368 116,187.59306742650136 120,178.03913496880406 124,140.84012733811784 128,178.59571037052993 132,183.41674545508235 136,179.7767645986651 140,181.29770824156626 144,181.50387138313798 148,179.62372742852972 152,183.66234459024315 156,178.505961393133 160,186.10885379649108 164,178.01863384067298 168,187.319058053155 172,178.19410508224468 176,184.79218690956856 180,179.02072319310707 184,182.4783261509212 188,180.4435977426058 192,180.53112449582625 196,182.36824471718884 200,179.0798831730063 204,184.6668606004509 208,178.2209698523035 212,187.18680898861209 216,178.01141948304763 220,186.23924380051412 224,178.4651469672486 228,63.782217166140185 232,179.5520231598026 236,181.60526655854906 240,181.19987555263947 244,179.85294936741542 248,183.2992807901502 252,178.64162578857875 256,185.71083077554795 260,178.05173208641594 264,187.72561012756773 268,178.1224393351226 272,185.18027151008886 276,178.8490523177892 280,182.82217305721028 284,180.1833213057762 288,180.8079010303546 292,182.0366460151108 296,179.27121037337807 300,184.2859589856191 304,178.31414290079655 308,186.7818977051502 312,178.0002513524363 316,186.64127717969436 320,178.35037926177645 324,184.15467617137438 328,179.3412768699801 332,181.92341856550956 336,180.90714499392493 340,180.0956679327711 344,182.94400432981698 348,178.79279352220092 352,185.31660005483002 356,178.10131090434487 360,187.8673832362667 364,178.06713702462815 368,185.5730273497962 372,178.6925411521973 376,183.1745976929533 380,179.93599419224515 384,181.09659219236056 388,181.71492636802736 392,179.47699792491719 396,183.91121015251468 400,178.42336180455735 404,186.37900436320075 408,178.00564907840007 412,187.0455614561881 416,178.25159738142725 420,184.5335054450297 424,179.1448748572539 428,182.25163720314825 432,180.62616465242905 436,135.35148103039595 440,182.59710376992587 444,178.95921416540568 448,184.92681472771082 452,178.1672881608365 456,187.4605962966519 460,178.0282897660785 464,185.96980377864583 468,178.5514489770007 472,183.53501622187815 476,179.70202613086025 480,181.39671972818454 484,181.40361874548762 488,179.69690491434827 492,183.54323492028456 496,178.54844562856857 500,185.97879640687208 504,178.0276037189188 508,187.4514268816269 512,178.1689649709606 516,184.91807740819078 520,178.96314248655986 524,182.5893787355109 528,180.35740000785535 532,180.6199648733291 536,182.25915379541343 540,179.14061202121243"/>
+  <line x1="228" y1="40" x2="228" y2="200" stroke="#EFBF62" stroke-dasharray="4 4"/>
+  <text x="236" y="56" fill="#EFBF62" font-family="JetBrains Mono" font-size="11">best period: tallest peak</text>
+  <text x="236" y="72" fill="#9AA8BA" font-family="Inter" font-size="10.5">must stand out: SDE ≥ 7</text>
+  <text x="96" y="112" fill="#9AA8BA" font-family="Inter" font-size="10">P/2</text><text x="430" y="112" fill="#9AA8BA" font-family="Inter" font-size="10">2P</text>
+  <text x="20" y="236" fill="#9AA8BA" font-family="Inter" font-size="10.5">0.5 days</text><text x="470" y="236" fill="#9AA8BA" font-family="Inter" font-size="10.5">30 days</text>
+</svg></div></div>
+  </div>
 </section>
+<section class="relative py-14 border-t border-[#161D2B]/70">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    <div class="lg:col-span-6 ">
+<div class="flex items-center gap-4 mb-5">
+  <div class="w-12 h-12 rounded-full flex items-center justify-center font-headline-sm text-[15px] text-white shrink-0"
+       style="background:#EC489922;border:1px solid #EC489966;box-shadow:0 0 18px #EC489933;color:#EC4899">04</div>
+  <div>
+    <div class="font-label-caps text-label-caps uppercase tracking-[0.22em]" style="color:#EC4899">Step 4 · Measure</div>
+    <h2 class="font-headline-lg text-[26px] lg:text-[32px] text-[#F2F5FA] font-light tracking-[0.12em] uppercase leading-tight">Describe the signal<br>with 56 features</h2>
+  </div>
+</div><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">A dip on its own says little, so the pipeline measures it from every angle and writes down <b class='text-white font-medium'>56 features</b>:</p><ul class="space-y-2 mb-4 text-[15px] text-[#C3C9D6]"><li class="flex gap-3"><span class="material-symbols-outlined text-[18px]" style="color:#54D8E8">straighten</span><span><b class="text-white font-medium">Shape:</b> U-shaped or V-shaped, how long compared with what is expected for this star, how big the object would be.</span></li><li class="flex gap-3"><span class="material-symbols-outlined text-[18px]" style="color:#EFBF62">compare_arrows</span><span><b class="text-white font-medium">Two-star tests:</b> do odd and even dips match? Is there a second dip halfway through the orbit?</span></li><li class="flex gap-3"><span class="material-symbols-outlined text-[18px]" style="color:#4D9FFF">view_week</span><span><b class="text-white font-medium">Consistency:</b> is the dip the same depth in every sector?</span></li><li class="flex gap-3"><span class="material-symbols-outlined text-[18px]" style="color:#EC4899">waves</span><span><b class="text-white font-medium">The star itself:</b> does it rise and fall in smooth cycles (Lomb-Scargle, autocorrelation, Fourier)?</span></li><li class="flex gap-3"><span class="material-symbols-outlined text-[18px]" style="color:#94A3B8">star</span><span><b class="text-white font-medium">Star facts:</b> temperature, size, gravity and brightness from the TESS Input Catalog.</span></li></ul><div class="mt-5 p-4 rounded-2xl bg-[#090D17] border border-[#1A2333] flex gap-3 items-start"><span class="material-symbols-outlined text-[20px]" style="color:#EC4899">lightbulb</span><div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] mb-1" style="color:#EC4899">In short</div><div class="font-body-md text-[14px] text-[#DDE2F5]">Features that grow with more data (like raw signal strength) are converted to per-dip versions, so 2 sectors and 10 sectors give consistent answers.</div></div></div></div>
+    <div class="lg:col-span-6 "><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] "><div class="grid grid-cols-2 gap-3"><div class="rounded-2xl bg-[#04060C] border border-[#1A2333] p-3"><div class="font-label-caps text-[10px] uppercase tracking-[0.16em] text-[#9AA8BA] mb-2">Dip shape</div><svg viewBox="0 0 200 60" class="w-full h-14"><path d="M0,15 L60,15 C70,15 74,45 84,45 L116,45 C126,45 130,15 140,15 L200,15" fill="none" stroke="#54D8E8" stroke-width="2" stroke-linecap="round"/></svg><div class="text-[11.5px] text-[#C3C9D6] mt-1">U-shaped (planet) or V-shaped (two stars)?</div></div><div class="rounded-2xl bg-[#04060C] border border-[#1A2333] p-3"><div class="font-label-caps text-[10px] uppercase tracking-[0.16em] text-[#9AA8BA] mb-2">Odd vs even dips</div><svg viewBox="0 0 200 60" class="w-full h-14"><path d="M0,15 L30,15 L40,45 L50,15 L100,15 L110,30 L120,15 L170,15 L180,45 L190,15 L200,15" fill="none" stroke="#EFBF62" stroke-width="2" stroke-linecap="round"/></svg><div class="text-[11.5px] text-[#C3C9D6] mt-1">Do alternate dips match in depth?</div></div><div class="rounded-2xl bg-[#04060C] border border-[#1A2333] p-3"><div class="font-label-caps text-[10px] uppercase tracking-[0.16em] text-[#9AA8BA] mb-2">Halfway point</div><svg viewBox="0 0 200 60" class="w-full h-14"><path d="M0,15 L40,15 L50,48 L60,15 L130,15 L140,24 L150,15 L200,15" fill="none" stroke="#EC4899" stroke-width="2" stroke-linecap="round"/></svg><div class="text-[11.5px] text-[#C3C9D6] mt-1">Is there a second dip at phase 0.5?</div></div><div class="rounded-2xl bg-[#04060C] border border-[#1A2333] p-3"><div class="font-label-caps text-[10px] uppercase tracking-[0.16em] text-[#9AA8BA] mb-2">Every sector</div><svg viewBox="0 0 200 60" class="w-full h-14"><path d="M0,15 L30,15 L35,40 L40,15 L80,15 L85,40 L90,15 L130,15 L135,40 L140,15 L200,15" fill="none" stroke="#4D9FFF" stroke-width="2" stroke-linecap="round"/></svg><div class="text-[11.5px] text-[#C3C9D6] mt-1">Same depth in every sector?</div></div></div></div></div>
+  </div>
+</section>
+<section class="relative py-14 border-t border-[#161D2B]/70">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    <div class="lg:col-span-6 lg:order-2">
+<div class="flex items-center gap-4 mb-5">
+  <div class="w-12 h-12 rounded-full flex items-center justify-center font-headline-sm text-[15px] text-white shrink-0"
+       style="background:#4D9FFF22;border:1px solid #4D9FFF66;box-shadow:0 0 18px #4D9FFF33;color:#4D9FFF">05</div>
+  <div>
+    <div class="font-label-caps text-label-caps uppercase tracking-[0.22em]" style="color:#4D9FFF">Step 5 · Decide</div>
+    <h2 class="font-headline-lg text-[26px] lg:text-[32px] text-[#F2F5FA] font-light tracking-[0.12em] uppercase leading-tight">The AI makes<br>its call</h2>
+  </div>
+</div><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">The 56 features go into <b class='text-white font-medium'>XGBoost</b>, a machine-learning model made of 400 small decision trees that vote together. It learned from <b class='text-white font-medium'>100 stars whose nature is already known</b> from the catalogs: 25 planets, 25 eclipsing binaries, 25 variable stars and 25 noise stars, chosen with similar brightness so the model cannot cheat by brightness alone.</p><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">Its raw votes are often over-confident, so they are <b class='text-white font-medium'>calibrated</b> (Platt scaling): when it says “70% planet”, roughly 7 out of 10 such cases really are planets.</p><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">Why not a neural network? With only 100 examples, small trees work better, handle missing values naturally, and can explain every single decision.</p><div class="mt-5 p-4 rounded-2xl bg-[#090D17] border border-[#1A2333] flex gap-3 items-start"><span class="material-symbols-outlined text-[20px]" style="color:#4D9FFF">lightbulb</span><div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] mb-1" style="color:#4D9FFF">In short</div><div class="font-body-md text-[14px] text-[#DDE2F5]">Output: a probability for each of the four answers.</div></div></div></div>
+    <div class="lg:col-span-6 lg:order-1"><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] ">
+<svg viewBox="0 0 560 250" class="w-full">
+  <text x="0" y="16" fill="#9AA8BA" font-family="Inter" font-size="11" letter-spacing="1.5">400 SMALL DECISION TREES VOTE, THEN THE VOTE IS CALIBRATED</text>
+  <g transform="translate(20,40)"><line x1="20" y1="8" x2="8" y2="34" stroke="#202A38"/><line x1="20" y1="8" x2="32" y2="34" stroke="#202A38"/><circle cx="20" cy="8" r="6" fill="#0D1424" stroke="#4D9FFF"/><circle cx="8" cy="38" r="5" fill="#0D1424" stroke="#4D9FFF88"/><circle cx="32" cy="38" r="5" fill="#0D1424" stroke="#4D9FFF88"/></g><g transform="translate(82,40)"><line x1="20" y1="8" x2="8" y2="34" stroke="#202A38"/><line x1="20" y1="8" x2="32" y2="34" stroke="#202A38"/><circle cx="20" cy="8" r="6" fill="#0D1424" stroke="#4D9FFF"/><circle cx="8" cy="38" r="5" fill="#0D1424" stroke="#4D9FFF88"/><circle cx="32" cy="38" r="5" fill="#0D1424" stroke="#4D9FFF88"/></g><g transform="translate(144,40)"><line x1="20" y1="8" x2="8" y2="34" stroke="#202A38"/><line x1="20" y1="8" x2="32" y2="34" stroke="#202A38"/><circle cx="20" cy="8" r="6" fill="#0D1424" stroke="#4D9FFF"/><circle cx="8" cy="38" r="5" fill="#0D1424" stroke="#4D9FFF88"/><circle cx="32" cy="38" r="5" fill="#0D1424" stroke="#4D9FFF88"/></g><g transform="translate(206,40)"><line x1="20" y1="8" x2="8" y2="34" stroke="#202A38"/><line x1="20" y1="8" x2="32" y2="34" stroke="#202A38"/><circle cx="20" cy="8" r="6" fill="#0D1424" stroke="#4D9FFF"/><circle cx="8" cy="38" r="5" fill="#0D1424" stroke="#4D9FFF88"/><circle cx="32" cy="38" r="5" fill="#0D1424" stroke="#4D9FFF88"/></g><g transform="translate(268,40)"><line x1="20" y1="8" x2="8" y2="34" stroke="#202A38"/><line x1="20" y1="8" x2="32" y2="34" stroke="#202A38"/><circle cx="20" cy="8" r="6" fill="#0D1424" stroke="#4D9FFF"/><circle cx="8" cy="38" r="5" fill="#0D1424" stroke="#4D9FFF88"/><circle cx="32" cy="38" r="5" fill="#0D1424" stroke="#4D9FFF88"/></g>
+  <text x="345" y="66" fill="#9AA8BA" font-family="JetBrains Mono" font-size="14">… × 400</text>
+  <path d="M280 96 L280 116" stroke="#4D9FFF" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#4D9FFF"/></marker></defs>
+  <text x="0" y="140" fill="#54D8E8" font-family="Inter" font-size="11" letter-spacing="1.5">EXAMPLE: HD 209458 b</text>
+  <text x="0" y="166" fill="#54D8E8" font-family="Inter" font-size="12">Planet</text><rect x="120" y="156" width="380" height="10" rx="5" fill="#1F2230"/><rect x="120" y="156" width="372" height="10" rx="5" fill="#54D8E8"/><text x="510" y="166" fill="#F2F5FA" font-family="JetBrains Mono" font-size="11">98%</text><text x="0" y="188" fill="#94A3B8" font-family="Inter" font-size="12">Noise</text><rect x="120" y="178" width="380" height="10" rx="5" fill="#1F2230"/><rect x="120" y="178" width="4" height="10" rx="5" fill="#94A3B8"/><text x="510" y="188" fill="#F2F5FA" font-family="JetBrains Mono" font-size="11">1%</text><text x="0" y="210" fill="#EFBF62" font-family="Inter" font-size="12">Eclipsing binary</text><rect x="120" y="200" width="380" height="10" rx="5" fill="#1F2230"/><rect x="120" y="200" width="4" height="10" rx="5" fill="#EFBF62"/><text x="510" y="210" fill="#F2F5FA" font-family="JetBrains Mono" font-size="11">1%</text><text x="0" y="232" fill="#EC4899" font-family="Inter" font-size="12">Variable star</text><rect x="120" y="222" width="380" height="10" rx="5" fill="#1F2230"/><rect x="120" y="222" width="2" height="10" rx="5" fill="#EC4899"/><text x="510" y="232" fill="#F2F5FA" font-family="JetBrains Mono" font-size="11">0%</text>
+</svg></div></div>
+  </div>
+</section>
+<section class="relative py-14 border-t border-[#161D2B]/70">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    <div class="lg:col-span-6 ">
+<div class="flex items-center gap-4 mb-5">
+  <div class="w-12 h-12 rounded-full flex items-center justify-center font-headline-sm text-[15px] text-white shrink-0"
+       style="background:#EFBF6222;border:1px solid #EFBF6266;box-shadow:0 0 18px #EFBF6233;color:#EFBF62">06</div>
+  <div>
+    <div class="font-label-caps text-label-caps uppercase tracking-[0.22em]" style="color:#EFBF62">Step 6 · Double-check</div>
+    <h2 class="font-headline-lg text-[26px] lg:text-[32px] text-[#F2F5FA] font-light tracking-[0.12em] uppercase leading-tight">Physics gets<br>the final word</h2>
+  </div>
+</div><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">Some facts are certain and should not be left to a model trained on 100 stars. A <b class='text-white font-medium'>router</b> checks the answer against physics:</p><ul class="space-y-2 mb-4 text-[15px] text-[#C3C9D6]"><li>• If the dip means the object is <b class="text-white font-medium">bigger than 2.5 Jupiters</b>, it cannot be a planet.</li><li>• If there is a <b class="text-white font-medium">clear second eclipse</b> halfway through the orbit, it is two stars.</li><li>• If no answer reaches <b class="text-white font-medium">50%</b>, the star is kept as <b class="text-[#A78BFA] font-medium">Needs review</b> instead of being thrown away.</li></ul><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">Real example: for <b class='text-white font-medium'>TOI 184.01</b>, the model alone leaned towards “planet” (66%), but a clear second eclipse at phase 0.50 made the router call it an eclipsing binary, which matches NASA's catalog.</p><div class="mt-5 p-4 rounded-2xl bg-[#090D17] border border-[#1A2333] flex gap-3 items-start"><span class="material-symbols-outlined text-[20px]" style="color:#EFBF62">lightbulb</span><div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] mb-1" style="color:#EFBF62">In short</div><div class="font-body-md text-[14px] text-[#DDE2F5]">The model suggests; physics can overrule; doubtful cases are kept, not discarded.</div></div></div></div>
+    <div class="lg:col-span-6 "><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] ">
+<svg viewBox="0 0 600 330" class="w-full">
+  <defs><marker id="ar4" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#4D9FFF"/></marker></defs>
+  <rect x="150" y="6" width="260" height="36" rx="18" fill="#0D1424" stroke="#4D9FFF"/>
+  <text x="280" y="29" text-anchor="middle" fill="#F2F5FA" font-family="Inter" font-size="12.5">Classifier's probabilities</text>
+  <path d="M280 46 L280 66" stroke="#4D9FFF" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <rect x="110" y="70" width="340" height="40" rx="12" fill="#04060C" stroke="#202A38"/>
+  <text x="280" y="95" text-anchor="middle" fill="#DDE2F5" font-family="Inter" font-size="12.5">Would it be bigger than 2.5 Jupiters?</text>
+  <path d="M450 90 L478 90" stroke="#EFBF62" stroke-width="1.5"/>
+  <text x="484" y="86" fill="#EFBF62" font-family="Inter" font-size="11.5" font-weight="600">YES →</text>
+  <text x="484" y="101" fill="#EFBF62" font-family="Inter" font-size="11.5">not a planet</text><path d="M280 130 L280 150" stroke="#4D9FFF" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <rect x="110" y="154" width="340" height="40" rx="12" fill="#04060C" stroke="#202A38"/>
+  <text x="280" y="179" text-anchor="middle" fill="#DDE2F5" font-family="Inter" font-size="12.5">A clear second eclipse (SNR ≥ 7)?</text>
+  <path d="M450 174 L478 174" stroke="#EFBF62" stroke-width="1.5"/>
+  <text x="484" y="170" fill="#EFBF62" font-family="Inter" font-size="11.5" font-weight="600">YES →</text>
+  <text x="484" y="185" fill="#EFBF62" font-family="Inter" font-size="11.5">eclipsing binary</text><path d="M280 214 L280 234" stroke="#4D9FFF" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <rect x="110" y="238" width="340" height="40" rx="12" fill="#04060C" stroke="#202A38"/>
+  <text x="280" y="263" text-anchor="middle" fill="#DDE2F5" font-family="Inter" font-size="12.5">No class above 50%?</text>
+  <path d="M450 258 L478 258" stroke="#A78BFA" stroke-width="1.5"/>
+  <text x="484" y="254" fill="#A78BFA" font-family="Inter" font-size="11.5" font-weight="600">YES →</text>
+  <text x="484" y="269" fill="#A78BFA" font-family="Inter" font-size="11.5">needs review</text>
+  <path d="M280 298 L280 312" stroke="#54D8E8" stroke-width="1.5"/>
+  <text x="280" y="326" text-anchor="middle" fill="#54D8E8" font-family="Inter" font-size="12">otherwise: the classifier's answer stands</text>
+</svg></div></div>
+  </div>
+</section>
+<section class="relative py-14 border-t border-[#161D2B]/70">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    <div class="lg:col-span-6 lg:order-2">
+<div class="flex items-center gap-4 mb-5">
+  <div class="w-12 h-12 rounded-full flex items-center justify-center font-headline-sm text-[15px] text-white shrink-0"
+       style="background:#A78BFA22;border:1px solid #A78BFA66;box-shadow:0 0 18px #A78BFA33;color:#A78BFA">07</div>
+  <div>
+    <div class="font-label-caps text-label-caps uppercase tracking-[0.22em]" style="color:#A78BFA">Step 7 · Recycle</div>
+    <h2 class="font-headline-lg text-[26px] lg:text-[32px] text-[#F2F5FA] font-light tracking-[0.12em] uppercase leading-tight">Every answer<br>is useful</h2>
+  </div>
+</div><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">Most projects throw away anything that is not a planet. Here, every signal is handed to a module that describes what it really is:</p><div class="mt-5 p-4 rounded-2xl bg-[#090D17] border border-[#1A2333] flex gap-3 items-start"><span class="material-symbols-outlined text-[20px]" style="color:#A78BFA">lightbulb</span><div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] mb-1" style="color:#A78BFA">In short</div><div class="font-body-md text-[14px] text-[#DDE2F5]">Planet sizes and temperatures come with error bars from 1,000 random trials, so you know how sure the numbers are.</div></div></div></div>
+    <div class="lg:col-span-6 lg:order-1"><div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div class="rounded-[24px] bg-[#090D17] border border-[#1A2333] overflow-hidden flex flex-col"><div class="h-28 relative"><img src="app/static/stitch/stitch_1.jpg" class="w-full h-full object-cover opacity-90" alt="Planet module"><div class="absolute inset-0 bg-gradient-to-t from-[#090D17] to-transparent"></div></div><div class="p-5 pt-2"><div class="font-headline-sm text-[16px] text-[#F2F5FA] mb-2" style="color:#54D8E8">Planet module</div><ul class="space-y-1.5 text-[13px] text-[#C3C9D6]"><li class="flex gap-2"><span style="color:#54D8E8">•</span><span>size (in Jupiters or Earths)</span></li><li class="flex gap-2"><span style="color:#54D8E8">•</span><span>orbit distance and period</span></li><li class="flex gap-2"><span style="color:#54D8E8">•</span><span>rough temperature</span></li></ul></div></div><div class="rounded-[24px] bg-[#090D17] border border-[#1A2333] overflow-hidden flex flex-col"><div class="h-28 relative"><img src="app/static/stitch/stitch_3.jpg" class="w-full h-full object-cover opacity-90" alt="Binary module"><div class="absolute inset-0 bg-gradient-to-t from-[#090D17] to-transparent"></div></div><div class="p-5 pt-2"><div class="font-headline-sm text-[16px] text-[#F2F5FA] mb-2" style="color:#EFBF62">Binary module</div><ul class="space-y-1.5 text-[13px] text-[#C3C9D6]"><li class="flex gap-2"><span style="color:#EFBF62">•</span><span>true period (P or 2P?)</span></li><li class="flex gap-2"><span style="color:#EFBF62">•</span><span>both eclipses</span></li><li class="flex gap-2"><span style="color:#EFBF62">•</span><span>detached, semi-detached or contact</span></li></ul></div></div><div class="rounded-[24px] bg-[#090D17] border border-[#1A2333] overflow-hidden flex flex-col"><div class="h-28 relative"><img src="app/static/stitch/nasa_v838_monocerotis.jpg" class="w-full h-full object-cover opacity-90" alt="Variable module"><div class="absolute inset-0 bg-gradient-to-t from-[#090D17] to-transparent"></div></div><div class="p-5 pt-2"><div class="font-headline-sm text-[16px] text-[#F2F5FA] mb-2" style="color:#EC4899">Variable module</div><ul class="space-y-1.5 text-[13px] text-[#C3C9D6]"><li class="flex gap-2"><span style="color:#EC4899">•</span><span>type (e.g. RR Lyrae)</span></li><li class="flex gap-2"><span style="color:#EC4899">•</span><span>period and amplitude</span></li><li class="flex gap-2"><span style="color:#EC4899">•</span><span>checked against Gaia</span></li></ul></div></div><div class="rounded-[24px] bg-[#090D17] border border-[#1A2333] overflow-hidden flex flex-col"><div class="h-28 relative"><img src="app/static/stitch/nasa_pia26601_young_exoplanet.jpg" class="w-full h-full object-cover opacity-90" alt="Noise & review"><div class="absolute inset-0 bg-gradient-to-t from-[#090D17] to-transparent"></div></div><div class="p-5 pt-2"><div class="font-headline-sm text-[16px] text-[#F2F5FA] mb-2" style="color:#A78BFA">Noise & review</div><ul class="space-y-1.5 text-[13px] text-[#C3C9D6]"><li class="flex gap-2"><span style="color:#A78BFA">•</span><span>noise goes to a systematics log</span></li><li class="flex gap-2"><span style="color:#A78BFA">•</span><span>review cases show both likely modules</span></li></ul></div></div></div></div>
+  </div>
+</section>
+<section class="relative py-14 border-t border-[#161D2B]/70">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    <div class="lg:col-span-6 ">
+<div class="flex items-center gap-4 mb-5">
+  <div class="w-12 h-12 rounded-full flex items-center justify-center font-headline-sm text-[15px] text-white shrink-0"
+       style="background:#54D8E822;border:1px solid #54D8E866;box-shadow:0 0 18px #54D8E833;color:#54D8E8">08</div>
+  <div>
+    <div class="font-label-caps text-label-caps uppercase tracking-[0.22em]" style="color:#54D8E8">Step 8 · Explain</div>
+    <h2 class="font-headline-lg text-[26px] lg:text-[32px] text-[#F2F5FA] font-light tracking-[0.12em] uppercase leading-tight">Every verdict<br>says why</h2>
+  </div>
+</div><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">A verdict you cannot question is not much use. For every star, the app writes a short <b class='text-white font-medium'>“Why?”</b> list in plain sentences.</p><p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">The physics checks come first, because they can overrule the model. Then come the measurements that pushed the model most, found with <b class='text-white font-medium'>SHAP</b>, a method that measures exactly how much each number moved the answer. Finally, the verdict and the period are compared with NASA's catalog, and any disagreement is shown, not hidden.</p><div class="mt-5 p-4 rounded-2xl bg-[#090D17] border border-[#1A2333] flex gap-3 items-start"><span class="material-symbols-outlined text-[20px]" style="color:#54D8E8">lightbulb</span><div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] mb-1" style="color:#54D8E8">In short</div><div class="font-body-md text-[14px] text-[#DDE2F5]">The top drivers make physical sense: how regularly the light repeats, the dip's shape and whether its length fits the star.</div></div></div></div>
+    <div class="lg:col-span-6 "><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] "><div class="flex items-center justify-between mb-4"><span class="font-label-caps text-label-caps uppercase tracking-[0.18em] text-[#9AA8BA]">Results tab · HD 209458 b</span><span class="px-2.5 py-1 rounded-full text-[11px] uppercase tracking-wider" style="color:#54D8E8;background:#54D8E814;border:1px solid #54D8E840">Planet · 98%</span></div><div class="text-[15px] text-[#F2F5FA] mb-3">“This looks like a planet about 1.4 times the size of Jupiter that circles its star every 3.5 days.”</div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] text-[#54D8E8] mb-2">Why?</div><ul class="space-y-1.5 text-[13.5px] text-[#C3C9D6] mb-4"><li>• The dips last about as long as expected for something orbiting this star.</li><li>• Alternating dips have the same depth.</li><li>• The dips are U-shaped like a planet's, not V-shaped like a star's.</li><li>• The dip depth stays the same across all observing sectors.</li></ul><div class="p-3 rounded-xl bg-[#04060C] border border-[#1A2333] text-[13px] text-[#DDE2F5]"><span class="material-symbols-outlined text-[16px] text-[#54D8E8] align-[-3px]">check_circle</span> NASA catalog: TOI 5972.01 is a known planet → agrees</div><div class="mt-5"><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] text-[#9AA8BA] mb-4">What the model relies on most (SHAP)</div><div class="mb-3"><div class="flex justify-between text-[13px] mb-1.5"><span style="color:#4D9FFF">How regularly the light repeats</span><span class="font-mono text-[#F2F5FA]">1</span></div><div class="h-2.5 rounded-full bg-[#1F2230] overflow-hidden"><div class="h-full rounded-full" style="width:98%;background:#4D9FFF;box-shadow:0 0 12px #4D9FFF88"></div></div></div><div class="mb-3"><div class="flex justify-between text-[13px] mb-1.5"><span style="color:#4D9FFF">Lopsidedness of the brightness</span><span class="font-mono text-[#F2F5FA]">2</span></div><div class="h-2.5 rounded-full bg-[#1F2230] overflow-hidden"><div class="h-full rounded-full" style="width:96%;background:#4D9FFF;box-shadow:0 0 12px #4D9FFF88"></div></div></div><div class="mb-3"><div class="flex justify-between text-[13px] mb-1.5"><span style="color:#4D9FFF">Dip shape (U or V)</span><span class="font-mono text-[#F2F5FA]">3</span></div><div class="h-2.5 rounded-full bg-[#1F2230] overflow-hidden"><div class="h-full rounded-full" style="width:95%;background:#4D9FFF;box-shadow:0 0 12px #4D9FFF88"></div></div></div><div class="mb-3"><div class="flex justify-between text-[13px] mb-1.5"><span style="color:#4D9FFF">Dip length vs expected</span><span class="font-mono text-[#F2F5FA]">4</span></div><div class="h-2.5 rounded-full bg-[#1F2230] overflow-hidden"><div class="h-full rounded-full" style="width:86%;background:#4D9FFF;box-shadow:0 0 12px #4D9FFF88"></div></div></div></div></div></div>
+  </div>
+</section>
+<section class="relative py-14 border-t border-[#161D2B]/70">
+  
+<div class="flex items-center gap-4 mb-5">
+  <div class="w-12 h-12 rounded-full flex items-center justify-center font-headline-sm text-[15px] text-white shrink-0"
+       style="background:#54D8E822;border:1px solid #54D8E866;box-shadow:0 0 18px #54D8E833;color:#54D8E8">09</div>
+  <div>
+    <div class="font-label-caps text-label-caps uppercase tracking-[0.22em]" style="color:#54D8E8">Step 9 · Check the work</div>
+    <h2 class="font-headline-lg text-[26px] lg:text-[32px] text-[#F2F5FA] font-light tracking-[0.12em] uppercase leading-tight">How good is it?</h2>
+  </div>
+</div>
+  <p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">Every star was scored by a model that had never seen it (5-fold cross-validation, grouped by star). With only 100 stars, the scores can vary by about ±0.1 on new stars.</p>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+    <div class="rounded-[24px] bg-[#090D17] border border-[#1A2333] p-5 text-center"><div class="font-display-hero text-[38px] font-light tracking-[0.04em]" style="color:#54D8E8">0.76</div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] text-[#F2F5FA] mt-1">Macro-F1</div><div class="text-[12.5px] text-[#9AA8BA] mt-2">± 0.10, the main score across all four classes</div></div>
+    <div class="rounded-[24px] bg-[#090D17] border border-[#1A2333] p-5 text-center"><div class="font-display-hero text-[38px] font-light tracking-[0.04em]" style="color:#4D9FFF">77%</div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] text-[#F2F5FA] mt-1">Accuracy</div><div class="text-[12.5px] text-[#9AA8BA] mt-2">stars given the right answer</div></div>
+    <div class="rounded-[24px] bg-[#090D17] border border-[#1A2333] p-5 text-center"><div class="font-display-hero text-[38px] font-light tracking-[0.04em]" style="color:#EFBF62">96%</div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] text-[#F2F5FA] mt-1">Planets kept</div><div class="text-[12.5px] text-[#9AA8BA] mt-2">while letting through only 5% of binaries</div></div>
+    <div class="rounded-[24px] bg-[#090D17] border border-[#1A2333] p-5 text-center"><div class="font-display-hero text-[38px] font-light tracking-[0.04em]" style="color:#EC4899">0</div><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] text-[#F2F5FA] mt-1">Planets called binaries</div><div class="text-[12.5px] text-[#9AA8BA] mt-2">in the confusion matrix</div></div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+    <div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] "><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] text-[#9AA8BA] mb-4">Which model? (macro-F1, same folds)</div><div class="mb-3"><div class="flex justify-between text-[13px] mb-1.5"><span style="color:#54D8E8">XGBoost (calibrated), chosen</span><span class="font-mono text-[#F2F5FA]">0.76</span></div><div class="h-2.5 rounded-full bg-[#1F2230] overflow-hidden"><div class="h-full rounded-full" style="width:76%;background:#54D8E8;box-shadow:0 0 12px #54D8E888"></div></div></div><div class="mb-3"><div class="flex justify-between text-[13px] mb-1.5"><span style="color:#4D9FFF">Random forest</span><span class="font-mono text-[#F2F5FA]">0.71</span></div><div class="h-2.5 rounded-full bg-[#1F2230] overflow-hidden"><div class="h-full rounded-full" style="width:71%;background:#4D9FFF;box-shadow:0 0 12px #4D9FFF88"></div></div></div><div class="mb-3"><div class="flex justify-between text-[13px] mb-1.5"><span style="color:#94A3B8">Logistic regression</span><span class="font-mono text-[#F2F5FA]">0.63</span></div><div class="h-2.5 rounded-full bg-[#1F2230] overflow-hidden"><div class="h-full rounded-full" style="width:63%;background:#94A3B8;box-shadow:0 0 12px #94A3B888"></div></div></div></div>
+    <div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] "><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] text-[#9AA8BA] mb-4">Score per class (F1)</div><div class="mb-3"><div class="flex justify-between text-[13px] mb-1.5"><span style="color:#EFBF62">Eclipsing binary</span><span class="font-mono text-[#F2F5FA]">0.82</span></div><div class="h-2.5 rounded-full bg-[#1F2230] overflow-hidden"><div class="h-full rounded-full" style="width:82%;background:#EFBF62;box-shadow:0 0 12px #EFBF6288"></div></div></div><div class="mb-3"><div class="flex justify-between text-[13px] mb-1.5"><span style="color:#EC4899">Variable star</span><span class="font-mono text-[#F2F5FA]">0.80</span></div><div class="h-2.5 rounded-full bg-[#1F2230] overflow-hidden"><div class="h-full rounded-full" style="width:80%;background:#EC4899;box-shadow:0 0 12px #EC489988"></div></div></div><div class="mb-3"><div class="flex justify-between text-[13px] mb-1.5"><span style="color:#54D8E8">Planet</span><span class="font-mono text-[#F2F5FA]">0.77</span></div><div class="h-2.5 rounded-full bg-[#1F2230] overflow-hidden"><div class="h-full rounded-full" style="width:77%;background:#54D8E8;box-shadow:0 0 12px #54D8E888"></div></div></div><div class="mb-3"><div class="flex justify-between text-[13px] mb-1.5"><span style="color:#94A3B8">Noise</span><span class="font-mono text-[#F2F5FA]">0.66</span></div><div class="h-2.5 rounded-full bg-[#1F2230] overflow-hidden"><div class="h-full rounded-full" style="width:66%;background:#94A3B8;box-shadow:0 0 12px #94A3B888"></div></div></div></div>
+  </div>
+  <div class="mt-4"><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] "><div class="font-label-caps text-label-caps uppercase tracking-[0.18em] text-[#9AA8BA] mb-4">Beyond the classifier</div><div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-[14px]"><div class="p-4 rounded-2xl bg-[#04060C] border border-[#1A2333]"><div class="font-mono text-[22px]" style="color:#54D8E8">25 / 25</div><div class="text-[#C3C9D6] mt-1">planets: the search found the right period</div></div><div class="p-4 rounded-2xl bg-[#04060C] border border-[#1A2333]"><div class="font-mono text-[22px]" style="color:#EFBF62">25 / 25</div><div class="text-[#C3C9D6] mt-1">binaries found (15 at the true period, 10 at half)</div></div><div class="p-4 rounded-2xl bg-[#04060C] border border-[#1A2333]"><div class="font-mono text-[22px]" style="color:#EC4899">25 / 25</div><div class="text-[#C3C9D6] mt-1">variable stars: a clear cycle found</div></div><div class="p-4 rounded-2xl bg-[#04060C] border border-[#1A2333]"><div class="font-mono text-[22px]" style="color:#EFBF62">23 / 25</div><div class="text-[#C3C9D6] mt-1">unseen binaries: true period after the P-or-2P rule</div></div><div class="p-4 rounded-2xl bg-[#04060C] border border-[#1A2333]"><div class="font-mono text-[22px]" style="color:#EC4899">18 / 25</div><div class="text-[#C3C9D6] mt-1">variable-star types agree with Gaia</div></div><div class="p-4 rounded-2xl bg-[#04060C] border border-[#1A2333]"><div class="font-mono text-[22px]" style="color:#94A3B8">31 / 50</div><div class="text-[#C3C9D6] mt-1">binary types right; misses are one step too “close”</div></div></div></div></div>
+</section>
+<section class="relative py-14 border-t border-[#161D2B]/70">
+  
+<div class="flex items-center gap-4 mb-5">
+  <div class="w-12 h-12 rounded-full flex items-center justify-center font-headline-sm text-[15px] text-white shrink-0"
+       style="background:#4D9FFF22;border:1px solid #4D9FFF66;box-shadow:0 0 18px #4D9FFF33;color:#4D9FFF">10</div>
+  <div>
+    <div class="font-label-caps text-label-caps uppercase tracking-[0.22em]" style="color:#4D9FFF">Try it yourself</div>
+    <h2 class="font-headline-lg text-[26px] lg:text-[32px] text-[#F2F5FA] font-light tracking-[0.12em] uppercase leading-tight">The six demo stars</h2>
+  </div>
+</div>
+  <p class="font-body-lg text-[16px] text-[#C3C9D6] font-light leading-relaxed mb-4">Six stars the model never trained on, chosen to show both the clear wins and the known weak spots. Each opens instantly in the Analyzer.</p>
+  <div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] overflow-hidden mt-4">
+    <div class="grid grid-cols-12 px-6 py-3 text-[11px] uppercase tracking-[0.16em] text-[#9AA8BA] border-b border-[#1A2333]"><div class="col-span-3">Star</div><div class="col-span-3">What it really is</div><div class="col-span-2">Verdict</div><div class="col-span-4">What it shows</div></div>
+    <div class="grid grid-cols-12 px-6 py-3.5 text-[14px] border-b border-[#1A2333]/60 items-center"><div class="col-span-3 text-white">HD 209458 b</div><div class="col-span-3 text-[#C3C9D6]">Confirmed planet</div><div class="col-span-2" style="color:#54D8E8">Planet (98%)</div><div class="col-span-4 text-[#9AA8BA] text-[13px]">Period 3.52 d, about 1.35 Jupiters</div></div><div class="grid grid-cols-12 px-6 py-3.5 text-[14px] border-b border-[#1A2333]/60 items-center"><div class="col-span-3 text-white">TOI 184.01</div><div class="col-span-3 text-[#C3C9D6]">Eclipsing binary</div><div class="col-span-2" style="color:#EFBF62">Eclipsing binary</div><div class="col-span-4 text-[#9AA8BA] text-[13px]">Model leaned planet; second-eclipse rule corrected it</div></div><div class="grid grid-cols-12 px-6 py-3.5 text-[14px] border-b border-[#1A2333]/60 items-center"><div class="col-span-3 text-white">HIP 36213</div><div class="col-span-3 text-[#C3C9D6]">RR Lyrae variable</div><div class="col-span-2" style="color:#EC4899">Variable star (70%)</div><div class="col-span-4 text-[#9AA8BA] text-[13px]">0.628 d, type RR Lyrae, matches Gaia</div></div><div class="grid grid-cols-12 px-6 py-3.5 text-[14px] border-b border-[#1A2333]/60 items-center"><div class="col-span-3 text-white">TOI 476.01</div><div class="col-span-3 text-[#C3C9D6]">Unconfirmed candidate</div><div class="col-span-2" style="color:#A78BFA">Needs review</div><div class="col-span-4 text-[#9AA8BA] text-[13px]">Honest doubt: planet 47% vs variable 20%</div></div><div class="grid grid-cols-12 px-6 py-3.5 text-[14px] border-b border-[#1A2333]/60 items-center"><div class="col-span-3 text-white">TOI 1385.01</div><div class="col-span-3 text-[#C3C9D6]">Eclipsing binary</div><div class="col-span-2" style="color:#EFBF62">Eclipsing binary</div><div class="col-span-4 text-[#9AA8BA] text-[13px]">Found 4.52 d, half the true 9.05 d (equal eclipses)</div></div><div class="grid grid-cols-12 px-6 py-3.5 text-[14px] border-b border-[#1A2333]/60 items-center"><div class="col-span-3 text-white">TOI 862.01</div><div class="col-span-3 text-[#C3C9D6]">Candidate on a variable star</div><div class="col-span-2" style="color:#A78BFA">Needs review</div><div class="col-span-4 text-[#9AA8BA] text-[13px]">Small dip buried under the star's own changes</div></div>
+  </div>
+  <div class="mt-5"><a href="#" data-path="demo-stars" class="inline-flex items-center gap-3 pl-5 pr-1.5 py-1.5 rounded-full bg-[#0D1424] border border-[#26354B] text-[#DDE2F5] hover:border-[#4D9FFF] transition-all">
+    <span class="text-[14px]">Open the demo stars</span><span class="w-8 h-8 rounded-full bg-[#4D9FFF] text-[#002A78] flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">north_east</span></span></a></div>
+</section>
+<section class="relative py-14 border-t border-[#161D2B]/70">
+  
+<div class="flex items-center gap-4 mb-5">
+  <div class="w-12 h-12 rounded-full flex items-center justify-center font-headline-sm text-[15px] text-white shrink-0"
+       style="background:#EFBF6222;border:1px solid #EFBF6266;box-shadow:0 0 18px #EFBF6233;color:#EFBF62">11</div>
+  <div>
+    <div class="font-label-caps text-label-caps uppercase tracking-[0.22em]" style="color:#EFBF62">Honest limits</div>
+    <h2 class="font-headline-lg text-[26px] lg:text-[32px] text-[#F2F5FA] font-light tracking-[0.12em] uppercase leading-tight">Where not to trust it</h2>
+  </div>
+</div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+    <div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] "><span class="material-symbols-outlined text-[22px]" style="color:#EFBF62">dataset</span><div class="font-headline-sm text-[16px] text-white mt-2 mb-1.5">Small dataset</div><div class="text-[13.5px] text-[#9AA8BA] leading-relaxed">100 stars show the method works, not that it is final. Scores could shift by about ±0.1 on new stars.</div></div><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] "><span class="material-symbols-outlined text-[22px]" style="color:#EFBF62">light_mode</span><div class="font-headline-sm text-[16px] text-white mt-2 mb-1.5">Brightness only</div><div class="text-[13.5px] text-[#9AA8BA] leading-relaxed">It cannot rule out a fainter eclipsing binary sitting next to the star on the sky; that needs pixel-level or telescope follow-up.</div></div><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] "><span class="material-symbols-outlined text-[22px]" style="color:#EFBF62">contrast</span><div class="font-headline-sm text-[16px] text-white mt-2 mb-1.5">Equal eclipses</div><div class="text-[13.5px] text-[#9AA8BA] leading-relaxed">When both eclipses of a binary look the same, it looks like one dip at half the true period (TOI 1385.01).</div></div><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] "><span class="material-symbols-outlined text-[22px]" style="color:#EFBF62">brightness_6</span><div class="font-headline-sm text-[16px] text-white mt-2 mb-1.5">Starspots</div><div class="text-[13.5px] text-[#9AA8BA] leading-relaxed">Spots grow and fade within weeks, so a spotted star's period can come out at a multiple of the true one.</div></div><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] "><span class="material-symbols-outlined text-[22px]" style="color:#EFBF62">graphic_eq</span><div class="font-headline-sm text-[16px] text-white mt-2 mb-1.5">Noise vs variable</div><div class="text-[13.5px] text-[#9AA8BA] leading-relaxed">These two overlap most; noise has the lowest score (F1 0.66).</div></div><div class="rounded-[28px] bg-[#090D17] border border-[#1A2333] p-6 shadow-[0_4px_25px_rgba(0,0,0,0.35)] "><span class="material-symbols-outlined text-[22px]" style="color:#EFBF62">tune</span><div class="font-headline-sm text-[16px] text-white mt-2 mb-1.5">Training range</div><div class="text-[13.5px] text-[#9AA8BA] leading-relaxed">Trained on 2-minute data, TESS magnitude 8–12 and periods up to 15 days; outside that, be careful.</div></div>
+  </div>
+  <div class="mt-12 rounded-[28px] bg-[#090D17] border border-[#1A2333] p-10 text-center">
+    <h3 class="font-headline-lg text-[26px] text-[#F2F5FA] font-light tracking-[0.16em] uppercase">Ready to follow a real star?</h3>
+    <p class="text-[15px] text-[#9AA8BA] mt-3 max-w-xl mx-auto">Open the Analyzer, pick one of the six demo stars and watch each step of this story on real TESS data.</p>
+    <a href="#" data-path="analyzer" class="mt-6 inline-flex items-center gap-3 pl-6 pr-2 py-2 rounded-full bg-[#4D9FFF] text-[#002A78] font-medium shadow-[0_4px_20px_rgba(77,159,255,0.3)]">
+      <span>Open the Analyzer</span><span class="w-8 h-8 rounded-full bg-white flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">arrow_forward</span></span></a>
+  </div>
+</section>
+  </div>
 </div></main><footer class="w-full bg-surface-container-lowest/80 py-space-lg px-margin-desktop mt-auto shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]"><div class="flex flex-col md:flex-row items-center justify-between gap-space-md text-on-surface-variant font-body-sm text-body-sm"><div class="flex items-center gap-space-sm"><span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(93,230,255,0.8)]"></span><span class="">Exoplanet Atlas • NASA TESS &amp; Mikulski Archive (MAST) • Astrophysics Machine Learning Pipeline</span></div><div class="flex items-center gap-space-lg"><a class="hover:text-on-surface transition-colors font-label-caps text-label-caps uppercase" href="#">GitHub Open Science</a><span class="text-outline-variant">•</span><a class="hover:text-on-surface transition-colors font-label-caps text-label-caps uppercase" href="#">Privacy &amp; Telemetry</a></div></div></footer></div>
 
 </body></html>
