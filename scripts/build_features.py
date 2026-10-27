@@ -11,6 +11,15 @@ A run estimated at more than 30 minutes refuses to start unless --confirm-long
 is given.
 """
 
+# ── In plain words ───────────────────────────────────────────────────────────
+# DATASET STEP 3 runner: builds data/processed/features.parquet (the training table).
+# Run:    python scripts/build_features.py --n-jobs 3 --confirm-long
+# Reads:  data/labels/training_set.parquet (which stars, which sectors)
+# Writes: one JSON per star in data/processed/features/ and the combined
+#         data/processed/features.parquet (see src/triage/dataset.py).
+# Next:   python scripts/train_triage.py trains the model on that table.
+# ─────────────────────────────────────────────────────────────────────────────
+
 from __future__ import annotations
 
 import argparse

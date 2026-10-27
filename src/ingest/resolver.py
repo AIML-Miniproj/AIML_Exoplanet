@@ -1,5 +1,16 @@
 """Resolve a star name or TIC ID to a TIC entry with stellar parameters."""
 
+# ── In plain words ───────────────────────────────────────────────────────────
+# DATASET: facts about each star.
+# What: looks a star up in the TESS Input Catalog (TIC) by name or TIC ID and keeps
+#   its temperature, radius, mass, surface gravity, brightness, distance and
+#   contamination from neighbours. These become 5 of the 56 features and are used for
+#   the planet size, orbit and expected dip length.
+# Where: one small file per star, data/cache/resolver/tic_<TIC ID>.json
+# Format: JSON (plain text "key": value pairs, readable in any editor).
+#   Re-used for 30 days before it is looked up again.
+# ─────────────────────────────────────────────────────────────────────────────
+
 from __future__ import annotations
 
 import logging

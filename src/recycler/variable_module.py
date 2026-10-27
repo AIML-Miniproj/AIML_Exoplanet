@@ -77,6 +77,7 @@ def classify(features: dict[str, Any]) -> tuple[str, str]:
     amp = _f(features, "amp_p2p_ppm") / 1e6
     power = _f(features, "ls_power_1")
     teff = _f(features, "teff")
+    # 'regular' = one periodogram peak explains at least 30% of the variance.
     regular = math.isfinite(power) and power >= REGULAR_POWER
     if not math.isfinite(p) or not (math.isfinite(fap) and fap < -2):
         return "OTHER", "no significant repeating pattern"

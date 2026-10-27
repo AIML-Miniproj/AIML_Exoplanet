@@ -12,10 +12,10 @@
 ![XGBoost](https://img.shields.io/badge/XGBoost-3.2-189FDD)
 ![SHAP](https://img.shields.io/badge/Explainable%20AI-SHAP-8A2BE2)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-148%20passing-2EA44F)
-![Macro F1](https://img.shields.io/badge/macro--F1-0.76%20±%200.10-54D8E8)
+![Tests](https://img.shields.io/badge/tests-155%20passing-2EA44F)
+![Macro F1](https://img.shields.io/badge/macro--F1-0.87%20±%200.05-54D8E8)
 
-[**Overview**](#-overview) · [**The app**](#-the-app) · [**Architecture**](#-system-architecture) · [**Pipeline**](#-the-pipeline) · [**Results**](#-results) · [**Run it**](#-getting-started) · [**Model card**](docs/MODEL_CARD.md)
+[**Overview**](#-overview) · [**The app**](#-the-app) · [**Architecture**](#-system-architecture) · [**Pipeline**](#-the-pipeline) · [**Results**](#-results) · [**Run it**](#-getting-started) · [**Model card**](docs/MODEL_CARD.md) · [**Models explained**](docs/MODELS_EXPLAINED.md)
 
 <img src="docs/screenshots/home.png" alt="Exoplanet Atlas home page" width="100%">
 
@@ -26,6 +26,7 @@
 ## 📑 Table of contents
 
 1. [Overview](#-overview)
+    - [What's new](#-whats-new)
 2. [Highlights](#-highlights)
 3. [The app](#-the-app)
 4. [System architecture](#-system-architecture)
@@ -70,7 +71,7 @@ and orbit, a binary's true period and configuration, or a variable star's type.
 
 **Why it matters.** Deep-learning vetters reach high accuracy but need thousands of
 labelled examples and answer only *planet or not*. This project shows that a small,
-carefully labelled dataset (**100 stars**) combined with domain knowledge gives a
+carefully labelled dataset (**400 stars**) combined with domain knowledge gives a
 useful, **multi-class and explainable** triage tool. Every verdict comes with
 calibrated probabilities and plain-English reasons.
 
@@ -79,6 +80,30 @@ calibrated probabilities and plain-English reasons.
 > signal as planet, eclipsing binary, variable star or noise with calibrated
 > confidence, explains the decision, and characterises the object instead of
 > discarding non-planet signals.
+
+---
+
+## 🆕 What's new
+
+The latest round of work (October 2026) quadrupled the training set, added flare
+detection and brought the app up to date.
+
+| Change | Details |
+|---|---|
+| **400 training stars** (was 100) | 100 per class, same catalogs and scripts. Macro-F1 **0.87 ± 0.05** (was 0.76 ± 0.10); every class improved, noise most (F1 0.66 → 0.81), and the spread between folds halved |
+| **Two more classifiers** | SVM (RBF kernel, macro-F1 0.80) and k-nearest neighbours (0.71) evaluated on the same folds with accuracy, precision, recall, F1, PR-AUC, log loss, per-class F1 and confusion matrices (`scripts/compare_classifiers.py`); shown in the app's Model comparison table and on the How It Works page |
+| **Ensembles tested** | Soft, weighted soft (nested weights) and hard voting, plus seed-bagged XGBoost (`scripts/compare_ensembles.py`, and soft voting in `src/triage/train.py`); none beat XGBoost alone, which is kept for its exact per-star explanations |
+| **Optimisation** | Hyperparameter tuning with RandomizedSearchCV in nested CV (`scripts/tune_xgboost.py`): 0.84 vs 0.87, hand-chosen settings kept. Feature selection by SHAP ranking and recursive elimination in nested CV (`scripts/select_features.py`): no gain, 40 of 56 features already enough; the curve is shown in the app |
+| **Flare detection** | New `src/recycler/flare_module.py`: finds flares on the uncleaned light curve, with physical guards against eclipses, Cepheid rises, pulsation peaks and binaries' repeating bumps. 3 flare stars among the 400 (all cool dwarfs); about 9 in 10 flares of ~1 % recovered in injection tests. Shown in the Analyzer's Results tab and as markers on the raw light curve; not a model input |
+| **Bug fixes** | BLS no longer crashes when data gaps leave the twice-the-period test empty (`src/detect/bls.py`); a non-numeric value in the sector 89 target list is handled (`src/ingest/catalogs.py`); failed stars now report where they failed (`src/triage/dataset.py`) |
+| **Clearer explanations** | A clear second eclipse is now listed as the first reason even when the model already says "binary" (`src/recycler/router.py`) |
+| **Star selection** | The RR Lyrae / Cepheid swap scales with class size (`scripts/select_stars.py`) |
+| **App and pages** | Home, Learn and How It Works show the 400-star numbers; Demo Stars gives unconfirmed candidates a "Planet Candidate" badge; all 6 demo reports rebuilt with the new model |
+| **Tests** | 155 offline tests (new `tests/test_flare_module.py`) |
+| **Data access** | Workarounds for an incomplete SSL chain on `tess.mit.edu` and slow MAST queries, documented under [Rebuilding everything](#-rebuilding-everything-from-scratch) |
+
+Still to do: re-run the 10-sector binary period check (`scripts/eval_eb_module.py`)
+for the new binary sets, and add an independent held-out test set.
 
 ---
 
@@ -93,9 +118,10 @@ calibrated probabilities and plain-English reasons.
 | 🤖 **Calibrated XGBoost** | Four classes, Platt-calibrated probabilities, honest grouped cross-validation |
 | ⚖️ **Physics router** | Size limit, secondary-eclipse rule and a 50 % review threshold can overrule the model |
 | ♻️ **False-positive recycling** | Planet, eclipsing-binary and variable-star modules characterise every signal |
+| ☄️ **Flare check** | Every star is checked for flares on the uncleaned light curve, with physics guards against eclipses and pulsations |
 | 💬 **Explainable** | A plain-English *"Why?"* for every verdict, built from physics checks and SHAP |
 | 🌌 **Polished web app** | Five pages: Home, Learn, Analyzer, Demo Stars and How It Works |
-| 🐳 **MLOps-ready** | 148 offline tests, GitHub Actions CI on Ubuntu and Windows, Docker, Streamlit Cloud |
+| 🐳 **MLOps-ready** | 155 offline tests, GitHub Actions CI on Ubuntu and Windows, Docker, Streamlit Cloud |
 
 ---
 
@@ -157,7 +183,7 @@ runs the whole pipeline on fresh TESS data).
 | 4 | **Measure** | 56 features: trapezoid shape, odd/even, secondary eclipse, per-sector depth, Lomb–Scargle, autocorrelation, Fourier, stellar parameters | `src/vetting/` |
 | 5 | **Decide** | Calibrated four-class XGBoost gives a probability for each class | `src/triage/` |
 | 6 | **Double-check** | Physics router can overrule the classifier (see below) | `src/recycler/router.py` |
-| 7 | **Recycle** | Planet, EB and variable modules characterise the signal; noise goes to a systematics log | `src/recycler/` |
+| 7 | **Recycle** | Planet, EB and variable modules characterise the signal; noise goes to a systematics log; every star is also checked for flares | `src/recycler/` |
 
 ### How the router decides
 
@@ -210,7 +236,7 @@ examples.
 | Variable-star labels | Gaia DR3 variability classification, cross-matched to TIC by position |
 | Noise labels | TOI false alarms (FA) plus random 2-minute targets in none of the lists |
 | Stellar parameters | TESS Input Catalog: Teff, radius, log g, Tmag, contamination ratio |
-| Size | **100 stars, 25 per class**, brightness-matched; 6 more held out for the demo |
+| Size | **400 stars, 100 per class**, brightness-matched; 6 more held out for the demo (the first model used 25 per class) |
 | Domain | Tmag 8–12, two sectors per star (the two closest in time) |
 | Split | No fixed split: 5-fold `StratifiedGroupKFold` grouped by TIC ID |
 
@@ -218,7 +244,7 @@ Labels are built by `scripts/build_labels.py`. When a star appears in several ca
 a fixed priority is applied (confirmed planet > unconfirmed candidate > EB catalog >
 Gaia variable > false alarm / random) and every conflict is logged. Unconfirmed
 candidates are never used for training; they are kept as demo targets.
-`scripts/select_stars.py` then draws 25 stars per class with **matched brightness**, so
+`scripts/select_stars.py` then draws 100 stars per class with **matched brightness**, so
 no class can be recognised simply by how bright it is.
 
 ---
@@ -256,11 +282,11 @@ so every star is predicted exactly once by a model that never saw it.
 | Logistic regression | Linear baseline | `C=0.5`, balanced weights, `StandardScaler`, median imputation + indicators |
 
 - **Conservative hyperparameters** (shallow trees, low learning rate, subsampling, L2):
-  a grid search on 100 stars would mostly fit noise in the validation folds.
+  a grid search on a few hundred stars would mostly fit noise in the validation folds.
 - **Calibration:** raw XGBoost scores are over-confident, so a per-class sigmoid
   (**Platt scaling**) is fitted on out-of-fold predictions, itself cross-validated.
   "70 % planet" then means roughly 7 in 10 such cases are planets.
-- **Saving:** the final model is refitted on all 100 stars and saved as XGBoost JSON
+- **Saving:** the final model is refitted on all 400 stars and saved as XGBoost JSON
   together with a metadata file holding the feature list, calibration curves,
   thresholds, training date and a hash of the label file.
 
@@ -270,50 +296,81 @@ so every star is predicted exactly once by a model that never saw it.
 
 ### Model comparison (5-fold grouped CV, macro averages)
 
-| Model | Accuracy | Precision | Recall | **F1** | PR-AUC |
-|---|:-:|:-:|:-:|:-:|:-:|
-| Logistic regression | 0.65 | 0.63 | 0.65 | 0.63 | 0.76 |
-| Random forest | 0.71 | 0.76 | 0.71 | 0.71 | 0.83 |
-| **XGBoost (calibrated)** | **0.77** | **0.79** | **0.77** | **0.76 ± 0.10** | 0.82 |
+| Model | Accuracy | Precision | Recall | **F1** | PR-AUC | Log loss |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|
+| **XGBoost (calibrated, used by the app)** | **0.87** | **0.88** | **0.87** | **0.87 ± 0.05** | 0.92 | **0.43** |
+| Random forest | 0.84 | 0.85 | 0.84 | 0.84 ± 0.03 | 0.90 | 0.55 |
+| SVM (RBF kernel) | 0.80 | 0.81 | 0.80 | 0.80 ± 0.04 | 0.87 | 0.54 |
+| Logistic regression | 0.78 | 0.79 | 0.78 | 0.79 ± 0.04 | 0.84 | 0.73 |
+| K-nearest neighbours (k = 9) | 0.72 | 0.73 | 0.72 | 0.71 ± 0.08 | 0.82 | 1.06 |
+
+400 stars, 100 per class. The first model (100 stars) scored macro-F1 0.76 ± 0.10.
+SVM and KNN need scaled, gap-free features (median imputation + standardisation, like
+logistic regression); KNN suffers most from the 56 dimensions (it calls 32 noise stars
+"planet"). Tree ensembles stay ahead on this small, partly missing table. Full metrics,
+per-class F1 and confusion matrices: `scripts/compare_classifiers.py`
+(`outputs/classifier_comparison.md`); the app's Model evaluation section shows them too.
+
+### Ensembles and optimisation (none beat XGBoost alone)
+
+| Experiment | Macro-F1 | vs XGBoost (0.871) | Script |
+|---|:-:|:-:|---|
+| Soft voting XGBoost + random forest | 0.866 ± 0.041 | -0.005 | `scripts/compare_ensembles.py` |
+| Weighted soft voting XGBoost / RF / SVM (weights chosen by nested CV) | 0.864 ± 0.034 | -0.008 | `scripts/compare_ensembles.py` |
+| Hard voting XGBoost + RF + SVM | 0.852 ± 0.022 | -0.019 | `scripts/compare_ensembles.py` |
+| Hard voting, all 5 models | 0.832 ± 0.022 | -0.040 | `scripts/compare_ensembles.py` |
+| Seed-bagged XGBoost (10 seeds) | 0.866 ± 0.046 | -0.005 | `scripts/compare_ensembles.py` |
+| Hyperparameter tuning (RandomizedSearchCV, 40 settings, nested CV) | 0.839 ± 0.036 | -0.032 | `scripts/tune_xgboost.py` |
+| Feature selection (SHAP ranking / RFE, k chosen by nested CV) | 0.868 ± 0.034 | ±0.00 (40 of 56 features are enough) | `scripts/select_features.py` |
+
+Why: the models share most of their mistakes (of XGBoost's 52 errors, random forest
+also makes 44), so voting has little to correct; a hard vote of XGBoost + RF + SVM can
+fix 4 XGBoost errors but breaks 12 correct answers. With about 100 stars per inner
+validation fold, tuned settings and voting weights mostly fit noise (they change from
+fold to fold). The hand-chosen XGBoost settings and all 56 features are kept; the
+feature-selection curve is shown in the app.
+
+A study guide to all five models, feature scaling, ensembles and optimisation (what each is, what we did, the numbers and where the code is): [docs/MODELS_EXPLAINED.md](docs/MODELS_EXPLAINED.md).
 
 ### Per-class scores of the selected model (mean ± std over the folds)
 
 | Class | Precision | Recall | F1 | PR-AUC |
 |---|:-:|:-:|:-:|:-:|
-| 🪐 Planet | 0.81 ± 0.14 | 0.76 ± 0.17 | 0.77 ± 0.11 | 0.89 ± 0.08 |
-| 🌗 Eclipsing binary | 0.94 ± 0.13 | 0.76 ± 0.22 | 0.82 ± 0.11 | 0.92 ± 0.07 |
-| ✨ Variable star | 0.80 ± 0.12 | 0.80 ± 0.14 | 0.80 ± 0.13 | 0.78 ± 0.14 |
-| 〰️ Noise | 0.61 ± 0.18 | 0.76 ± 0.33 | 0.66 ± 0.24 | 0.68 ± 0.20 |
+| 🪐 Planet | 0.88 ± 0.04 | 0.87 ± 0.06 | 0.87 ± 0.04 | 0.95 ± 0.03 |
+| 🌗 Eclipsing binary | 0.97 ± 0.03 | 0.91 ± 0.09 | 0.94 ± 0.04 | 0.96 ± 0.04 |
+| ✨ Variable star | 0.86 ± 0.10 | 0.88 ± 0.08 | 0.87 ± 0.07 | 0.93 ± 0.06 |
+| 〰️ Noise | 0.80 ± 0.09 | 0.82 ± 0.07 | 0.81 ± 0.06 | 0.84 ± 0.10 |
 
 **Key observations**
 
 - **No planet was ever called an eclipsing binary.** The main confusion is between
-  shallow planets and noise (6 planets called noise, 4 noise stars called planet).
-- With a threshold that lets through only **5 % of eclipsing binaries**, **96 % of real
-  planets** are still kept.
-- XGBoost's lead comes mainly from the variable-star class (F1 0.80 vs 0.72 and 0.49):
-  variability features interact non-linearly with dip features.
+  shallow planets and noise (9 of 100 planets called noise, 8 noise stars called planet), and between variables and noise (11 variables called noise).
+- With a threshold that lets through only **5 % of eclipsing binaries**, **88 % of real
+  planets** are still kept (± 16 % between folds; 91 % pooled).
+- XGBoost leads in every class; going from 100 to 400 stars helped noise most
+  (F1 0.66 → 0.81) and halved the spread between folds.
 
 ### Pipeline and recycler checks
 
 | Check | Result |
 |---|---|
-| Period recovered by BLS: planets | **25 / 25** at the catalog period |
-| Period recovered by BLS: eclipsing binaries | **25 / 25** (15 at the true period, 10 at half) |
-| Clear periodicity found: variable stars | **25 / 25** (false-alarm probability < 1 %) |
-| EB true period after the P-vs-2P rule | **23 / 25** on unseen binaries, 22 / 25 on training binaries |
-| Variable-star type vs Gaia | **18 / 25** (RR Lyrae 4/4, Cepheid 4/4, rotation 6/8) |
-| EB configuration (detached / semi-detached / contact) | 31 / 50; every miss is one step too "close" |
+| Period recovered by BLS: planets | **89 / 100** (88 at the catalog period, 1 at half) |
+| Period recovered by BLS: eclipsing binaries | **97 / 100** (73 at the true period, 24 at half) |
+| Clear periodicity found: variable stars | **100 / 100** (false-alarm probability < 1 %) |
+| EB true period after the P-vs-2P rule | 2 sectors per star: **16 / 25** unseen, 90 / 100 training. Up to 10 sectors (earlier set): **23 / 25** unseen |
+| Variable-star type vs Gaia | **18 / 25** (earlier set; RR Lyrae 4/4, Cepheid 4/4, rotation 6/8) |
+| EB configuration (detached / semi-detached / contact) | 31 / 50 (earlier sets); every miss is one step too "close" |
+| Flares | 3 flare stars among the 400 (all cool dwarfs; none among planets or pulsators); about 9 in 10 flares of ~1 % or more recovered in injection tests |
 
 ### The six demo stars (never used for training)
 
 | Star | True nature | Verdict | What it demonstrates |
 |---|---|---|---|
-| **HD 209458 b** | Confirmed planet | Planet (98 %) | The textbook case: 3.5248 d (catalog 3.5247 d), radius ≈ 1.35 R<sub>J</sub> |
-| **TOI 184.01** | Eclipsing binary | Eclipsing binary | Recycling: the classifier leaned planet; the secondary-eclipse rule corrected it |
-| **HIP 36213** | RR Lyrae variable | Variable (70 %) | 0.6284 d, typed RR Lyrae, agrees with Gaia |
-| **TOI 476.01** | Unconfirmed candidate | Needs review | Honest uncertainty: planet 47 % vs variable 20 %, both modules shown |
-| **TOI 1385.01** | Eclipsing binary | Eclipsing binary | Known limitation: 4.52 d, half the true 9.05 d (equal eclipses) |
+| **HD 209458 b** | Confirmed planet | Planet (99 %) | The textbook case: 3.5248 d (catalog 3.5247 d), radius ≈ 1.35 R<sub>J</sub> |
+| **TOI 184.01** | Eclipsing binary | Eclipsing binary (88 %) | Recycling: a TESS "planet candidate" that is two stars; the model calls it a binary and the second eclipse confirms it (the 100-star model leaned planet and needed the rule) |
+| **HIP 36213** | RR Lyrae variable | Variable (98 %) | 0.6284 d, typed RR Lyrae, agrees with Gaia |
+| **TOI 476.01** | Unconfirmed candidate | Planet (61 %, medium) | Leans planet, still unconfirmed by NASA (the 100-star model kept it for review at 47 %) |
+| **TOI 1385.01** | Eclipsing binary | Eclipsing binary (79 %) | Known limitation: 4.52 d, half the true 9.05 d (equal eclipses) |
 | **TOI 862.01** | Candidate on a variable star | Needs review | A small dip buried under the star's own variability |
 
 ---
@@ -366,7 +423,7 @@ AIML_Exoplanet/
 │   ├── detect/             BLS search (optional TLS cross-check)
 │   ├── vetting/            transit, variability and per-sector features
 │   ├── triage/             labels, feature runner, training, model
-│   ├── recycler/           router + planet / EB / variable / noise modules
+│   ├── recycler/           router + planet / EB / variable / noise / flare modules
 │   ├── pipeline.py         one star end to end (analyze_target)
 │   └── demo_cache.py       precomputed demo reports
 ├── ui/
@@ -458,13 +515,19 @@ that would run longer than 10 minutes stop and ask for `--confirm-long`.
 
 | Step | Command | Time |
 |---|---|---|
-| 1. Labels from public catalogs (TOI list, TESS EB catalog, Gaia variables) | `python scripts/build_labels.py` | a few minutes the first time (catalog downloads, then cached) |
-| 2. Pick 25 stars per class | `python scripts/select_stars.py` | under a minute |
-| 3. Run the pipeline on every training star | `python scripts/build_features.py` | ~8 min with light curves cached; over an hour when every light curve must be downloaded |
+| 1. Labels from public catalogs (TOI list, TESS EB catalog, Gaia variables) | `python scripts/build_labels.py --limit-per-class 400` | a few minutes the first time (catalog downloads, then cached) |
+| 2. Pick 100 stars per class | `python scripts/select_stars.py --per-class 100` | under a minute |
+| 3. Run the pipeline on every training star | `python scripts/build_features.py --n-jobs 3 --confirm-long` | ~20 min for 400 stars with light curves cached; hours when every light curve must be downloaded |
 | 4. Train and cross-validate | `python scripts/train_triage.py` | about a minute |
 | 5. Precomputed demo reports | `python scripts/build_examples.py` | ~3 min |
 | 6. Evaluation summary for the app (`models/model_evaluation.json`) | `python scripts/save_evaluation.py` | seconds |
 | 7. *(optional)* README screenshots | `python scripts/take_screenshots.py` | ~1 min (needs Playwright) |
+
+Model experiments (run after step 4 and before step 6, so the app's Model evaluation
+shows them; each writes to `outputs/` only): `scripts/compare_classifiers.py` (SVM, KNN
+and the baselines, ~1 min), `scripts/compare_ensembles.py` (voting, ~2 min),
+`scripts/tune_xgboost.py` (nested hyperparameter search, ~1 min),
+`scripts/select_features.py` (nested feature selection, ~4 min).
 
 Optional checks: `scripts/eval_eb_period.py` (EB true-period accuracy),
 `scripts/eval_eb_module.py`, `scripts/eval_recycler_rules.py`,
@@ -473,6 +536,13 @@ Optional checks: `scripts/eval_eb_period.py` (EB true-period accuracy),
 `python scripts/build_features.py --labels data/labels/fresh_eb_set.parquet --feature-set fresh_eb`.
 All tunable settings (worker count, per-star timeout, period range, thresholds) live
 in `config.py`.
+
+Known data-access issues (October 2026): `tess.mit.edu` (the 2-minute target lists in
+step 1) sends an incomplete SSL certificate chain, so Python's `requests` refuses it
+while `curl` works; download the lists with `curl` into
+`data/labels/raw/target_lists/S###.parquet` (columns `TICID, Tmag, RA, Dec`). MAST can
+be slow and very large catalog queries may hang; every step caches per sector or per
+star, so an interrupted step can simply be rerun.
 
 ---
 
@@ -484,7 +554,7 @@ in `config.py`.
 | **Data versioning** | Raw data is not in git, but every model stores a hash of the label file it was trained on; the dataset can be rebuilt deterministically with the numbered scripts and a fixed seed |
 | **Experiment tracking** | File-based: `models/triage_meta.json` (parameters, per-fold metrics, calibration, thresholds, top SHAP features) and `models/model_evaluation.json` |
 | **Model versioning** | Model and metadata are committed together, so each git revision pins one exact model |
-| **Automated testing** | 148 offline tests on synthetic light curves (preprocessing, detection, vetting, labels, triage, recycler, pipeline) plus app smoke tests for every page and demo star |
+| **Automated testing** | 155 offline tests on synthetic light curves (preprocessing, detection, vetting, labels, triage, recycler, pipeline) plus app smoke tests for every page and demo star |
 | **Continuous integration** | GitHub Actions runs Ruff and the test suite on **Ubuntu and Windows** for every push and pull request |
 | **Containerisation** | `Dockerfile` + `docker-compose.yml` |
 | **Monitoring** | Noise and needs-review signals are appended to a systematics log for later inspection |
@@ -512,8 +582,9 @@ grant the Streamlit OAuth app access (GitHub → Settings → Applications → S
 
 ## ⚠️ Limitations
 
-- **Small dataset.** 100 stars show that the method works, not that it can be relied
-  on blindly; scores could shift by about ±0.1 on new stars.
+- **Academic-scale dataset.** 400 stars (100 per class) give much steadier scores than
+  the first 100, but there is no separate held-out test set yet; scores could shift by
+  about ±0.05 on new stars.
 - **Brightness only.** A fainter eclipsing binary blended with the target on the sky
   cannot be ruled out; that needs pixel-level or ground-based follow-up.
 - **Equal-eclipse binaries.** When both eclipses look alike, the period comes out at
@@ -524,6 +595,8 @@ grant the Streamlit OAuth app access (GitHub → Settings → Applications → S
   because Gaia screening was only possible for brighter stars.
 - **Training domain.** 2-minute data, Tmag 8–12, periods up to 15 days. Outside this
   range, treat results with care.
+- **Flares.** Very short flares (a few minutes) and flares on stars that vary by more
+  than 10 % are not reliably found; flare energies are approximate.
 
 Within these limits the system is suitable as a **first-pass triage and teaching
 tool**, not as a replacement for expert vetting.
@@ -532,8 +605,8 @@ tool**, not as a replacement for expert vetting.
 
 ## 🔮 Future scope
 
-- **More data:** scale from 100 to thousands of labelled stars with the existing label
-  scripts, allowing a true held-out test set.
+- **More data:** scale from 400 to thousands of labelled stars with the existing label
+  scripts, and add a true held-out test set (already feasible at 400).
 - **Deep learning:** add a 1-D CNN on global and local phase-folded views and ensemble
   it with the feature model.
 - **Pixel-level vetting:** centroid shifts from target pixel files to rule out blended

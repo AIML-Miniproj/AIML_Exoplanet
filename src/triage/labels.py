@@ -16,6 +16,21 @@ CP/KP > PC/APC (held out) > EB catalog > Gaia variable > FA / random.
 Every such conflict is written to ``conflicts.csv``.
 """
 
+# ── In plain words ───────────────────────────────────────────────────────────
+# DATASET STEP 1b - turn the catalogs into labelled candidates.
+# What: applies simple rules to the catalogs to decide each star's class:
+#     PLANET   = confirmed or known planet in the TOI table, period 0.5-15 days
+#     EB       = in the eclipsing-binary catalog, period 0.5-15 days
+#     VARIABLE = a Gaia variable star that is not a TOI or a binary
+#     NOISE    = a TOI "false alarm", or a random 2-minute star in none of the lists
+#   If a star is in several lists, a fixed priority decides (planet first) and the
+#   clash is written to data/labels/conflicts.csv. Unconfirmed planet candidates are
+#   never used for training; they go to data/labels/holdout_candidates.parquet.
+# Output: data/labels/labels.parquet - one row per candidate star (up to 400 per
+#   class, 1,600 rows): TIC ID, label, which catalog it came from, catalog period,
+#   brightness (Tmag) and notes. No light curves yet - just names and answers.
+# ─────────────────────────────────────────────────────────────────────────────
+
 from __future__ import annotations
 
 import logging
@@ -113,6 +128,8 @@ def build_labels(toi: pd.DataFrame, ebs: pd.DataFrame, gaia_x: pd.DataFrame,
     two_min = set(tgt.index)
     bright = set(tgt.index[tgt["tmag"] <= tmag_max])
 
+    # Sets of TIC IDs per catalog status: O(1) membership tests when the priority
+    # order below is applied.
     disp = toi.groupby("tic_id")["tfopwg_disp"].agg(set)
     cpkp = {t for t, d in disp.items() if d & {"CP", "KP"}}
     pc_any = {t for t, d in disp.items() if d & {"PC", "APC"}}

@@ -15,6 +15,7 @@ POINTS = "rgba(226,232,240,0.42)"
 GRID = "rgba(255,255,255,0.06)"
 AXIS = "#94A3B8"
 RED = "#FF5470"
+FLARE = "#FFE066"            # flare markers (distinct from the class colours)
 
 pio.templates["exo_dark"] = go.layout.Template(layout=go.Layout(
     paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#04060C",
@@ -60,7 +61,8 @@ def sector_spans(lc_norm: dict[str, Any]) -> list[tuple[int, float, float]]:
 
 
 def light_curve(lc: dict[str, Any], spans: list[tuple[int, float, float]], title: str,
-                col: str = POINTS) -> go.Figure:
+                col: str = POINTS, marks: list[float] | None = None) -> go.Figure:
+    """``marks``: times to flag with a thin line (flare peaks)."""
     fig = _fig(330, title, xaxis_title="Time (BTJD, days)", yaxis_title="Normalized flux",
                showlegend=False)
     for i, (sec, t0, t1) in enumerate(spans):
@@ -70,6 +72,8 @@ def light_curve(lc: dict[str, Any], spans: list[tuple[int, float, float]], title
         fig.add_annotation(x=0.5 * (t0 + t1), y=1.0, yref="paper", yanchor="bottom",
                            text=f"S{sec}", showarrow=False,
                            font=dict(size=12, color="#94A3B8", family="JetBrains Mono"))
+    for t in marks or []:
+        fig.add_vline(x=t, line=dict(color=FLARE, width=1, dash="dot"))
     _points(fig, lc.get("time"), lc.get("flux"), col=col, size=2)
     return fig
 
@@ -166,6 +170,26 @@ def confusion(cm_norm: list[list[float]], counts: list[list[int]], classes: list
         fig.add_shape(type="rect", x0=i - 0.5, x1=i + 0.5, y0=i - 0.5, y1=i + 0.5,
                       line=dict(color=CYAN, width=2.5))
     fig.update_yaxes(autorange="reversed")
+    return fig
+
+
+def feature_selection(curve: list[dict[str, Any]]) -> go.Figure:
+    """Macro-F1 (mean +/- std over the outer folds) against the number of features kept."""
+    fig = _fig(340, "", margin=dict(l=60, r=20, t=10, b=50),
+               legend=dict(orientation="h", y=1.08, x=0))
+    ks = [r["k"] for r in curve]
+    for key, name, col in (("shap", "SHAP ranking", CYAN), ("rfe", "Recursive elimination",
+                                                             ACCENT)):
+        fig.add_trace(go.Scatter(
+            x=ks, y=[r[key]["mean"] for r in curve], mode="lines+markers", name=name,
+            line=dict(color=col, width=2),
+            error_y=dict(type="data", array=[r[key]["std"] for r in curve], thickness=1,
+                         color=rgba(col, 0.5)),
+            hovertemplate="%{x} features: macro-F1 %{y:.3f}<extra>" + name + "</extra>"))
+    fig.add_hline(y=curve[-1]["shap"]["mean"], line=dict(color=AXIS, dash="dot", width=1),
+                  annotation_text=f"all {ks[-1]} features", annotation_position="bottom right")
+    fig.update_xaxes(title="Features kept")
+    fig.update_yaxes(title="Macro-F1 (5 outer folds)")
     return fig
 
 

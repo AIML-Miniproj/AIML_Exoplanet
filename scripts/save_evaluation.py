@@ -60,17 +60,64 @@ def eb_period_accuracy() -> dict[str, dict[str, int]]:
     return out
 
 
+def _row(name: str, folds: dict, macro: dict, pooled_f1: float, used: bool) -> dict:
+    """One model's line in the comparison table (each metric: mean and std over the folds)."""
+    return {"model": name, "used_by_app": used,
+            "accuracy": folds["accuracy"], "precision": macro["precision"],
+            "recall": macro["recall"], "macro_f1": folds["macro_f1"],
+            "pr_auc": macro["pr_auc"], "log_loss": folds["log_loss"],
+            "per_class_f1": {c: folds["per_class"][c]["f1"] for c in CLASSES},
+            "pooled_macro_f1": pooled_f1}
+
+
+def model_comparison(res: dict) -> list[dict]:
+    """All classifiers on the same 5 folds, best first.
+
+    The calibrated XGBoost (the model the app uses) comes from scripts/train_triage.py.
+    The others come from scripts/compare_classifiers.py when it has been run (random
+    forest, logistic regression, SVM, KNN); otherwise only the training baselines.
+    """
+    xgb = res["xgboost_calibrated"]["folds"]
+    # macro precision / recall / PR-AUC: mean over classes of the fold means (no
+    # per-fold macro values are stored for this model, so no spread)
+    macro = {m: {"mean": float(np.mean([xgb["per_class"][c][m]["mean"] for c in CLASSES])),
+                 "std": None} for m in ("precision", "recall", "pr_auc")}
+    rows = [_row("XGBoost (calibrated)", xgb, macro,
+                 res["xgboost_calibrated"]["cv"]["macro_f1"], True)]
+    extra = CONFIG.paths.outputs / "classifier_comparison.json"
+    if extra.exists():
+        for r in json.loads(extra.read_text(encoding="utf-8")):
+            if r["model"].startswith("XGBoost"):
+                continue                      # the calibrated version above is the one used
+            rows.append(_row(r["model"], r["folds"], r["macro_folds"],
+                             r["pooled"]["macro_f1"], False))
+    else:
+        for key, name in MODEL_NAMES.items():
+            if key != "xgboost_calibrated":
+                f = res[key]["folds"]
+                m = {k: {"mean": float(np.mean([f["per_class"][c][k]["mean"] for c in CLASSES])),
+                         "std": None} for k in ("precision", "recall", "pr_auc")}
+                rows.append(_row(name, f, m, res[key]["cv"]["macro_f1"], False))
+    return sorted(rows, key=lambda r: -r["macro_f1"]["mean"])
+
+
+def feature_selection() -> dict | None:
+    """Summary of scripts/select_features.py (score vs features kept), if it was run."""
+    path = CONFIG.paths.outputs / "feature_selection.json"
+    if not path.exists():
+        return None
+    fs = json.loads(path.read_text(encoding="utf-8"))
+    return {k: fs[k] for k in ("n_features_all", "curve", "nested", "adopted", "decision")} | {
+        "top_features": fs["ranking_all_stars"][:15]}
+
+
 def main() -> None:
     res = json.loads((CONFIG.paths.outputs / "triage_results.json").read_text(encoding="utf-8"))
     xgb = res["xgboost_calibrated"]
     per_class = {c: {m: xgb["folds"]["per_class"][c][m] for m in ("precision", "recall", "f1",
                                                                    "pr_auc")}
                  for c in CLASSES}
-    comparison = []
-    for key, name in MODEL_NAMES.items():
-        f = res[key]["folds"]
-        comparison.append({"model": name, "macro_f1": f["macro_f1"], "accuracy": f["accuracy"],
-                           "pooled_macro_f1": res[key]["cv"]["macro_f1"]})
+    comparison = model_comparison(res)
     summary = json.loads((CONFIG.paths.processed / "features_summary.json")
                          .read_text(encoding="utf-8"))
     recovery = {c: {k: summary[c].get(k) for k in ("n", "n_ok", "n_recovery_checked",
@@ -89,6 +136,7 @@ def main() -> None:
         "importance": global_importance(),
         "recovery": recovery,
         "eb_true_period": eb_period_accuracy(),
+        "feature_selection": feature_selection(),
     }
     path = CONFIG.paths.models / "model_evaluation.json"
     path.write_text(json.dumps(out, indent=1), encoding="utf-8")

@@ -10,6 +10,27 @@ grid capped at ``cfg.max_grid_size`` and then refines the strongest peaks at ful
 resolution in narrow windows.
 """
 
+# ── In plain words ───────────────────────────────────────────────────────────
+# STEP 4 OF THE PIPELINE: find the repeating dip.
+# Idea: guess a period (say 3.52 days), stack ("fold") every 3.52-day chunk of the
+#   light curve on top of each other, and check whether a short box-shaped dip lines
+#   up. Repeat for tens of thousands of guesses and many dip lengths; the guess where
+#   the dip lines up best wins. That is Box Least Squares (BLS), the standard transit
+#   search (Kovacs et al. 2002); astropy does the number crunching.
+# Input:  the cleaned, flattened light curve (lc_flat), binned to 10 minutes.
+# Output: a Signal - period, time of the first dip (t0), dip length, depth, how
+#   clearly it stands out (SDE), and statistics used later by the vetting features.
+# Key words:
+#   period   time between dips, in days
+#   t0       time of one dip's middle (BTJD days)
+#   duration how long one dip lasts, in days
+#   depth    how much light is lost (0.01 = 1%)
+#   power    how much better a dip fits than a flat line, at one trial period
+#   SDE      how far the best power stands out from all the others (>= 7 = detected)
+# Speed: about (number of trial periods) x (number of points); the grid is capped at
+#   40,000 periods, so one search takes a few seconds.
+# ─────────────────────────────────────────────────────────────────────────────
+
 from __future__ import annotations
 
 import logging
@@ -24,9 +45,12 @@ from config import CONFIG, Config
 
 log = logging.getLogger(__name__)
 
+# "Aliases": the same signal also shows up at half, double, a third... of the
+# true period. These ratios are used to skip such echoes of a stronger peak.
 ALIAS_RATIOS = (1.0, 0.5, 2.0, 1 / 3, 3.0, 2 / 3, 1.5)
 
 
+# One candidate period from the periodogram (the search keeps the best few).
 @dataclass
 class Peak:
     period: float
@@ -37,6 +61,7 @@ class Peak:
     grid_power: float = float("nan")   # power on the search grid (used for SDE)
 
 
+# The winning dip. Everything later in the pipeline reads this object.
 @dataclass
 class Signal:
     """The best periodic dip found, with the statistics used for vetting."""
@@ -53,10 +78,12 @@ class Signal:
     top_peaks: list[Peak] = field(default_factory=list)
     method: str = "bls"
 
+    # Depth divided by its uncertainty: how clearly the dip stands out of the noise.
     @property
     def depth_snr(self) -> float:
         return self.depth / self.depth_err if self.depth_err > 0 else 0.0
 
+    # "Ephemeris" = the timetable of the dips: period, first dip time, length.
     @property
     def ephemeris(self) -> tuple[float, float, float]:
         return self.period, self.t0, self.duration
@@ -72,6 +99,8 @@ class Signal:
         ll = ll[np.isfinite(ll) & (ll > 0)]
         return float(ll.max() / ll.sum()) if ll.size else float("nan")
 
+    # Counts as a real detection when: SDE >= 7, the dip is a dip (depth > 0), and
+    # the evidence does not come mostly from one single dip (that would be a glitch).
     def detected(self, cfg: Config = CONFIG) -> bool:
         sef = self.single_event_fraction
         return (self.sde >= cfg.sde_min and self.depth > 0
@@ -85,6 +114,7 @@ class Signal:
         return d
 
 
+# The whole periodogram (for the BLS plot in the app) plus the winning Signal.
 @dataclass
 class SearchResult:
     periods: np.ndarray
@@ -94,6 +124,7 @@ class SearchResult:
     grid_size_used: int
 
 
+# Plain NumPy arrays of time, flux and error, without missing or bad values.
 def _arrays(lc: lk.LightCurve) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     t = np.asarray(lc.time.value, float)
     f = np.asarray(lc.flux.value, float)
@@ -154,6 +185,7 @@ def limited_power(model: BoxLeastSquares, periods: np.ndarray, durations: np.nda
     """
     periods = np.asarray(periods, float)
     durations = np.sort(np.asarray(durations, float))
+    # For each period, how many of the (sorted) durations are short enough.
     n_allowed = np.searchsorted(durations, max_duty * periods, side="right")
     out = PowerResult(periods, *(np.full(periods.size, np.nan) for _ in range(4)))
     for n in np.unique(n_allowed):
@@ -201,6 +233,9 @@ def _refine(model: BoxLeastSquares, durations: np.ndarray, period: float,
     return limited_power(model, np.sort(1 / freqs), durations, max_duty)
 
 
+# Detailed numbers for one period: overall depth, depth of odd and even dips
+# separately (binary test), depth half an orbit later, and the evidence from
+# each single dip (used to spot one-off glitches).
 def _stats(model: BoxLeastSquares, period: float, duration: float, t0: float) -> dict[str, Any]:
     s = model.compute_stats(period, duration, t0)
     out = {}
@@ -215,6 +250,19 @@ def _stats(model: BoxLeastSquares, period: float, duration: float, t0: float) ->
     return out
 
 
+def _stats_2p(model: BoxLeastSquares, period: float, duration: float, t0: float,
+              baseline: float) -> dict[str, Any]:
+    """Stats at twice the period, or {} when unavailable: 2P longer than the data, or
+    data gaps leaving one half of the 2P fold with no in-transit points."""
+    if 2 * period > baseline:
+        return {}
+    try:
+        return _stats(model, 2 * period, duration, t0)
+    except ValueError:
+        log.info("2P stats unavailable at P=%.4f d (no in-transit points)", period)
+        return {}
+
+
 def search(lc: lk.LightCurve, cfg: Config = CONFIG, period_min: float | None = None,
            period_max: float | None = None) -> SearchResult:
     """Run BLS on ``lc`` and return the periodogram and the best signal."""
@@ -224,11 +272,15 @@ def search(lc: lk.LightCurve, cfg: Config = CONFIG, period_min: float | None = N
     baseline = float(t.max() - t.min())
     durations = cfg.search_durations()
     pmin = period_min or cfg.period_min_d
+    # At least two dips must fit in the data, so the longest period searched is half
+    # the time span.
     pmax = min(period_max or cfg.period_max_d, baseline / 2)
     if pmax <= pmin:
         raise ValueError(f"baseline {baseline:.1f} d too short for periods >= {pmin} d")
 
     model = BoxLeastSquares(t, f, dy=e)
+    # Trial periods, uniform in frequency and capped at cfg.max_grid_size.
+    # Cost of the search ~ O(number of periods x number of points).
     periods, n_full = period_grid(baseline, durations, pmin, pmax, cfg)
     res = limited_power(model, periods, durations, cfg.max_duty_cycle)
     power = np.asarray(res.power, float)
@@ -236,9 +288,12 @@ def search(lc: lk.LightCurve, cfg: Config = CONFIG, period_min: float | None = N
     # SDE is measured on sqrt(power) (the "signal residue"). The likelihood power
     # itself has an exponential tail, so its largest value among tens of thousands
     # of trial periods is ~10 standard deviations high even for pure noise.
+    # SDE = (best value - average) / spread, over all trial periods.
     sr = np.sqrt(np.clip(power[finite], 0, None))
     sde_mu, sde_sd = float(np.mean(sr)), float(np.std(sr))
 
+    # Strongest peaks that are not harmonics (P/2, 2P, ...) of a stronger one; if the
+    # grid was coarsened, the best few are re-searched at full resolution.
     peak_idx = distinct_peaks(periods, np.where(finite, power, -np.inf),
                               max(cfg.n_top_peaks, 3))
     coarse = n_full > len(periods)
@@ -259,10 +314,11 @@ def search(lc: lk.LightCurve, cfg: Config = CONFIG, period_min: float | None = N
         peaks.append(Peak(float(p), float(pw), float(t0), float(dur), float(dep), grid_pw))
     peaks.sort(key=lambda pk: pk.power, reverse=True)
 
+    # Detailed statistics of the winner: depth and its error, odd vs even dips, evidence
+    # per dip, and the same at twice the period (a test for binaries).
     best = peaks[0]
     stats = _stats(model, best.period, best.duration, best.t0)
-    stats_2p = _stats(model, 2 * best.period, best.duration, best.t0) \
-        if 2 * best.period <= baseline else {}
+    stats_2p = _stats_2p(model, best.period, best.duration, best.t0, baseline)
     depth, depth_err = stats["depth"]
     # SDE compares the peak with the rest of the *same* grid; refined powers are
     # systematically higher, so they are not used here.
@@ -284,19 +340,21 @@ def evaluate(lc: lk.LightCurve, signal: Signal, cfg: Config = CONFIG,
     model = BoxLeastSquares(t, f, dy=e)
     durations = cfg.search_durations()
     p = signal.period
+    # Narrow re-search (+-0.2% around the known period) on the re-detrended data.
     periods = np.linspace(p * (1 - window_frac), p * (1 + window_frac), 400)
     res = limited_power(model, periods, durations, cfg.max_duty_cycle)
     j = int(np.nanargmax(res.power))
     period, t0, dur = float(res.period[j]), float(res.transit_time[j]), float(res.duration[j])
     stats = _stats(model, period, dur, t0)
     baseline = float(t.max() - t.min())
-    stats_2p = _stats(model, 2 * period, dur, t0) if 2 * period <= baseline else {}
+    stats_2p = _stats_2p(model, period, dur, t0, baseline)
     return Signal(period=period, t0=t0, duration=dur, depth=stats["depth"][0],
                   depth_err=stats["depth"][1], power=float(res.power[j]), sde=signal.sde,
                   stats=stats, stats_2p=stats_2p, top_peaks=signal.top_peaks,
                   method=signal.method)
 
 
+# Cut out the dips of a found signal so a second, weaker signal can be searched.
 def mask_signal(lc: lk.LightCurve, signal: Signal, factor: float = 2.0) -> lk.LightCurve:
     """Remove the in-transit points of ``signal`` (for multi-signal search)."""
     t = lc.time.value
@@ -310,6 +368,8 @@ def multi_search(lc: lk.LightCurve, cfg: Config = CONFIG,
     results = [first or search(lc, cfg)]
     current = lc
     while len(results) < cfg.max_signals:
+        # Hide the signal just found, then search what is left; stop when nothing more
+        # is detected or the preset's maximum number of signals is reached.
         current = mask_signal(current, results[-1].signal)
         try:
             nxt = search(current, cfg)

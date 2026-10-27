@@ -81,6 +81,9 @@ def monte_carlo(signal: Any, star: Any, n: int = CONFIG.mc_draws,
     teff = draw(_get(star, "teff"), _get(star, "teff_err"), "star temperature", 500.0)
     period = _get(signal, "period")
 
+    # The physics.py formulas applied to all draws at once (vectorised): radius from
+    # the depth, orbit from Kepler's third law, temperature from the star. The 16th /
+    # 50th / 84th percentiles give the value and its error bars.
     rp_re = np.sqrt(depth) * rad * physics.R_SUN_M / physics.R_EARTH_M
     a_au = (physics.G_SI * mass * physics.M_SUN_KG * (period * physics.DAY_S) ** 2
             / (4 * np.pi ** 2)) ** (1 / 3) / physics.AU_M

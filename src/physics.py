@@ -17,6 +17,7 @@ DAY_S = 86400.0
 
 def radius_ratio(depth: float) -> float:
     """Planet-to-star radius ratio from a fractional transit depth."""
+    # depth = (Rp / R*)^2 for a dark disc crossing a uniformly bright star
     return float(np.sqrt(max(depth, 0.0)))
 
 
@@ -28,6 +29,7 @@ def planet_radius_rearth(depth: float, star_radius_rsun: float) -> float:
 def semi_major_axis_au(period_d: float, star_mass_msun: float) -> float:
     """Orbital distance from Kepler's third law (planet mass neglected)."""
     p_s = period_d * DAY_S
+    # Kepler's third law: a^3 = G M P^2 / (4 pi^2)
     a_m = (G_SI * star_mass_msun * M_SUN_KG * p_s**2 / (4 * np.pi**2)) ** (1 / 3)
     return a_m / AU_M
 
@@ -35,6 +37,7 @@ def semi_major_axis_au(period_d: float, star_mass_msun: float) -> float:
 def equilibrium_temp_k(star_teff_k: float, star_radius_rsun: float, a_au: float,
                        albedo: float = 0.3) -> float:
     """Planet equilibrium temperature with full heat redistribution."""
+    # T_eq = T* (1 - A)^(1/4) sqrt(R* / 2a): absorbed starlight = emitted heat
     return star_teff_k * (1 - albedo) ** 0.25 * np.sqrt(
         star_radius_rsun * R_SUN_M / (2 * a_au * AU_M))
 
@@ -52,6 +55,7 @@ def expected_duration_d(period_d: float, rho_solar: float) -> float:
     if not np.isfinite(rho_solar) or rho_solar <= 0:
         return float("nan")
     p_s = period_d * DAY_S
+    # a / R* from the star's mean density (Kepler's third law divided by R*^3)
     a_over_r = (G_SI * rho_solar * RHO_SUN * p_s**2 / (3 * np.pi)) ** (1 / 3)
     if a_over_r <= 1:
         return float("nan")

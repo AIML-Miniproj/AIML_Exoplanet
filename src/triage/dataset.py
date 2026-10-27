@@ -13,6 +13,22 @@ Recovery check:
 - NOISE: no catalog period, so no recovery check.
 """
 
+# ── In plain words ───────────────────────────────────────────────────────────
+# DATASET STEP 3 (the heavy part): from light curves to the feature table.
+# What: runs the full pipeline (download, clean, search, measure) on every training
+#   star, several stars in parallel, each in its own process with a 2-minute time limit.
+#   It can be stopped and re-run: stars already done are skipped.
+# Writes:
+#     data/processed/features/tic_<TIC>.json   one result per star: the label, the 56
+#         model features, extra display-only measurements, the detected period, and
+#         "status" (ok / error / timeout) with a reason if it failed
+#     data/processed/features.parquet          all stars in one table: 400 rows x 91
+#         columns. THIS is the training dataset: each row is one star, the 56 feature
+#         columns are the inputs (X) and the "label" column is the answer (y).
+#     data/processed/features_summary.json     per class: how many succeeded and how
+#         often the search found the catalog period
+# ─────────────────────────────────────────────────────────────────────────────
+
 from __future__ import annotations
 
 import json
@@ -105,7 +121,8 @@ def run_one(row: dict[str, Any], preset: str, cfg: Config, out_dir: Path) -> dic
 
         frames = traceback.extract_tb(e.__traceback__)
         where = next((f"{Path(f.filename).name}:{f.lineno}" for f in reversed(frames)
-                      if "Exoplanet_Detection" in f.filename and "site-packages" not in f.filename),
+                      if f.filename.startswith(str(cfg.paths.root))
+                      and "site-packages" not in f.filename),
                      "?")
         out.update(status="error", reason=f"{type(e).__name__} at {where}: {e}"[:300])
     out["runtime_s"] = round(time.perf_counter() - t0, 1)
@@ -135,6 +152,8 @@ def run_with_timeout(rows: list[dict[str, Any]], preset: str, cfg: Config, out_d
     import multiprocessing as mp
 
     target = target or run_one
+    # One fresh process per star ('spawn' behaves the same on macOS, Linux and
+    # Windows); at most n_jobs run at once.
     ctx = mp.get_context("spawn")
     queue = list(rows)
     running: dict[Any, tuple[dict[str, Any], float]] = {}

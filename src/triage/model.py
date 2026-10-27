@@ -26,6 +26,7 @@ META_FILE = "triage_meta.json"
 
 
 def confidence_label(p: float, cfg: Config = CONFIG) -> str:
+    # High >= 80%, Medium >= 50%, Low below (the router turns Low into Needs review).
     if p >= cfg.conf_high:
         return "High"
     if p >= cfg.uncertain_threshold:
@@ -35,7 +36,8 @@ def confidence_label(p: float, cfg: Config = CONFIG) -> str:
 
 def apply_calibration(probs: np.ndarray, curves: dict[str, dict[str, list[float]]] | None,
                       classes: list[str]) -> np.ndarray:
-    """Map raw class probabilities through per-class isotonic curves, then renormalise."""
+    """Map raw class probabilities through per-class sigmoid (Platt) curves, stored as
+    sampled points, then renormalise."""
     if not curves:
         return probs
     out = np.empty_like(probs)
@@ -100,6 +102,8 @@ class TriageModel:
                 for i in order]
 
     def predict(self, row: dict[str, float], cfg: Config = CONFIG) -> dict[str, Any]:
+        # 1) raw XGBoost probabilities, 2) calibrated with the stored Platt curves,
+        # 3) top class, confidence label and the SHAP reasons behind it.
         raw = self.model.predict_proba(self._matrix([row]))
         cal = apply_calibration(raw, self.meta.get("calibration"), self.classes)[0]
         k = int(np.argmax(cal))

@@ -189,6 +189,8 @@ def transit_features(lc_flat: lk.LightCurve, signal: Signal, star=None,
         "single_event_fraction": signal.single_event_fraction,
     }
 
+    # Red noise: how much more the data scatter on the dip's timescale than white
+    # noise predicts (beta > 1 = correlated noise, which can fake dips).
     out_of_dip = np.abs(pt) > 1.5 * dur
     beta = red_noise_factor(t, f, dur, out_of_dip)
     feats["red_noise_beta"] = beta
@@ -197,6 +199,8 @@ def transit_features(lc_flat: lk.LightCurve, signal: Signal, star=None,
     expected = dur / (search_cadence_d or cadence)
     feats["n_transits_observed"] = float(np.sum(counts >= max(2, 0.5 * expected)))
 
+    # Odd vs even dips: different depths mean two different stars eclipsing at twice
+    # the detected period.
     oe = odd_even_from_transits(t, f, P, t0, dur)
     feats["odd_even_depth_sigma"], feats["odd_even_depth_ratio"] = (
         oe if oe is not None else _odd_even(signal.stats, beta))
@@ -205,6 +209,8 @@ def transit_features(lc_flat: lk.LightCurve, signal: Signal, star=None,
     else:
         feats["odd_even_depth_sigma_2p"] = NAN
 
+    # Trapezoid fit to the folded dip: its shape (flat-bottomed U for planets, V for
+    # grazing stars) and full duration.
     trap = fit_trapezoid(pt, f, dur, signal.depth, cadence)
     # The secondary's baseline must not include the main eclipse's wings. The
     # search duration is coarse (and capped), so use the fitted full width when
@@ -229,6 +235,9 @@ def transit_features(lc_flat: lk.LightCurve, signal: Signal, star=None,
 
     feats["harmonic_dll"] = signed_log10(signal.stats.get("harmonic_delta_log_likelihood", NAN))
 
+    # Physics checks: the object's size if it were a dark planet (depth = (Rp/Rs)^2),
+    # and whether the dip's duration fits an orbit around THIS star (from the star's
+    # density through Kepler's third law).
     rad = getattr(star, "rad", NAN) if star is not None else NAN
     rho = getattr(star, "rho", NAN) if star is not None else NAN
     if np.isfinite(rad) and signal.depth > 0:

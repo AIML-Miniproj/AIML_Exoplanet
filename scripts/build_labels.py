@@ -3,6 +3,16 @@
     python scripts/build_labels.py [--limit-per-class 400] [--refresh]
 """
 
+# ── In plain words ───────────────────────────────────────────────────────────
+# DATASET STEP 1 (run this first): catalogs -> labelled candidate list.
+# Run:    python scripts/build_labels.py --limit-per-class 400
+# Reads:  the public catalogs (downloaded by src/ingest/catalogs.py, then cached)
+# Writes: data/labels/labels.parquet       up to 400 candidates per class
+#         data/labels/labels_summary.json  how many stars passed each rule
+#         data/labels/conflicts.csv        stars found in more than one catalog
+#         data/labels/holdout_candidates.parquet  unconfirmed candidates (never trained on)
+# ─────────────────────────────────────────────────────────────────────────────
+
 from __future__ import annotations
 
 import argparse

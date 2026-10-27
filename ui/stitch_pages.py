@@ -94,6 +94,11 @@ BADGE = {"PLANET": ("Confirmed Planet", "84,216,232", "#54d8e8", "confirmed"),
          "VARIABLE": ("Variable Star", "236,72,153", "#ec4899", "variable"),
          "NOISE": ("Noise", "148,163,184", "#94a3b8", "review"),
          "NEEDS_REVIEW": ("Needs Review", "167,139,250", "#a78bfa", "review")}
+# A star from the "Unconfirmed candidates" group that the model calls a planet is
+# still not confirmed by NASA: it gets its own badge and the candidate card design,
+# and is filtered with the stars that still need follow-up.
+CANDIDATE_GROUP = "Unconfirmed candidates"
+CANDIDATE_BADGE = ("Planet Candidate", "84,216,232", "#54d8e8", "review")
 ROW_LABELS = {"PLANET": ("Orbital Period (P)", "Transit Depth"),
               "EB": ("Orbital Period (P)", "Primary Depth"),
               "VARIABLE": ("Pulsation Period", "Amplitude"),
@@ -179,10 +184,17 @@ def _captions(skin_no: int, report: dict) -> list[tuple[str, str]]:
     return []
 
 
+def _badge(ex: dict) -> tuple[str, str, str, str]:
+    cls = ex.get("verdict", "NEEDS_REVIEW")
+    if cls == "PLANET" and ex.get("group") == CANDIDATE_GROUP:
+        return CANDIDATE_BADGE
+    return BADGE.get(cls, BADGE["NEEDS_REVIEW"])
+
+
 def _card(skin: str, ex: dict, report: dict, skin_no: int = -1) -> str:
     """One Stitch card re-filled with a real demo star."""
     cls = ex.get("verdict", "NEEDS_REVIEW")
-    name, rgb, hexc, category = BADGE.get(cls, BADGE["NEEDS_REVIEW"])
+    name, rgb, hexc, category = _badge(ex)
     facts = star_facts(report)
     c = re.sub(r'data-category="[^"]*"', f'data-category="{category}"', skin, count=1)
     c = re.sub(r"(<h2[^>]*>)[^<]*(</h2>)", rf"\g<1>{html.escape(ex['display_name'])}\g<2>",
@@ -233,11 +245,16 @@ def demo_stars_html(page: str, examples: list[dict], load_demo) -> str:
         last = cards[-1]
         cut = last.find("</article>") + len("</article>")
         cards[-1], tail = last[:cut], last[cut:]
-    reviews, ebs = iter(REVIEW_SKINS), 0
+    candidates = [e for e in examples if e.get("group") == CANDIDATE_GROUP]
+    # the first review design is kept for the candidate(s); other review cases use the rest
+    reviews = iter(REVIEW_SKINS[1:] + REVIEW_SKINS[:1] if candidates else REVIEW_SKINS)
+    ebs = 0
     out = []
     for ex in examples:
         cls = ex.get("verdict", "NEEDS_REVIEW")
-        if cls == "EB":
+        if ex.get("group") == CANDIDATE_GROUP:
+            skin = REVIEW_SKINS[0]
+        elif cls == "EB":
             skin = CARD_SKIN["EB"] if ebs == 0 else EB_EXTRA_SKIN
             ebs += 1
         elif cls in CARD_SKIN:
@@ -245,7 +262,7 @@ def demo_stars_html(page: str, examples: list[dict], load_demo) -> str:
         else:
             skin = next(reviews, REVIEW_SKINS[-1])
         out.append(_card(cards[skin], ex, load_demo(ex["tic_id"]), skin))
-    groups = [BADGE.get(e.get("verdict"), BADGE["NEEDS_REVIEW"])[3] for e in examples]
+    groups = [_badge(e)[3] for e in examples]
     counts = {k: groups.count(k) for k in ("confirmed", "binary", "variable", "review")}
     for label, key in (("Confirmed Planets", "confirmed"), ("Eclipsing Binaries", "binary"),
                        ("Variable Stars", "variable"), ("Needs Review", "review")):

@@ -9,6 +9,11 @@ are never training stars. They were chosen for good data, not for how the model
 does on them; the "Tricky cases" show real failures honestly.
 """
 
+# ── In plain words ───────────────────────────────────────────────────────────
+# Builds the 6 precomputed demo reports in data/examples/ (see src/demo_cache.py).
+# Run:    python scripts/build_examples.py --n-jobs 3 --confirm-long
+# ─────────────────────────────────────────────────────────────────────────────
+
 from __future__ import annotations
 
 import argparse

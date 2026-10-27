@@ -44,7 +44,7 @@
    "type": "Unconfirmed planet candidate",
    "hint": "A TESS planet candidate with a dip every 3.1 days that nobody has confirmed yet.",
    "n_sectors": 8,
-   "verdict": "NEEDS_REVIEW",
+   "verdict": "PLANET",
    "demo_file": "demo/156987351.json"
   },
   {

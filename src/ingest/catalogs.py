@@ -6,6 +6,27 @@
 - TESS 2-minute target lists, one CSV per sector
 """
 
+# ── In plain words ───────────────────────────────────────────────────────────
+# DATASET STEP 1a - the public "answer sheets" (catalogs).
+# What: downloads five public tables that say what each star IS, so we can label
+#   training stars without guessing:
+#     - TOI table (NASA Exoplanet Archive): planets and planet candidates
+#         -> data/labels/raw/toi.parquet              (~8,000 rows)
+#     - TESS eclipsing-binary catalog (Prsa et al. 2022): known binaries
+#         -> data/labels/raw/tess_ebs.parquet         (4,584 rows)
+#     - Gaia DR3 variable stars brighter than G = 11
+#         -> data/labels/raw/gaia_vari_simple_g11.parquet   (~87,000 rows)
+#     - TESS 2-minute target lists, one file per sector, combined into one table
+#         -> data/labels/raw/target_lists/S001.parquet, S002.parquet, ...
+#            combined into data/labels/raw/tess_2min_targets.parquet (~595,000 stars)
+#     - MAST's list of every SPOC light-curve file (which star, which sector, file name)
+#         -> data/labels/raw/bulk_scripts/S001.parquet, S002.parquet, ...
+#            combined into data/labels/raw/spoc_lc_index.parquet (~1.7 million files)
+# Format: Parquet = a compressed table file (like a CSV, but smaller and it keeps
+#   column types). Read one with pandas.read_parquet(path).
+# Each download is saved once and reused, so later runs work offline.
+# ─────────────────────────────────────────────────────────────────────────────
+
 from __future__ import annotations
 
 import io
@@ -229,7 +250,11 @@ def _download_target_list(sector: int) -> pd.DataFrame | None:
     r.raise_for_status()
     df = pd.read_csv(io.StringIO(r.text), comment="#")
     df.columns = [c.strip() for c in df.columns]
-    return df[["TICID", "Tmag", "RA", "Dec"]]
+    df = df[["TICID", "Tmag", "RA", "Dec"]].copy()
+    # some lists have placeholder values such as "-" (S089)
+    for c in ("Tmag", "RA", "Dec"):
+        df[c] = pd.to_numeric(df[c], errors="coerce")
+    return df
 
 
 def fetch_2min_targets(cfg: Config = CONFIG, max_sector: int = 150,
@@ -261,6 +286,7 @@ def fetch_2min_targets(cfg: Config = CONFIG, max_sector: int = 150,
                 n_2min_sectors=("sector", "nunique"), first_sector=("sector", "min"),
                 last_sector=("sector", "max"))
            .reset_index().rename(columns={"TICID": "tic_id"}))
+    out = out.dropna(subset=["ra", "dec"])
     out["tic_id"] = out["tic_id"].astype("int64")
     out.to_parquet(path, index=False)
     log.info("2-min targets: %d unique TICs from sectors 1-%d", len(out), allt["sector"].max())

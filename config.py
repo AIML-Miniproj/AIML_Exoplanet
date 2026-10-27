@@ -119,6 +119,23 @@ class Config:
     use_tls: bool = False
     max_signals: int = 1
 
+    # ── Flares (found on the light curve *before* the upper-outlier clip) ──
+    # A flare: at least flare_min_points consecutive cadences above the running
+    # median by flare_sigma (and by flare_sigma_err after subtracting each point's
+    # error), rising faster than it decays. A star with flare_min_count flares that
+    # do not repeat with its own pulsation period is called a flare star.
+    flare_window_d: float = 0.3             # running-median window for the quiet level
+    flare_sigma: float = 3.0
+    flare_sigma_err: float = 2.0
+    flare_min_points: int = 3
+    flare_min_count: int = 3
+    flare_max_cadence_min: float = 10.0     # coarser data cannot resolve a flare's shape
+    flare_max_rise_min: float = 20.0        # flares rise within minutes; slower is variability
+    flare_max_rise_frac: float = 0.5        # ... and much faster than they decay (pulsation
+                                            # peaks rise and fall at a similar pace)
+    flare_eclipse_pad: float = 1.0          # ignore events within this x dip duration of a dip
+    flare_max_var_amp: float = 0.10         # star varies more (5-95% range): flares unreliable
+
     # ── Labels / training ────────────────────────────────────
     random_state: int = 42
     limit_per_class: int = 25               # academic scale: ~100 training stars in total

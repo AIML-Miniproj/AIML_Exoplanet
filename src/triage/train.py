@@ -65,6 +65,8 @@ def load_dataset(features: pd.DataFrame) -> Dataset:
 
 
 def make_xgb(cfg: Config) -> XGBClassifier:
+    # Conservative settings for a small dataset: shallow trees, low learning rate,
+    # row/column sampling and L2 regularisation all limit overfitting.
     return XGBClassifier(objective="multi:softprob", n_estimators=400, max_depth=4,
                          learning_rate=0.05, subsample=0.8, colsample_bytree=0.8,
                          min_child_weight=2, reg_lambda=1.0, tree_method="hist",
@@ -86,6 +88,7 @@ def make_baselines(cfg: Config) -> dict[str, Any]:
 
 
 def _fit(model, X, y):
+    # Balanced weights: every class counts equally even if class sizes differ.
     w = compute_sample_weight("balanced", y)
     if isinstance(model, XGBClassifier):
         model.fit(X, y, sample_weight=w, verbose=False)
@@ -279,6 +282,7 @@ def train(features: pd.DataFrame, labels: pd.DataFrame, cfg: Config = CONFIG) ->
     reported as mean +/- standard deviation across the folds.
     """
     ds = load_dataset(features)
+    # The same 5 grouped folds for every model, so the comparison is fair.
     folds = cv_folds(ds, cfg)
     counts = np.bincount(ds.y, minlength=len(CLASSES)).tolist()
     log.info("%d stars, class counts %s, %d grouped folds", len(ds.y), counts, len(folds))
@@ -287,20 +291,39 @@ def train(features: pd.DataFrame, labels: pd.DataFrame, cfg: Config = CONFIG) ->
     factories = {"xgboost": lambda: make_xgb(cfg),
                  **{k: (lambda v=v: __import__("sklearn").base.clone(v))
                     for k, v in make_baselines(cfg).items()}}
+    oofs = {}
+    # Out-of-fold predictions: every star is predicted by a model trained on the
+    # other 4 folds, i.e. a model that never saw it.
     for name, factory in factories.items():
         oof, per_fold = cv_predict(factory, ds, folds, cfg)
+        oofs[name] = oof
         results["models"][name] = {"cv": metrics(ds.y, oof, cfg),
                                    "folds": fold_summary(per_fold)}
         fs = results["models"][name]["folds"]["macro_f1"]
         log.info("%-20s macro-F1 %.3f +/- %.3f (5-fold, grouped by TIC)", name, fs["mean"],
                  fs["std"])
-        if name == "xgboost":
-            xgb_oof = oof
+    xgb_oof = oofs["xgboost"]
 
+    def _scored(p: np.ndarray) -> dict[str, Any]:
+        return {"cv": metrics(ds.y, p, cfg),
+                "folds": fold_summary([metrics(ds.y[va], p[va], cfg) for _, va in folds])}
+
+    # Platt calibration, itself cross-validated: each fold's curves are fitted on the
+    # other folds only.
     cal_oof = cross_calibrate(xgb_oof, ds.y, folds)
-    results["models"]["xgboost_calibrated"] = {
-        "cv": metrics(ds.y, cal_oof, cfg),
-        "folds": fold_summary([metrics(ds.y[va], cal_oof[va], cfg) for _, va in folds])}
+    results["models"]["xgboost_calibrated"] = _scored(cal_oof)
+
+    # Soft-voting ensembles (mean of the members' probabilities), scored from the same
+    # out-of-fold predictions, so the comparison is like for like. Comparison only:
+    # the deployed model stays XGBoost, whose per-star SHAP explanations the app uses.
+    for name, members in (("ensemble_xgb_rf", ("xgboost", "random_forest")),
+                          ("ensemble_xgb_rf_lr",
+                           ("xgboost", "random_forest", "logistic_regression"))):
+        ens = np.mean([oofs[m] for m in members], axis=0)
+        results["models"][name] = _scored(ens)
+        results["models"][name + "_calibrated"] = _scored(cross_calibrate(ens, ds.y, folds))
+        fs = results["models"][name + "_calibrated"]["folds"]["macro_f1"]
+        log.info("%-20s macro-F1 %.3f +/- %.3f (calibrated)", name, fs["mean"], fs["std"])
     curves = fit_calibration(xgb_oof, ds.y)                      # deployed calibration
     thr, rec = planet_recall_at_eb_rate(cal_oof[:, CLASSES.index("PLANET")], ds.y,
                                         cfg.eb_contamination_target)

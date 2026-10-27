@@ -6,6 +6,23 @@ sector never mixes cadences. Raw FITS files are kept under ``data/raw/tess``
 and each sector is also stored as a small ``.npz`` for fast re-reads.
 """
 
+# ── In plain words ───────────────────────────────────────────────────────────
+# DATASET: the light curves themselves (the raw measurements).
+# What: for one star, finds which TESS sectors have SPOC 2-minute data, picks which
+#   to use (training: the 2 sectors closest in time; the app: up to 10), downloads
+#   them from NASA's MAST archive and returns them as lightkurve LightCurve objects.
+# Where and format:
+#     data/raw/tess/tess...-s0001-<TIC>-...-s_lc.fits
+#         the original NASA file, one per star per sector (~2 MB each).
+#         FITS = the standard astronomy file format: a header plus a table of
+#         time, brightness (PDCSAP flux), its error and a quality flag per reading,
+#         one reading every 2 minutes (~19,000 per 27-day sector).
+#     data/processed/tic_<TIC>/s0001_SPOC_120.npz
+#         a compact copy of just the columns we use (NumPy's zipped-array format),
+#         so a second run does not need to re-read the big FITS file.
+# A corrupt download is deleted and fetched again next time.
+# ─────────────────────────────────────────────────────────────────────────────
+
 from __future__ import annotations
 
 import json

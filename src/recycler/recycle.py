@@ -42,6 +42,8 @@ def run_module(name: str, report, pre, info, cfg: Config):
 
 def recycle(report, pre=None, info=None, cfg: Config = CONFIG) -> None:
     """Route the signal, run the module(s) and write the plain-language results."""
+    # 1) route, 2) run the chosen module(s), 3) write the summary and key facts,
+    # 4) log noise and unsure results for later review.
     probs = report.triage.get("probabilities") if report.triage.get("status") == "ok" else None
     decision = route(probs, report.features, cfg, report.signals[0] if report.signals else None)
     report.routing = decision.to_dict()

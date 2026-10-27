@@ -20,6 +20,20 @@ set of 25 EBs, never used for training, for checking the EB period rule. Stars
 whose features were already built are kept first. Demo candidates are never used for training.
 """
 
+# ── In plain words ───────────────────────────────────────────────────────────
+# DATASET STEP 2: pick the actual training stars from the candidate list.
+# Run:    python scripts/select_stars.py --per-class 100
+# Reads:  data/labels/labels.parquet and the cached catalogs in data/labels/raw/
+# Does:   - keeps stars with TESS brightness 8-12 and at least 2 sectors of 2-minute data
+#         - draws 100 per class in a fixed random order (seed 42), so it is repeatable
+#         - swaps in RR Lyrae and Cepheid stars so the variable class has big pulsators too
+#         - checks each star's catalog entry and replaces broken ones (split / duplicate)
+#         - keeps the 6 demo stars OUT of training
+# Writes: data/labels/training_set.parquet  the 400 training stars (+ which 2 sectors to use)
+#         data/labels/fresh_eb_set.parquet  25 extra binaries, only for testing the period rule
+#         data/labels/demo_set.csv          the 6 demo stars shown in the app
+# ─────────────────────────────────────────────────────────────────────────────
+
 from __future__ import annotations
 
 import argparse
@@ -43,7 +57,7 @@ HD209458_TIC = 420814525
 DEMO_SET = [("planet", 420814525), ("eb_toi_fp", 300871545), ("variable", 441584047),
             ("toi_pc", 156987351), ("tricky", 309254930), ("tricky", 329864959)]
 EXPECTED_TOI = {300871545: "FP", 156987351: "PC", 309254930: "PC", 329864959: "FP"}
-N_RR, N_CEP = 4, 4         # large-amplitude pulsators among the 25 training variables
+N_RR, N_CEP = 4, 4         # large-amplitude pulsators per 25 training variables (scaled)
 TRAIN_SECTORS = 2          # the training preset uses the 2 SPOC sectors closest in time
 CLASSES = ("PLANET", "EB", "VARIABLE", "NOISE")
 SLOW_VARIABLE_CLASS = "LONG_PERIOD/IRREGULAR"
@@ -373,7 +387,9 @@ def main() -> None:
     demo = demo_candidates(lab, sec, names)
     exclude = set(demo["tic_id"])
     train = training_set(lab, args.per_class, exclude, args.seed)
-    train, added, dropped = swap_in_pulsators(train, exclude, n_rr=N_RR, n_cep=N_CEP)
+    scale = args.per_class / 25
+    train, added, dropped = swap_in_pulsators(train, exclude, n_rr=round(N_RR * scale),
+                                              n_cep=round(N_CEP * scale))
     train, swaps, n_noise_checked = enforce_quality(train, lab, exclude, args.seed)
     assert (train.groupby("label").size() == args.per_class).all(), train.groupby("label").size()
     final_demo = pd.concat([demo[demo["tic_id"] == tic].head(1).assign(slot=slot)

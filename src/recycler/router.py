@@ -83,6 +83,8 @@ def route(probabilities: dict[str, float] | None, features: dict[str, Any],
     excluded: set[str] = set()
     forced_eb = False
 
+    # Rule 1 - size: a dip implying an object larger than 2.5 Jupiter radii must be a
+    # star, so PLANET is ruled out.
     rp = _num(features, "implied_rp_rearth")
     rp_rjup = rp * physics.R_EARTH_M / physics.R_JUP_M if math.isfinite(rp) else math.nan
     if math.isfinite(rp_rjup) and rp_rjup > cfg.max_planet_rjup:
@@ -90,12 +92,19 @@ def route(probabilities: dict[str, float] | None, features: dict[str, Any],
         reasons.append(f"The dip would mean an object {rp_rjup:.1f} times the size of Jupiter, "
                        f"too big to be a planet (limit {cfg.max_planet_rjup:g}).")
 
+    # Rule 2 - second eclipse: a clear dip half an orbit later (SNR >= 7) that reflected
+    # light cannot explain means two stars.
     sec_snr = _num(features, "secondary_snr")
-    if math.isfinite(sec_snr) and sec_snr >= cfg.secondary_snr_eb and ranked[0] != "EB":
+    if math.isfinite(sec_snr) and sec_snr >= cfg.secondary_snr_eb:
         sec_ppm = _num(features, "secondary_depth_ppm")
         refl = abs(_num(features, "refl_amp_ppm"))
         explained = math.isfinite(refl) and math.isfinite(sec_ppm) and sec_ppm <= 2 * refl
-        if explained:
+        if ranked[0] == "EB":
+            # the classifier already says binary: the eclipse is supporting evidence
+            if not explained:
+                reasons.insert(0, "A clear second eclipse was found halfway through the "
+                                  "orbit, which planets don't produce.")
+        elif explained:
             reasons.append("There is a faint second dip halfway between the main dips, but the "
                            "light reflected by the companion explains it.")
         else:
@@ -105,6 +114,7 @@ def route(probabilities: dict[str, float] | None, features: dict[str, Any],
             forced_eb = True
             ranked = ["EB"] + [c for c in ranked if c != "EB"]
 
+    # Classes ruled out by physics move to the end of the ranking.
     ranked = [c for c in ranked if c not in excluded] + [c for c in ranked if c in excluded]
     top, second = ranked[0], ranked[1]
     p_top = probs[top]
@@ -113,6 +123,8 @@ def route(probabilities: dict[str, float] | None, features: dict[str, Any],
                        f"{CLASS_NAMES[max(probs, key=probs.get)].lower()} to "
                        f"{CLASS_NAMES[top].lower()}.")
 
+    # Rule 3 - unsure: top probability below 50% -> Needs review, and the modules for
+    # the top two classes both run.
     # A clear second eclipse is physical evidence on its own: no review needed.
     if p_top < cfg.uncertain_threshold and not forced_eb:
         why = (f"The classifier is unsure: {CLASS_NAMES[top]} {p_top:.0%}, "

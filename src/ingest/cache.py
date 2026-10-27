@@ -1,5 +1,11 @@
 """Tiny JSON file cache with an age limit."""
 
+# ── In plain words ───────────────────────────────────────────────────────────
+# A tiny helper: save a Python dict as a JSON file and read it back, ignoring the
+# file if it is older than a given number of days. Used for the star-fact cache
+# (data/cache/resolver/) and the sector lists.
+# ─────────────────────────────────────────────────────────────────────────────
+
 from __future__ import annotations
 
 import json

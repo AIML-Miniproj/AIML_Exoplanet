@@ -31,7 +31,8 @@ EVAL_FILE = CONFIG.paths.models / "model_evaluation.json"
 MODULE_TITLES = {"planet": ":material/public: If it is a planet",
                  "eb": ":material/contrast: If it is a binary",
                  "variable": ":material/auto_awesome: If it is a variable star",
-                 "noise": ":material/graphic_eq: If it is noise"}
+                 "noise": ":material/graphic_eq: If it is noise",
+                 "flare": ":material/flare: Flares"}
 OK = th.icon_html("check_circle", "#22D3EE")
 WARN = th.icon_html("warning", "#F59E0B")
 LOOK = th.icon_html("search", "#A78BFA")
@@ -107,8 +108,8 @@ def chart(fig, key: str, bar: bool = True) -> None:
 
 
 def pm(d: dict) -> str:
-    """'0.76 ± 0.10' from {"mean": ..., "std": ...}."""
-    return f"{d['mean']:.2f} ± {d['std']:.2f}"
+    """'0.76 ± 0.10' from {"mean": ..., "std": ...}; just '0.76' when no spread is stored."""
+    return f"{d['mean']:.2f}" if d.get("std") is None else f"{d['mean']:.2f} ± {d['std']:.2f}"
 
 
 def num(v) -> float:
@@ -169,8 +170,8 @@ def main() -> None:
         selected = by_tic.get(st.session_state.get("star"), examples[0])
         head_l, head_r = st.columns([7, 5], gap="large", vertical_alignment="center")
         head_l.markdown(th.hero_html(TITLE.upper(), SUBTITLE,
-                                     ["TESS", "Multi-sector", "100 training stars",
-                                      "4-class triage"]),
+                                     ["TESS", "Multi-sector", "400 training stars",
+                                      "4-class triage", "Flare check"]),
                         unsafe_allow_html=True)
         head_r.markdown(star_card(selected), unsafe_allow_html=True)
 
@@ -237,10 +238,13 @@ def main() -> None:
     with tab1:
         st.subheader("Raw vs cleaned light curve")
         spans = plots.sector_spans(pdata.get("lc_norm") or {})
+        flare_d = (modules.get("flare") or {}).get("details") or {}
+        flare_marks = ([f["t_peak"] for f in flare_d.get("flares") or []]
+                       if flare_d.get("status") in ("flare_star", "few") else [])
         col1, col2 = st.columns(2)
         with col1:
             chart(plots.light_curve(pdata.get("lc_norm") or {}, spans,
-                  "Before preprocessing (normalized, stitched)"),
+                  "Before preprocessing (normalized, stitched)", marks=flare_marks),
     key="lc_raw")
         with col2:
             chart(plots.light_curve(pdata.get("lc_flat") or {}, spans,
@@ -253,7 +257,9 @@ def main() -> None:
                 f"{n_cad:,}" if n_cad else f"{len(sectors)} sectors used: {sectors}",
                 icon=":material/inventory_2:")
         st.caption("Shaded bands are TESS sectors (about 27 days each). Drag to zoom, double-click "
-                   "to reset. The plots show a thinned copy; the analysis used every point.")
+                   "to reset. The plots show a thinned copy; the analysis used every point."
+                   + (" Dotted yellow lines mark flares; cleaning removes their brightest "
+                      "points, so look for them in the Results tab." if flare_marks else ""))
 
     # ── TAB 2: BLS detection ─────────────────────────────────────
     with tab2:
@@ -384,7 +390,7 @@ def main() -> None:
                 st.markdown(f'<div class="hint">{LOOK} {hint}</div>', unsafe_allow_html=True)
             left, right = st.columns([1.4, 1])
             with left:
-                shown = routing.get("modules") or list(modules)
+                shown = routing.get("modules") or [m for m in modules if m != "flare"]
                 for name in shown:
                     facts = (modules.get(name) or {}).get("key_facts") or []
                     if not facts:
@@ -415,6 +421,35 @@ def main() -> None:
                     st.caption(f"The search found {num(signal.get('period')):.4f} d; the binary "
                                f"module doubled it because the alternate eclipses differ.")
 
+        # Section 2b: flares (reported for every star, next to the verdict)
+        flare = modules.get("flare") or {}
+        if flare:
+            with st.container(key="glass-flares"):
+                st.subheader(MODULE_TITLES["flare"])
+                st.markdown(flare.get("plain_summary", ""))
+                fd = flare.get("details") or {}
+                facts = flare.get("key_facts") or []
+                if fd.get("checked") and fd.get("n_flares"):
+                    left, right = st.columns([1, 1.4])
+                    with left:
+                        rows = "\n".join(f"| {f[0]} | `{f[1]}` {f[2]} |" for f in facts)
+                        st.markdown(f"| | |\n|---|---|\n{rows}")
+                    with right:
+                        biggest = sorted(fd.get("flares") or [],
+                                         key=lambda f: -num(f.get("amplitude")))[:5]
+                        st.table([{"Peak (BTJD)": f"{num(f['t_peak']):.3f}",
+                                   "Brighter by": f"{num(f['amplitude']) * 100:.2f} %",
+                                   "Lasts": f"{num(f['duration_min']):.0f} min",
+                                   "Energy": (f"10^{num(f['log10_energy_erg']):.1f} erg"
+                                              if f.get("log10_energy_erg") else "unknown")}
+                                  for f in biggest])
+                st.caption("Flares are sudden brightenings from magnetic outbursts, most common "
+                           "on cool, active stars. They are found on the light curve before "
+                           "cleaning (which removes them as outliers) and checked against "
+                           "eclipses and the star's own pulsations. They are reported next to "
+                           "the verdict; the classifier does not use them. Energies assume a "
+                           "blackbody star and are approximate.")
+
         # Section 3: model evaluation
         with st.container(key="glass-eval"):
             st.subheader("Model evaluation")
@@ -441,35 +476,32 @@ def main() -> None:
                               for c in classes])
                     mf = ev["macro_f1"]
                     st.metric("Macro-F1", pm(mf))
-                    st.markdown("**Model comparison** (same folds)")
+                st.markdown("**Model comparison** (all classifiers on the same 5 grouped folds; "
+                            "precision, recall and PR-AUC averaged over the 4 classes)")
+                comp = ev["comparison"]
+                st.table([{"Model": r["model"] + (" · used by the app"
+                                                  if r.get("used_by_app") else ""),
+                           **{k: pm(r[m]) for k, m in (
+                               ("Accuracy", "accuracy"), ("Precision", "precision"),
+                               ("Recall", "recall"), ("Macro-F1", "macro_f1"),
+                               ("PR-AUC", "pr_auc"), ("Log loss", "log_loss"))
+                              if r.get(m)}}
+                          for r in comp])
+                if all(r.get("per_class_f1") for r in comp):
+                    st.markdown("**F1 per class**")
                     st.table([{"Model": r["model"],
-                               "Macro-F1": pm(r["macro_f1"]), "Accuracy": pm(r["accuracy"])}
-                              for r in ev["comparison"]])
+                               **{th.label(c): pm(r["per_class_f1"][c]) for c in classes}}
+                              for r in comp])
+                st.caption("Log loss: lower is better (it punishes confident wrong answers). "
+                           "SVM (RBF kernel) and k-nearest neighbours (k = 9) were added as two "
+                           "more classifier families; tree ensembles (XGBoost, random forest) "
+                           "stay ahead on this small table of features with missing values.")
                 c3, c4 = st.columns([1, 1])
                 with c3:
                     st.markdown("**What the classifier relies on** (top 10 features)")
                     chart(plots.importance(ev["importance"], explain.READABLE),
                           bar=False, key="importance")
                 with c4:
-                    st.markdown("**Signal recovery** (did the search find the catalog period?)")
-                    rec = ev.get("recovery") or {}
-                    how = {"PLANET": "BLS period matches the catalog",
-                           "EB": "BLS period matches the catalog or half of it",
-                           "VARIABLE": "Significant periodogram peak (false-alarm chance < 1%)",
-                           "NOISE": "No catalog period to check"}
-                    rows = []
-                    for c in classes:
-                        r = rec.get(c) or {}
-                        n_chk, rate = r.get("n_recovery_checked") or 0, r.get("recovery_rate")
-                        found = (f"{round(rate * n_chk)}/{n_chk}" if rate is not None and n_chk
-                                 else "—")
-                        ratios = r.get("recovered_at_ratio") or {}
-                        if c == "EB" and ratios:
-                            found += (f" ({ratios.get('1.0', 0)} at the true period, "
-                                      f"{ratios.get('0.5', 0)} at half)")
-                        rows.append({"Class": th.label(c), "Recovered": found,
-                                     "How it is counted": how[c]})
-                    st.table(rows)
                     ebp = ev.get("eb_true_period") or {}
                     if ebp:
                         st.markdown("**Binary true period** (after the binary module's P vs 2P "
@@ -478,8 +510,31 @@ def main() -> None:
                                                 "training": "Training"}.get(k, k),
                                    "Correct period": f"{v['correct']}/{v['n']}"}
                                   for k, v in sorted(ebp.items())])
-            st.caption("Trained on 100 TESS stars (25 per class). Small academic dataset, so "
-                       "expect ±0.1 variation.")
+                    else:
+                        st.caption("Binary true period: not yet re-measured for the current "
+                                   "model (scripts/eval_eb_module.py).")
+                fs = ev.get("feature_selection")
+                if fs:
+                    st.markdown("**Feature selection** (optimisation: how many of the "
+                                f"{fs['n_features_all']} features does the model need?)")
+                    c5, c6 = st.columns([1.3, 1])
+                    with c5:
+                        chart(plots.feature_selection(fs["curve"]), bar=False,
+                              key="feature_selection")
+                    with c6:
+                        nest = fs["nested"]
+                        st.table([
+                            {"Model": "All features", "Macro-F1": pm(nest["all_features"])},
+                            {"Model": "Selected features (k chosen inside each fold)",
+                             "Macro-F1": pm(nest["selected"])}])
+                        st.markdown(f"{OK if fs['adopted'] else LOOK} {fs['decision']}",
+                                    unsafe_allow_html=True)
+                    st.caption("Features were ranked by SHAP importance or removed 4 at a time "
+                               "by recursive elimination, using the training stars of each "
+                               "fold only, so the test stars never influence which features "
+                               "are kept. Error bars: spread over the 5 folds.")
+            st.caption("Trained on 400 TESS stars (100 per class). Academic-scale dataset, so "
+                       "expect about ±0.05 variation.")
 
 
 # Streamlit runs this file as __main__. A multiprocessing worker that re-imports it

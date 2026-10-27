@@ -91,6 +91,8 @@ def analyze_target(target: str, preset: str = "standard",
                                              redetrend_masked)
     from src.vetting.features import extract_features
 
+    # The preset (quick / standard / thorough / training) sets how many sectors to load
+    # and whether the optional TLS check and a second-signal search run.
     cfg = cfg.with_preset(preset)
     cb = progress_cb or _noop
     report = TargetReport(target=target, preset=preset)
@@ -103,6 +105,8 @@ def analyze_target(target: str, preset: str = "standard",
         timings[name] = round(now - t_last, 2)
         t_last = now
 
+    # Step 1 - Resolve: name or TIC ID -> TESS Input Catalog entry (radius, mass,
+    # temperature). Needed later for planet size, expected dip duration and features.
     cb("Looking up the star", 0.0)
     info = target_info or (resolve_target(target, cfg) if collection is None
                            else TargetInfo(tic_id=0, common_name=target))
@@ -110,6 +114,8 @@ def analyze_target(target: str, preset: str = "standard",
     report.star = info.to_dict()
     lap("resolve")
 
+    # Step 2 - Download the SPOC 2-minute light curve of each chosen sector
+    # (cached on disk after the first time).
     if collection is None:
         collection, sectors = fetch_lightcurves(
             info.tic_id, cfg, progress_cb=lambda s, f: cb(s, 0.05 + 0.35 * f))
@@ -120,10 +126,15 @@ def analyze_target(target: str, preset: str = "standard",
                            "exptime_s": lc.meta.get("EXPTIME")} for lc in collection]
     lap("download")
 
+    # Step 3 - Clean: quality mask, per-sector normalisation, upper-only outlier clip,
+    # stitching, detrending. lc_norm keeps the star's own variability (variable-star
+    # features); lc_flat keeps only short dips (the dip search).
     cb("Cleaning the data", 0.4)
     pre = preprocess(collection, cfg)
     lap("preprocess")
 
+    # Step 4 - Search: Box Least Squares on a copy binned to 10 minutes (5x fewer points,
+    # same dips) finds the strongest repeating box-shaped dip.
     cb("Searching for repeating dips", 0.5)
     lc_search = bin_lightcurve(pre.lc_flat, cfg.search_bin_minutes)
     # The search runs on a copy with strong, fast stellar variability removed;
@@ -154,6 +165,9 @@ def analyze_target(target: str, preset: str = "standard",
             log.warning("use_tls is on but transitleastsquares is not installed; BLS only")
     lap("search")
 
+    # Step 5 - Re-clean: the first detrend partly follows deep dips and makes them
+    # shallower, so the trend is fitted again with the found dips masked out, and the
+    # signal is re-measured on the result.
     cb("Re-cleaning around the dips", 0.7)
     pre = redetrend_masked(pre, [result.signal.ephemeris], cfg)
     lc_search = bin_lightcurve(pre.lc_flat, cfg.search_bin_minutes)
@@ -167,11 +181,15 @@ def analyze_target(target: str, preset: str = "standard",
                                 prewhitening_tried=prewhitened)
     lap("redetrend")
 
+    # Step 6 - Measure the 56 features: dip shape, two-star tests, sector consistency,
+    # stellar variability and the star's own properties.
     cb("Checking whether it's really a planet", 0.8)
     search_cadence = float(np.median(np.diff(lc_search.time.value)))
     features, details = extract_features(pre, signal, info, search_cadence)
     lap("features")
 
+    # Step 7 - Classify: calibrated XGBoost probabilities for PLANET / EB / VARIABLE /
+    # NOISE, plus the SHAP contributions that explain them.
     cb("Classifying the signal", 0.9)
     report.triage = classify(features, cfg)
     lap("triage")
@@ -179,12 +197,28 @@ def analyze_target(target: str, preset: str = "standard",
     report.signals = [r.signal.to_dict() for r in results]
     report.signals[0]["detected"] = bool(signal.detected(cfg))
     report.features = features
+    # Planet-style size, orbit and temperature, computed for every signal (shown when
+    # the signal is routed to the planet module).
     report.physical = physical_parameters(signal, info)
 
+    # Step 8 - Router + recycler: physics rules may overrule the model, then the matching
+    # module describes the object. Step 9 - the flare check runs right after.
     cb("Working out what it is", 0.95)
     from src.recycler.recycle import recycle
     recycle(report, pre, info, cfg)
+    # Flares are measured on the raw sectors: the cleaning step clips them as outliers.
+    from src.recycler import flare_module
+    try:
+        eph = ((signal.period, signal.t0, signal.duration) if signal.detected(cfg)
+               else None)
+        flares = flare_module.characterize(collection, info, features, cfg, eph)
+        report.modules["flare"] = flares.to_dict()
+        if flares.details.get("is_flare_star") or flares.details.get("periodic"):
+            report.plain_summary = f"{report.plain_summary} {flares.plain_summary}".strip()
+    except Exception as e:  # noqa: BLE001 - a flare check failing must not lose the report
+        log.warning("flare module failed: %s", e)
     lap("recycle")
+    # Thinned arrays for the app's plots (the analysis itself used every point).
     report.plot_data = _plot_data(pre, result, signal, details, cfg)
     report.timings = dict(timings, total_s=round(time.perf_counter() - t_start, 2))
     cb("Writing your report", 1.0)

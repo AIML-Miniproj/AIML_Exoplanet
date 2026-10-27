@@ -30,11 +30,11 @@ def _cell(d: dict) -> str:
 
 def _table(models: dict) -> str:
     """Mean +/- std across the grouped folds."""
-    lines = [f"{'model':<20} {'macro-F1':>13} {'accuracy':>13} "
+    lines = [f"{'model':<30} {'macro-F1':>13} {'accuracy':>13} "
              + " ".join(f"{c + ' F1':>13}" for c in CLASSES)]
     for name, m in models.items():
         f = m["folds"]
-        lines.append(f"{name:<20} {_cell(f['macro_f1']):>13} {_cell(f['accuracy']):>13} "
+        lines.append(f"{name:<30} {_cell(f['macro_f1']):>13} {_cell(f['accuracy']):>13} "
                      + " ".join(f"{_cell(f['per_class'][c]['f1']):>13}" for c in CLASSES))
     return "\n".join(lines)
 

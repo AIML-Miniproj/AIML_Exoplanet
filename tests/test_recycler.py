@@ -52,6 +52,14 @@ def test_clear_second_eclipse_forces_eb():
     assert d.reasons[0].startswith("A clear second eclipse was found halfway through the orbit")
 
 
+def test_clear_second_eclipse_is_stated_when_classifier_already_says_eb():
+    feats = {"secondary_snr": 20, "secondary_depth_ppm": 900, "refl_amp_ppm": -110}
+    d = route(probs(EB=0.88, PLANET=0.1, NOISE=0.02), feats)
+    assert d.primary_class == "EB"
+    assert d.reasons[0].startswith("A clear second eclipse was found halfway through the orbit")
+    assert not any(r.startswith("Physics checks moved") for r in d.reasons)
+
+
 def test_second_dip_explained_by_reflection_keeps_planet():
     feats = {"secondary_snr": 8, "secondary_depth_ppm": 150, "refl_amp_ppm": 90}
     d = route(probs(PLANET=0.85, EB=0.1, NOISE=0.05), feats)
@@ -215,7 +223,9 @@ def test_pipeline_fills_summary_and_key_facts(planet_factory):
                          target_info=SUN_LIKE)
     assert rep.routing and rep.plain_summary
     assert rep.key_facts and all(len(k) == 4 for k in rep.key_facts)
-    assert set(rep.modules) == set(rep.routing["modules"])
+    # the routed modules, plus the flare check that runs on every star
+    assert set(rep.modules) == set(rep.routing["modules"]) | {"flare"}
+    assert rep.modules["flare"]["details"]["n_flares"] == 0
     assert math.isfinite(rep.physical["rp_rearth"])
     assert rep.to_json()
 

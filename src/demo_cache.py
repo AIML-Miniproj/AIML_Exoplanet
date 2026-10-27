@@ -8,6 +8,16 @@ light curve and stored with it. Used by scripts/build_examples.py,
 one star per worker process.
 """
 
+# ── In plain words ───────────────────────────────────────────────────────────
+# DATASET: the 6 demo stars shown in the app.
+# What: runs the full pipeline on each demo star once and saves the whole report, plus
+#   the plot data every app tab needs, so the app opens them instantly with no internet.
+# Where: data/examples/examples.json (the list of demo stars, with names and hints)
+#        data/examples/demo/<TIC>.json (one full report per star, ~0.5 MB each)
+# These are the only data files committed to git; everything else under data/ is
+# re-created by the scripts.
+# ─────────────────────────────────────────────────────────────────────────────
+
 from __future__ import annotations
 
 import json

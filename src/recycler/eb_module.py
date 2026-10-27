@@ -58,6 +58,9 @@ class TruePeriod:
 
 def true_period(detected_period: float, features: dict[str, float]) -> TruePeriod:
     """Orbital period of an eclipsing binary from the detected dip period and features."""
+    # P or 2P? BLS often finds a binary at half its orbit (two eclipses look like one
+    # dip repeating). Alternating depths -> double; a visible second eclipse half-way
+    # -> keep; neither -> keep, flagged ambiguous (e.g. TOI 1385.01).
     oe = features.get("odd_even_depth_sigma", np.nan)
     sec = features.get("secondary_snr", np.nan)
     if oe is not None and np.isfinite(oe) and oe >= SIGMA_MIN:

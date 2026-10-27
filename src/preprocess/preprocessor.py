@@ -72,6 +72,8 @@ def upper_outlier_mask(time: np.ndarray, flux: np.ndarray, sigma: float,
         return np.zeros(flux.size, bool)
     cadence = max(float(np.median(np.diff(time))), 1e-6)
     out = np.ones(flux.size, bool)
+    # Both windows must agree ('&='): a point is clipped only if it is far above the
+    # short AND the long running median. Points below the median are never clipped.
     for w in (window_d, long_window_d):
         n = _odd(max(5, int(round(w / cadence))))
         resid = flux - median_filter(flux, size=n, mode="nearest")
@@ -89,6 +91,8 @@ def clean_sector(lc: lk.LightCurve, cfg: Config = CONFIG) -> tuple[dict[str, np.
     f = np.asarray(lc.flux.value, float)
     e = np.asarray(lc.flux_err.value, float) if lc.flux_err is not None else np.full_like(f, np.nan)
 
+    # 1) Drop missing values and readings NASA flagged as bad (momentum dumps,
+    # scattered light, ...).
     good = np.isfinite(t) & np.isfinite(f)
     n_quality = 0
     if "quality" in lc.colnames:
@@ -100,18 +104,24 @@ def clean_sector(lc: lk.LightCurve, cfg: Config = CONFIG) -> tuple[dict[str, np.
     order = np.argsort(t)
     t, f, e = t[order], f[order], e[order]
 
+    # 2) Divide by the sector's median so every sector sits at 1.0 (raw flux levels
+    # differ between sectors because the aperture and pointing differ).
     med = np.nanmedian(f) if f.size else np.nan
     if not np.isfinite(med) or med <= 0:
         return ({"time": t[:0], "flux": f[:0], "flux_err": e[:0]},
                 {"sector": sector, "skipped": True})
     f, e = f / med, e / med
 
+    # 3) Clip upward spikes only (cosmic rays, glitches). Flares are clipped too; the
+    # flare module looks for them in the raw sectors instead.
     clip = upper_outlier_mask(t, f, cfg.clip_sigma_upper, cfg.clip_window_d)
     crowd = lc.meta.get("CROWDSAP")
     stats = {"sector": sector, "author": lc.meta.get("AUTHOR"),
              "n_in": int(lc.flux.size), "n_quality": n_quality,
              "n_clipped": int(clip.sum()), "n_out": int((~clip).sum()),
              "crowdsap": float(crowd) if crowd is not None else None}
+    # Missing errors: estimate the noise from the point-to-point scatter
+    # (std of successive differences / sqrt(2)).
     if not np.all(np.isfinite(e)):
         e = np.where(np.isfinite(e), e, robust_std(np.diff(f)) / np.sqrt(2))
     return {"time": t[~clip], "flux": f[~clip], "flux_err": e[~clip]}, stats
@@ -126,6 +136,8 @@ def detrend(time: np.ndarray, flux: np.ndarray, window_d: float, cfg: Config = C
     """
     from wotan import flatten
 
+    # Biweight (wotan): a robust sliding-window average that ignores outliers, so a
+    # short dip barely pulls the trend down. Result: flat = flux / trend.
     fit = np.ones(time.size, bool) if mask is None else ~mask
     if fit.sum() < 10:
         return np.full_like(flux, np.nan), np.full_like(flux, np.nan)
@@ -172,11 +184,14 @@ def preprocess(collection: lk.LightCurveCollection | list[lk.LightCurve],
         from src.errors import AnalysisError
         raise AnalysisError("no usable cadences after cleaning")
 
+    # Stitch: join all sectors and sort by time.
     cat = {k: np.concatenate([p[k] for p in parts]) for k in parts[0]}
     order = np.argsort(cat["time"])
     lc_norm = _make_lc(cat["time"][order], cat["flux"][order], cat["flux_err"][order],
                        cat["sector"][order])
 
+    # Detrend sector by sector (each has its own systematics) with a window at least
+    # 3x the longest searched dip, so the dips themselves survive.
     window = cfg.detrend_window()
     lc_flat, trend = _flatten_all(lc_norm, window, cfg)
     summary = {
@@ -233,6 +248,8 @@ def bin_lightcurve(lc: lk.LightCurve, minutes: float | None) -> lk.LightCurve:
     f = lc.flux.value
     e = lc.flux_err.value
     width = minutes / 1440.0
+    # Put each point in a time bin and average per bin with bincount (O(N));
+    # errors combine in quadrature.
     idx = np.floor((t - t[0]) / width).astype(np.int64)
     uniq, inv, counts = np.unique(idx, return_inverse=True, return_counts=True)
     tb = np.bincount(inv, t) / counts

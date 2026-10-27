@@ -359,16 +359,16 @@
       <span class="font-body-sm text-xs text-[#9AA8BA]">Confirmed exoplanets known today; most were found by the transit method.</span>
     </div>
     <div class="flex flex-col items-start space-y-2">
-      <span class="font-display-hero text-3xl md:text-5xl font-light text-[#F2F5FA] tracking-[0.08em] leading-none">0.76</span>
+      <span class="font-display-hero text-3xl md:text-5xl font-light text-[#F2F5FA] tracking-[0.08em] leading-none">0.87</span>
       <div class="h-0.5 w-8 bg-[#EFBF62] my-1 opacity-70"></div>
       <span class="font-label-caps text-xs uppercase text-[#EFBF62] tracking-widest font-medium">Macro-F1 Score</span>
-      <span class="font-body-sm text-xs text-[#9AA8BA]">Cross-validated score of our four-class classifier (± 0.10).</span>
+      <span class="font-body-sm text-xs text-[#9AA8BA]">Cross-validated score of our four-class classifier (± 0.05).</span>
     </div>
     <div class="flex flex-col items-start space-y-2">
-      <span class="font-display-hero text-3xl md:text-5xl font-light text-[#F2F5FA] tracking-[0.08em] leading-none">100</span>
+      <span class="font-display-hero text-3xl md:text-5xl font-light text-[#F2F5FA] tracking-[0.08em] leading-none">400</span>
       <div class="h-0.5 w-8 bg-[#4D9FFF] my-1 opacity-70"></div>
       <span class="font-label-caps text-xs uppercase text-[#4D9FFF] tracking-widest font-medium">Training Stars</span>
-      <span class="font-body-sm text-xs text-[#9AA8BA]">25 planets, 25 binaries, 25 variables and 25 noise stars from public catalogs.</span>
+      <span class="font-body-sm text-xs text-[#9AA8BA]">100 planets, 100 binaries, 100 variables and 100 noise stars from public catalogs.</span>
     </div>
     <div class="flex flex-col items-start space-y-2">
       <span class="font-display-hero text-3xl md:text-5xl font-light text-[#F2F5FA] tracking-[0.08em] leading-none">4</span>
@@ -694,7 +694,7 @@
             Real demo star: TOI 476.01
           </h3>
           <p class="font-body-sm text-xs text-[#9AA8BA] leading-relaxed">
-            An unconfirmed TESS planet candidate with a 0.54% dip every 3.06 days. The classifier leans towards planet but is not sure, so instead of guessing the app keeps it for review and shows both the planet and the variable-star findings.
+            An unconfirmed TESS planet candidate with a 0.54% dip every 3.06 days. The classifier leans towards planet (61%, medium confidence); NASA has not confirmed it yet, so it stays a candidate.
           </p>
           <div class="grid grid-cols-2 gap-3 pt-1 font-mono text-xs">
             <div class="p-3 rounded-lg bg-[#04060C] border border-[#161D2B]">
@@ -712,7 +712,7 @@
         <div class="lg:col-span-7 space-y-4 bg-[#04060C] border border-[#161D2B] p-6 rounded-xl">
           <div class="flex items-center justify-between">
             <span class="font-headline-sm text-sm text-[#F2F5FA] font-medium">Model Prediction Distribution</span>
-            <span class="font-mono text-xs text-[#54D8E8]">Confidence: Low</span>
+            <span class="font-mono text-xs text-[#54D8E8]">Confidence: Medium</span>
           </div>
           <!-- Bar 1: Candidate Planet -->
           <div class="space-y-1">
@@ -720,10 +720,10 @@
               <span class="text-[#54D8E8] flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-[#54D8E8]"></span> Planet
               </span>
-              <span class="text-[#F2F5FA]">47%</span>
+              <span class="text-[#F2F5FA]">61%</span>
             </div>
             <div class="w-full h-2 rounded-full bg-[#111726] overflow-hidden">
-              <div class="h-full bg-[#54D8E8] rounded-full" style="width: 47%;"></div>
+              <div class="h-full bg-[#54D8E8] rounded-full" style="width: 61%;"></div>
             </div>
           </div>
           <!-- Bar 2: Eclipsing Binary -->
@@ -732,10 +732,10 @@
               <span class="text-[#EFBF62] flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-[#EFBF62]"></span> Variable star
               </span>
-              <span class="text-[#F2F5FA]">20%</span>
+              <span class="text-[#F2F5FA]">27%</span>
             </div>
             <div class="w-full h-2 rounded-full bg-[#111726] overflow-hidden">
-              <div class="h-full bg-[#EFBF62] rounded-full" style="width: 20%;"></div>
+              <div class="h-full bg-[#EFBF62] rounded-full" style="width: 27%;"></div>
             </div>
           </div>
           <!-- Bar 3: Noise -->
@@ -744,14 +744,14 @@
               <span class="text-[#9AA8BA] flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-[#9AA8BA]"></span> Eclipsing binary
               </span>
-              <span class="text-[#F2F5FA]">17%</span>
+              <span class="text-[#F2F5FA]">9%</span>
             </div>
             <div class="w-full h-2 rounded-full bg-[#111726] overflow-hidden">
-              <div class="h-full bg-[#9AA8BA] rounded-full" style="width: 17%;"></div>
+              <div class="h-full bg-[#9AA8BA] rounded-full" style="width: 9%;"></div>
             </div>
           </div>
           <div class="pt-2 text-xs font-mono text-[#9AA8BA]/80 italic">
-            Kept for review: the planet and variable-star findings are both shown (noise 16%).
+            Leans planet with medium confidence (noise 4%). With the first, 100-star model it was kept for review (planet 47%).
           </div>
         </div>
       </div>
